@@ -1,0 +1,12 @@
+DWiki now remembers the name and URL for links that you write with
+_![[...|...]]_ and thereafter allows you to omit one side of the _|_,
+at which point it will fill in the remembered values. This means that
+if you want to link to [[Google|http://www.google.com]] a lot in your
+document, you only have to write (eg) the URL once, and can thereafter
+refer to [[Google|]] much more compactly.
+
+This does collide a little bit with using _![[...|]]_ to write totally
+unstyled text: it only comes out unstyled if it's not already been
+used as the name of a link.
+
+For now I will live with that.

@@ -1,0 +1,83 @@
+#header { font-size: small; }
+div.left { float: left; }
+div.right { float: right; }
+
+/* 
+ * This forces the entire top header to be separated from the content
+ * by some whitespace. Because the interior divs are both floated,
+ * we cannot reliably put the margin on the #header div itself. Instead
+ * we attach it to both floating divs. 1em is about one normal lineheight.
+ */
+#header > div { margin-bottom: 1em;}
+
+.clear { clear: both; }
+#documentbody { clear: both; }
+
+.wikitext table {
+	border-collapse: collapse;
+}
+.wikitext td {
+	border: 1px;
+	border-style: solid;
+	padding: .3em;
+	vertical-align: top;
+}
+
+/*
+ * horizontal tables in wikitext are funny because they also get the
+ * normal wikitext <td> CSS as well, so we have to override bits of
+ * it.
+ */
+.wikitext table.horizontal {
+	vertical-align: top;
+	border-collapse: collapse;
+}
+.wikitext table.horizontal td {
+	text-align: left;
+	border-style: dotted;
+	border-width: 0px 0px 1px 0px;
+}
+.wikitext table.horizontal td + td {
+	padding-left: 1em;
+}
+.wikitext table.horizontal tr {
+	border-bottom: 1px dotted;
+}
+
+/*
+ * The bottom table whitespace should be about 1em, which we get
+ * through .5em bottom padding of the last row of <td>s plus
+ * .5em margin-bottom of the table itself.
+ */
+table.blogtitles {
+	border-collapse: collapse;
+	margin-bottom: .5em;
+}
+.blogtitles td {
+	vertical-align: top;
+	text-align: left;
+	padding-bottom: .5em;
+}
+.blogtitles td + td {
+	padding-left: 0.5em;
+}
+
+#atomfeeds {
+	font-size: small;
+	margin-top: .4em;
+	margin-bottom: .4em;
+}
+
+/*
+ The CSS based version of column layouts. Doesn't work for wide
+ content; I lose.
+*/
+.aboutbox {
+	width: 20%;
+	float: right;
+}
+.maintext {
+	float: left;
+	min-width: 80%;
+}
+

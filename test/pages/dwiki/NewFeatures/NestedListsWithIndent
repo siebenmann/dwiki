@@ -1,0 +1,12 @@
+The primary way of getting nested lists is now to indent the nested
+list entries relative to the parent list (entry). This looks visually
+better in plain ASCII for cases when there is a decent amount of text.
+
+Although ChrisSiebenmann thought he wasn't going to, the old style of
+nesting lists (multiple list start characters, eg ((***))) still
+works. It turns out the GNU Emacs will properly autoindent for these
+lists but not for *real* indented lists, plus sometimes they actually
+look visually better.
+
+The amount of old-style nesting is ignored in an indented context;
+it's treated as just a new level.

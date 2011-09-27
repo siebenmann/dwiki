@@ -1,0 +1,97 @@
+= Why DWiki doesn't have web page editing
+
+One of the signature Wiki features is that people edit pages over the
+web, often anyone and without restrictions (as the original Wiki
+was/is).  It's said that this is a defining trait of Wikis, and that
+without it what you have isn't really a wiki.
+
+DWiki has no from-web editing of pages. There are several reasons why.
+
+=== Interface power
+
+A web browser's form input text boxes are a totally crappy editing
+environment compared to what I have on a Unix system. Yeah, sure, I
+could require Javascript and load a huge editing library and maybe get
+somewhere, but a) I browse with Javascript off and b) am I going to
+get half as good as GNU Emacs or vi or sam? (I don't think so.)
+
+So I want the primary way of editing DWiki pages to be from Unix,
+through the filesystem, with real editors. (And it is.)
+
+=== Global edit doesn't make sense for us
+
+The principles of global edit permissions leading to the world
+help write your pages simply don't make sense for us. DWiki's goal is
+to let us easily document how our Unix systems work. We're the only
+people who can write most of that documentation; outsiders can at best
+add side commentary.
+
+This would be different if we were interested in running a Wiki on
+system administration best practices or the like. But we're not; we're
+just documenting our systems. We let other people read it so that they
+can learn from anything interesting we do (and that's primarily aimed
+at other people at the University of Toronto).
+
+=== It's a drain we can't afford
+
+Anything that allows semi-public writing on the Internet requires
+tending. Wikis are no exception to this rule.
+
+Like many places, we are historically very bad at creating
+documentation. The more effortless I can make the process, the better
+the odds that we will actually write documentation.
+
+Keeping DWiki running is part of the overall process; the less effort
+this takes, the better, especially if we aren't actively writing
+documentation at the time. Thus, I don't want DWiki to take up any
+time when we're not actively writing things with it.
+
+If DWiki allowed web writing from anything except a small set of
+people, we would have to tend it. It is simpler and less risky to
+avoid that, especially given that we can't expect significant
+contributions from outsiders.
+
+=== Skipping hard design problems
+
+Eliminating web-based editing immediately kills the need to tackle a
+bunch of hard problems, because Unix handles them for me.
+Particularly, I don't need to authenticate people or do access
+control, provided I'm willing to let everyone read (I am, so far).
+
+Access control, authentication, and registering people is not an easy
+area. It's also one where failures and program bugs can have severe
+consequences. Not having to worry about that means that DWiki is
+faster to write, smaller, and safer.
+
+I also don't have to worry about random outsiders writing pages that
+make extensive use of expensive DWiki features, or writing things in
+pages that cause rendering errors.
+
+=== But web editing can be done from anywhere!
+
+Pragmatically, the odds of us wanting to edit our systems
+documentation from anywhere that we can't just run _ssh_ to log in to
+our servers is fairly low. This is especially the case given that
+there are Java SSH applets, so that any browser that runs Java can let
+us log in to our servers.
+
+DWiki is aimed at the low-hanging fruit of the 90% or 80% or so
+solution. (I maintain that any wiki is, partly because the text
+rendering is deliberately simplified.)
+
+== The future: maybe limited web editing
+
+The most likely web editing feature for DWiki to pick up is to let
+web people write comments on pages but not edit the pages
+themselves. This would let outsiders give us feedback and commentary
+without running the risks of scribbling over valuable page content.
+
+This would still require me to either write an authentication system
+or live with the likelyhood of comment spammers showing up to yammer
+madly. Plus some of the above worries.
+
+(The clever person will notice that some of this future has
+arrived. DWiki now has an authentication system and comments, although
+both will be improved in the future.)
+
+{{CanComment}}

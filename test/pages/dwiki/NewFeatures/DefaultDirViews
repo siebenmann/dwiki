@@ -1,0 +1,12 @@
+Directories can now have default view types associated with them, by
+the simple yet sleazy method of touching a file in them called
+_.flag.prefview:~~<viewname>~~_.
+
+This lets us auto-set a directory to default to a blogdir view.
+
+The page tools now autogenerate a list of 'See As <whatever>' links
+for alternate directory formats.
+
+This required some innards magic to distinguish a normal view being
+explicitly specified from no view being specified and us just
+defaulting to a normal view.

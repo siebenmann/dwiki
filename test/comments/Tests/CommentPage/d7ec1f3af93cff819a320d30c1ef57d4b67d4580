@@ -1,0 +1,4 @@
+USER guest
+IP 128.100.102.51
+This is a test from the guest user. If I got it right, it will show up
+with the guest's IP address instead of their name.

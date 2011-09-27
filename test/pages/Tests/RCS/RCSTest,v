@@ -1,0 +1,44 @@
+head	1.2;
+access;
+symbols;
+locks
+	cks:1.2; strict;
+comment	@# @;
+
+
+1.2
+date	2005.05.22.04.52.32;	author cks;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2005.05.22.03.59.19;	author cks;	state Exp;
+branches;
+next	;
+
+
+desc
+@test a file in RCS.
+@
+
+
+1.2
+log
+@test update.
+@
+text
+@= This is a test of putting files into RCS.
+
+This file is in RCS. Everything should work. (Famous last words.)
+
+Here's another line added.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d5 1
+@

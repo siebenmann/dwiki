@@ -1,0 +1,3 @@
+As part of the fallout of other work, I fixed the nit where 'View
+Source' would show as a page tool on pages where viewing the source
+would get you a permission or unavailability error.

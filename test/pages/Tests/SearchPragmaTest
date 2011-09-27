@@ -1,0 +1,8 @@
+#pragma search /help /dwiki
+
+This is a test of the additional search stuff. For example,
+ConfigurationFile should come out straight. So should [[Help]].
+How about [[NewFeatures/AtomFeeds]]?
+
+Now the torture test: [[NewFeatures/../../help/FindingPages]].
+Also AtomSyndication.

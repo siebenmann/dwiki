@@ -1,0 +1,3 @@
+# Ignore editor backup files and Python bytecode
+*~
+*.pyc

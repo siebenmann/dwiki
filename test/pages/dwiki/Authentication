@@ -1,0 +1,120 @@
+= DWiki Authentication
+
+DWiki has optional support for authenticating users, which is a
+prerequisite for restricting access to pages and for allowing people
+to comment. User authentication is done by cookies, which means that
+people wanting to be authenticated have to accept cookies from the
+DWiki's web server.
+
+Whether authentication is on is controlled by the _authfile_ setting
+in the ConfigurationFile; if it is set, it specifies a password file
+for the DWiki. Once enabled, a login box will appear at the bottom of
+pages where people can enter their login and password into a form and
+submit it to the wiki. If the password is correct, DWiki will send
+back a login cookie and the session is now authenticated (provided
+that the user's browser then sends the cookie back to DWiki with
+future requests).
+
+An authenticated person has a login name and may optionally be in some
+groups. When checking permissions, logins and groups are treated the
+same (so you should not create groups that have the same name as
+users; this is either pointless or dangerous, depending on how many
+people are in the group). What groups a login is part of is specified
+in the password file.
+
+To be precise, an authenticated request is any request that has a
+valid associated login name. Normally this happens because the user's
+browser sent back a valid DWiki login cookie, but a DWiki may have a
+default login, set in the ConfigurationFile. If the default login is
+set and exists in the password file, *everything is authenticated*;
+either as a 'real' (passworded) login or as the default login.
+
+Because DWiki is hard-coded to require authentication before people
+can write comments, setting a default user is the only way to let the
+world (potentially) comment on your DWiki.
+
+== Using Authentication
+
+Authentication is used by the (({{Restricted}})) and
+(({{CanComment}})) DWikiText macros. Without arguments they restrict
+the page to authenticated people or allow comments by authenticated
+people (respectively). With arguments, they restrict things more
+tightly. There are two sorts of arguments:
+* *positive* arguments are plain logins or groups, and require the
+  authenticated session to be one of the things named.
+* *negative* arguments start with '_-_' and are then logins or groups,
+  and require the authenticated session to *not* be one of the things
+  named.
+If only negative arguments are given, anyone not mentioned passes; if
+both positive and negative arguments are given, you must pass the
+positive arguments and not fail the negative arguments.
+
+Directories can create default permissions for everything under them
+by having a special file called ((__access)) with either or both of
+Restricted and CanComment macros. ((__access)) files are checked
+backwards from the page being looked at, and the first one that
+contains a Restricted or a CanComment (depending on what is at issue)
+wins. ((__access)) files can have other content, although
+ChrisSiebenmann doesn't expect people to look at them very often.
+
+~~Note:~~ this means that subdirectories can give back permissions
+that were denied by a higher-level directory. This is deliberate.
+
+== Authentication limits
+
+DWiki authentication protects only *file* contents. It does not
+protect directory contents and it thus doesn't protect a page's
+(file) name. Moral: ~~don't put sensitive information into page
+names~~.
+
+== Password security
+
+~~Note:~~ DWiki doesn't specially encrypt login / password information
+while it's being sent to the web server. Unless the entire connection
+is running over SSL, people can theoretically snoop the password in
+clear text.
+
+DWiki doesn't store someone's clear text password (even in its
+password file); instead it stores a hash of the password, using a
+format that guarantees that if two different people use the same
+password they will get different hashes. (Barring the hash function
+itself being broken.)
+
+As always, people should be strongly discouraged from using important
+passwords (eg, their Unix account passwords) for any web service,
+a DWiki included. Using one's Unix login name as one's DWiki login
+name is harmless and even convenient.
+
+== The cookie
+
+The cookie DWiki uses has the login name in clear text, and is
+authenticated with an added hash value. If you want the gory details,
+see ((authcookie.py)) and ((htmlauth.py)) in the DWiki source code.
+With a proper _global-authseed_ secret in the ConfigurationFile, it is
+believed to be secure from all brute-force attacks.
+
+The cookie is normally quite long-lived. It becomes invalid if the
+user's password or the DWiki global authseed change.
+
+The cookie is *not* restricted to coming from a single IP address or
+anything like that.
+
+== Format of the password file
+
+The password file has a simple format. Blank lines and comment lines
+(lines that have a '_#_' character as their first non-whitespace) are
+ignored. Otherwise, lines have the format:
+>  <login>	<password-hash>		[<group> ....]
+There can be any amount of whitespace between elements; groups are
+optional.
+
+The easy way to add logins or change passwords is with the
+((dpasswd.py)) program in the DWiki source. Adding or changing groups,
+or deleting logins, you get to do by editing the file directly.
+
+DWiki has no support for creating logins or changing passwords over
+the web. This is deliberate.
+
+How you manage this process in general is up to you; in non-paranoid
+environments ChrisSiebenmann uses a group-writeable password file
+owned by an appropriate (Unix) group.

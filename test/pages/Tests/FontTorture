@@ -1,0 +1,57 @@
+= A torture test for font formatting.
+
+This line should all be in normal formatting: a* b~~ c_ hup hike. \\
+Endings: a* b~~ c_ (these are necessary in the smarter Daniel Martin
+renderer).
+
+This should be doubled: **, ~~~~, __. hup hike.
+
+This should match, *although it would not normally* do so for the closing.
+
+This should close properly: *test _hup hik*. Abc_ def.
+
+Also: ~~this is a _test_~~. And *~~this~~*.
+
+Experimental results: you can have ~~_bold code_~~, and that's the only
+combination. You can't have *~~bold italic~~*, or _*italic code*_, or
+*_~~bold italic code~~_*. (DWiki will obediently generate them, but
+common browsers will ignore some of them.)
+
+This is a torture test that can only be passed by the Daniel Martin
+renderer: char *a, *b, *c; This should show all of them, as is,
+because there is no valid closing font tag in the whole thing.
+
+Now, *this should have
+an entirely valid closing
+font tag*. Which ends before here!
+
+Now, this should turn into italics, unfortunately: char *abc; this
+*is a valid italic run*. (After more work it does not, but of course
+only in the Daniel Martin renderer.)
+
+Now let's do a test of *two* italic *runs* in one go. Will this work
+right? Yes; all hail non-greedy regexp matches.
+
+------
+=== Some torture tests
+
+* This *should italicize*
+
+| So should *this* |
+
+(Both are attempts to have valid font tags *right* at the end of something.)
+
+*Absolute start!*
+
+Test: 'Dict *a, *b' is wrong. (Okay, HTML tidy *moves <em> elements around*.
+Damnit. I wonder if it moves <code> elements too? Sigh.)
+
+We are not using !* to escape things, because *this is really big!*
+necessarily looks ugly in source form if we do; you have to write the
+end as '[[big!!*|]]', to which I say 'lose lose'. (Plus, I realized I
+would have to grep the pages for anything with that, and change it,
+and ... no.)
+
+----
+Another torture test. This should *not* break:\\
+test hub hik.

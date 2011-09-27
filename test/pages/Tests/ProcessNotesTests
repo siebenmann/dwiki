@@ -1,0 +1,68 @@
+== Test processing notes.
+
+.pn foobar
+
+.pn no 10
+
+.pn no
+
+.pn no _
+
+This text should have no underscores active, like _foobar_ should not be
+((foobar)).
+
+.pn yes
+
+.pn yes foobar
+
+On the other hand, in this text _foobar_ shouldn't have any underscores.
+
+.pn wordsub -> {{C:rarr}} sub x86_64 [[x86_64|]]
+
+Now let's test these word substitutions: a -> b -> c -> x86_64 -> and this
+is an extended digression about x86_64 stuff. (I suppose the ending thing
+needs to include '.', so x86_64. works OK. Actually it's worse, I'm just
+going to punt and use [\b\W], sigh, as there are a lot of cases where what
+a 'word' is is not clear, like 'x86_64', or even /x86_64/, which we don't
+want to match inside ![[...]] *in the URLs*, but it's OK to do it in regular
+text.)
+
+Also testing: abc->def.
+
+ This should not affect plaintext, eg x86_64.
+
+.pn nosubs
+
+.pn sub foobar foo\1bar
+Here's a torture test: foobar blorp.
+
+Another torture test.
+> .pn no _ wordsub -> {{C:rarr}}
+> This is quoted text with stuff: atkbd_connect -> atkbd_activate ->
+> i8042_interrupt -> ps2_command -> ps2_sendbyte -> i8042_kbd_write ->
+> _spin_unlock_irqrestore -> idr_get_new ~~<interrupt>~~
+> .pn yes unsub ->
+
+.pn lit x86_64
+So I can talk about the x86_64 without going nuts, nuts, nuts with more
+x86_64 yakking and blakking and nngh.
+
+=== The help text
+
+You can also change how normal text is processed with 'processing
+notes'. Processing notes are created by starting a line with _.pn_ and
+then following it with the notes and their arguments, separated from
+each other by whitespace. For example,
+
+ .pn no _ sub -> {{C:rarr}}
+
+makes [[_|]] render literally instead turning things into typewriter
+makes font, and turns -> into {{C:rarr}}. (And these changes would be
+undone with '_.pn yes unsub ->_'.)
+
+The available processing notes are:
+{{DocAll:processnotes}}
+
+Processing notes affect normal text: paragraphs, cells in tables,
+text in headings, and so on. They do not affect preformatted text,
+which is always shown just as written.

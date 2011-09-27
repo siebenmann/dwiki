@@ -1,0 +1,75 @@
+= DWiki features
+
+DWiki's job is to be a good way to display version controlled
+wiki-text pages that you write in a real editor.
+
+The important DWiki features:
+* [[simple but reasonably powerful text rendering|Formatting]]
+  (based on WikiText).
+* natural support for arbitrarily-named links: you don't have
+  to follow some magic page naming standard that doesn't fit well with
+  the natural names for things.
+* pages are normal, simple files, and you edit them directly in Unix.
+* support for putting pages in RCS, with strong disincentives to
+  hand-edit files without checking them out (they stop displaying).
+* directories can display like changelogs: pages inline, most recent
+  first.
+* can generate Atom syndication feeds for recently changed things.
+
+== The inevitable feature list:
+
+In no particular order:
+* simple WikiText-like text rendering. (Chris wrote pages in GNU Emacs
+  and relentlessly smushed anything that got in the way of how GNU
+  Emacs wanted to autoformat things.)
+* The text rendering choices are designed to make it easy to write
+  about Unix systems.
+* full support for directly editing wiki pages.
+* does not force a flat page namespace; uses straightforward Unix
+  files and directories to organize the DWiki page space. (Thereby
+  keeping the Unix view of DWiki's pages simple.)
+* supports a blog-like view of a directory that inlines pages there,
+  most recent first.
+* in-filesystem page redirects make it trivial to support plurals,
+  moved/renamed pages, etc.
+* text-based page templates control how all pages appear, making it
+  easy to control various bits of a DWiki's appearance.
+* pages can be put in RCS for version control and multi-person editing
+  access. RCS files can live in either the page directory hierarchy
+  (for simplicity) or another parallel directory tree (for neatness).
+* forces people not to edit RCS-controlled files without locking them
+  by refusing to display inconsistent unlocked files.
+* generates Atom syndication feeds for recently changed pages and
+  recent comments, for the entire DWiki or any subtree thereof.
+* written in Python.
+* simple-ish yet powerful enough (I hope) user authentication system,
+  with an equally simple yet powerful way of restricting who can read
+  DWiki pages.
+* supports the option of letting people (possibly including the world)
+  comment on some or all of the pages.
+* takes some pride in properly generating and handling Last-Modified:
+  and ETag: headers in HTTP responses.
+* wikitext to HTML generates fully HTML 4.01 Transitional compliant
+  HTML provided only that you don't jump multiple indent levels in at
+  once in lists (thus [[Formatting]] doesn't validate).
+* can run as a CGI-BIN or standalone, and support for additional
+  environments (SCGI, WSGI, whatever) should be easy to add if it is
+  needed. ~~Disclaimer: standalone does not use a production-quality
+  webserver implementation~~; it uses Python's _BaseHTTPServer_ with a
+  hack to use threading.
+
+== Missing DWiki features
+
+Also in no particular order:
+* you can't edit DWiki pages from the web, but see WhyNotWebEditing.
+* no user authentication.
+* therefor, no access restrictions on who can read what.
+* searching is primitive at best.
+
+=== A necessary acknowledgement:
+
+A number of DWiki's features and design decisions are shamelessly
+inspired by C.J. Silverio's as yet (22 May 2005) unfinished
+[[Snippy|http://www.ceejbot.com/blog/space/Snippy]].  Note that Snippy
+is much more powerful than DWiki probably ever will be, plus if it had
+been finished when I was writing DWiki I probably wouldn't have.

@@ -1,0 +1,7 @@
+DWiki now supports generating links to URLs on the wiki's web server
+that are outside the DWiki itself. These are written as links in the
+format _<...>_ and have to happen inside _![[...]]_. For example:
+>  See [[the root of this web server|</>]].
+generates a link to the DWiki's web server's root, which is all but
+certain to be outside the DWiki space if you're running DWiki as a
+CGI-BIN.

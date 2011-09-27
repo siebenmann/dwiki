@@ -1,0 +1,9 @@
+<h1> Commenting on @{linktonormal} </h1>
+#{|comment/preview.tmpl|comment/page.tmpl}
+<p> Enter your comment (using <a href="@{rooturl}help/DWikiText">wiki-text</a> for formatting):
+%{comment::form}
+</p> <p>Your comment will be formatted with
+<a href="@{rooturl}help/DWikiText">DWikiText</a>.</p>
+<p>Please note that your IP address will be logged. If you aren't
+logged in, please remember to sign your comment; otherwise, the only author
+identification will be your IP address.</p>

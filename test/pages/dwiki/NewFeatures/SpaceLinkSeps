@@ -1,0 +1,20 @@
+DWiki now lets you use spaces to separate things in _![[....]]_ links
+instead of _|_. If you do this, the last word is taken as the link
+URL or page, and the rest are the link name. (_|_ has priority over
+this; DWiki tries space-separation only if there is no _|_.)
+
+Thus (([[Google Rules The Web http://www.google.com/]])) turns into
+[[Google Rules The Web http://www.google.com/]].
+
+You can use either side as an abbeviation later, for example:
+[[|http://www.google.com/]], [[Google Rules The Web|]]. (See View
+Source.)
+
+LinkAbbrevs done this way don't have to use _|_, as long as there is a
+space in the value: (([[Google Rules The Web]])) still turns into
+[[Google Rules The Web]].
+
+This allows somewhat more aesthetic long link name things.
+
+Note that the opening _![[_ and the closing _]]_ have to be on the
+same line in the wikitext.

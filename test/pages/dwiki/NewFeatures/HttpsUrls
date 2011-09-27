@@ -1,0 +1,9 @@
+== New: https:// now supported in plain text
+
+As part of fixing Atom feeds to not break embedded https:// urls, I
+decided that we should support plaintext https:// URLs, like say
+https://bugzilla.redhat.com/.
+
+DWiki should now support non-HTTP URLs much better in general (before,
+there were a number of problems and issued). You can even include
+mailto: links if you really want to.

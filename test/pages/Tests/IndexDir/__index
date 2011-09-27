@@ -1,0 +1,7 @@
+= This is an index
+
+This is an index to this directory. Let's see if it works.
+
+{{ListDir}}
+
+Despite appearances, that was produced by a macro (in [[myself __index]]).

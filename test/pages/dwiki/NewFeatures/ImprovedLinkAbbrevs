@@ -1,0 +1,7 @@
+You can now use LinkAbbrevs *by name* (not by URL) without a _|_; ie,
+instead of writing _![[<text>|]]_, you can just write _![[<text>]]_.
+This only happens if _<text>_ wouldn't result in a link to a real page
+or an external URL if there was no abbreviation.
+
+Thus, one can write (([[Google http://www.google.com/]])) in the
+page once, and later write (([[Google]])), and have it work out.

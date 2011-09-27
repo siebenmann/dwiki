@@ -1,0 +1,13 @@
+== New: Previous and Next links in pages in blog views
+
+The more I have used DWiki for a blog, the more I've realized that I
+want individual entries to be able to have Previous (entry) and Next
+(entry) links. At first I resisted because this would require an
+expensive filesystem walk on even individual page views, but I have
+now given in and made the _blog::prevnext_ renderer, which will do
+this if I want.
+
+_blog::prevnext_ generates links directly to the pages, not to
+_/range/N-N/_ virtual directories, because I think that works better.
+(It would be less code the other way, but better links are worth the
+code.)

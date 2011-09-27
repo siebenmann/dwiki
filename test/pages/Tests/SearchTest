@@ -1,0 +1,19 @@
+= This tests my low-rent reference searching.
+
+Pages that contain or refer to ChrisSiebenmann:
+{{ListRefs:ChrisSiebenmann:Chris:Siebenmann}}
+The search looks for things that are (themselves) words.
+The code implementation will allow spaces and other stuff if
+you try hard enough. You can search for multiple things at once.
+
+Searching works on the raw wiki-text, before all expansions.
+Searching ~~does~~ look at page titles, so that looking for
+'People' turns up:
+{{ListRefs:People}}
+which includes all of the People/ pages.
+
+Searches exclude redirection pages, since they are looking at the
+page contents anyways.
+
+Searches also exclude the current page, because otherwise it gets
+really irritating.

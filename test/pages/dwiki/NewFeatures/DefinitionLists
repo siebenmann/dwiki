@@ -1,0 +1,40 @@
+DWiki now supports definition lists (<dl>, <dt>, <dd> in HTML). I
+started with what I think was Wikipedia's syntax but decided it was
+ugly in plain text so came up with my own that I like better.
+{{CutShort}}
+
+A definition list looks like:
+>  - <dt text>: <dd text starts here>
+>    and can continue on as an indented list.
+
+Definition lists nest, because it was trivial to make them do the
+right thing this way; just add extra leading dashes. They nest with
+both themselves and other types of lists, and the result validates.
+
+Usage case: I started thinking about documenting the configuration
+file format. This will have a lot of things like:
+
+- _root_: If present, this is taken as the root directory that further
+  configuration directives can specify relative paths from.
+- _pagedir_: The root directory of the page hierarchy.
+- _tmpldir_: The root directory of the template hierarchy.
+
+I think this winds up looking all right, and better than the
+alternative of somtehing like:
+
+* _root_: if present, this is the root directory for other
+  configuration directives to be relative to.
+* _pagedir_: the directory that is the root of the page hierarchy.
+
+(Yeah, I definetly think that the first one is easier to read.)
+
+The one drawback of this way of writing them is that they don't
+entirely render in HTML the way they look in ASCII. However, this
+looks better than the alternatives I've seen and thought about so
+far.
+
+(Yes, 'looks good in raw form' is one of ChrisSiebenmann's criteria
+for DWikiText. Don't look so funny; it's important if we want
+readable documentation, since we may spend a lot of time reading the
+plain ASCII wikitext version. If it makes our eyes bleed and we can't
+follow it cleanly, well...)

@@ -1,0 +1,20 @@
+= CamelCase and WikiWords
+
+CamelCase is the general term DWiki uses for words run together with
+each word having its start capitalized; CamelCase is itself a
+CamelCase word.
+
+DWiki uses CamelCase words in DWikiText as the easiest way of making
+links between DWiki pages: a CamelCase word that's the name of another
+DWiki page turns into a link to that other page. (The rules for
+figuring out when a CamelCase word is 'the name of another DWiki page'
+and what happens when it's possibly ambiguous are a little arcane;
+they are discussed on the DWikiText page.)
+
+Technically speaking, a DWiki CamelCase word has to start with a
+capital letter and have another capital letter somewhere later in
+it. Words can include alphabetic characters, numbers, '_/_', and
+'_._'.
+
+DWiki's CamelCase rules are a particular instance of the general Wiki
+idea of WikiWords.

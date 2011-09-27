@@ -1,0 +1,51 @@
+Directories can now be displayed as a 'blog', which treats all file
+descendants of the directory as if they were blog entries and attempts
+to be somewhat intelligent about how much to show and how to navigate
+things, supporting navigation by page date or Nth to Mth most recent
+pages.
+
+ChrisSiebenmann doesn't believe this makes BlogDir obsolete. BlogDir is
+an excellent view for ChangeLog style situations, which is exactly
+what [[.]] uses it for; however, it makes a bad way of displaying a
+true blog-style environment because of eventual information
+overload. BlogView is designed to deal with that by trimming what gets
+displayed and providing time-based and range-based navigation.
+{{CutShort}}
+
+Because it looks at all descendants, you can use directory structure
+under a BlogView directory to create categorization, or simply to keep
+things from being totally overwhelming. (Don't name subdirectories
+with the prefix of a VirtualDirectory, though, or various bits of
+navigation will stop working.)
+
+The operating structure is much the same as BlogDir: a new view, valid
+only on directories, a new renderer called _blog::blog_ to do the
+heavy lifting (including deciding where to clip over-long pages), and
+a number of associated renderers to provide navigation and
+information.
+
+Because you want to display changelog pages somewhat differently from
+blog pages, BlogView uses a new template to render pages:
+_blog/blogitem.tmpl_. (The name may be unfortunate and perhaps should
+be swapped with the BlogDir name.)
+
+When it is cutting the number of items on a page off, _blog::blog_ is
+careful to only cut on a day boundary; this keeps by-day navigation
+links working nicely, as you cannot use per-day navigation to jump to
+the *middle* of a day. Per-day views always show everything from that
+day, however large and voluminous. However, the Nth to Mth most recent
+view will gleefully cut things off halfway through a day if that's how
+it works out.
+
+Navigation renderers make heavy use of VirtualDirs to specify dates or
+ranges of pages to show, making them the first time we actually
+generate such virtual directory links ourselves. Unfortunately most of
+the interesting new calendar-based renderers aren't usable outside of
+this view because they rely on having access to the big list of
+possible pages so they can grovel out date range information.
+
+There's a variety of new time-of-entry renderers, some of which count
+on support from the main renderer to set up context variables for
+them.
+
+(Clearly, renderer documentation is going to be a huge swamp.)

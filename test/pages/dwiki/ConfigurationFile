@@ -1,0 +1,260 @@
+= DWiki's configuration file
+
+DWiki's configuration file has a simple format. Blank lines and
+comments (any line that has a '_#_' as the first non-whitespace
+character) are just skipped, and everything else is interpreted as a
+configuration directive to set.
+
+Configuration directives have optional values, which are separated
+from the configuration item by whitespace. (Whitespace within the
+value is not interpreted, although trailing whitespace is removed from
+lines.)
+
+So an example set of configuration file lines might be:
+ root		/web/data/dwiki
+ pagedir		pages
+ tmpldir		templates
+ wikiname	TestWiki
+ wikititle	Testing Wiki
+
+DWiki requires and uses some configuration directives. Unused
+configuration directives are not errors; all configuration directives
+(and their values) become part of the context variables available for
+template _${...}_ expansion.
+
+To simplify life, configuration directives are put through a
+canonicalization process. This operates like so:
+
+* if ~~root~~ is specified, it must be an absolute path to a directory.
+* if something ending in ~~dir~~ or ~~file~~ is not an absolute path and
+  ~~root~~ is defined, DWiki sees if tacking on ~~root~~ results in the
+  right sort of thing.
+* any directive ending in ~~dir~~ or ~~file~~ must wind up (possibly after the
+  ~~root~~ prefixing above) being an absolute path to a directory or a
+  file respectively.
+* if ~~root~~ is defined and ~~pagedir~~, ~~tmpldir~~, or ~~rcsdir~~ are not
+  defined, DWiki sees if directories called _pages_, _templates_, or
+  _rcsroot_ exist under ~~root~~ and if so sets up the configuration
+  directives appropriately.
+
+Required configuration directives are: _pagedir_, _tmpldir_,
+_wikiname_, and _rooturl_. This means that with defaulting, the
+minimal DWiki configuration file is:
+>  root	/some/where
+>  rooturl /some/thing
+>  wikiname SomeThing
+
+== Configuration directives and their meanings:
+
+=== Core where-to-find-things configuration:
+- _root_: If present, this is taken as the root directory that
+  further configuration directives can specify paths relative to.
+- _pagedir_: The root directory of the page hierarchy. (Required.)
+- _tmpldir_: The root directory of the template hierarchy. (Required;
+  cannot be the same as _pagedir_.)
+- _usercs_: Support checking RCS files for things like page history,
+  page locker, and so on. (Whether or not _usercs_ is set, DWiki
+  refuses to serve files ending with _,v_ or in RCS directories; see
+  InvalidPageNames.)
+- _rcsroot_: The root directory of the separate RCS file storage
+  hierarchy; used only if _usercs_ is on. \\
+  Normally, RCS files are expected to be in _RCS_ directories under
+  _pagedir_, where basic RCS commands put them (if you make those
+  directories; DWiki requires you to work this way). With this
+  directive on, the RCS _,v_ files for files
+  under _pagedir_ are instead found under here, in a mirror of the
+  directory structure in _pagedir_, so you have *pagedir*_/foo/bar_
+  and *rcsdir*_/foo/bar,v_. This keeps _pagedir_ neater at the expense
+  of requiring some scripting support.
+
+=== Web configuration
+- _wikiname_: The short, one-word name of this DWiki. You probably
+  want to have a CamelCased name. This shows up as the name of the
+  breadcrumbs, among other places. (Required.)
+- _wikititle_: The full, multi-word title of this DWiki.
+- _wikiroot_: The front page of the DWiki; the page you get redirected
+  to when you request the DWiki's root. If this isn't set or doesn't
+  exist, DWiki tries _wikiname_'s value as a page name; if that
+  doesn't work, people see the DWiki's root directory in a directory
+  view.
+- _rooturl_: The URL of the directory that is the root of the DWiki
+  instance; use '/' to mean 'the root of the web server'.
+- _publicurl_: If set, DWiki puts this directory's URL on the front of
+  DWiki URLs instead of _rooturl_.
+- _staticdir_: The directory to serve static files from. DWiki *only
+  serves files* from this hierarchy; requests for a directory will fail.
+- _staticurl_: The URL of the directory that is the root of static
+  files. If _staticurl_ doesn't start with a slash, it's taken as a
+  subdirectory of _rooturl_. (Requires _staticdir_ to be set.)
+- _charset_: If set, DWiki claims that all text/html and text/plain
+  content it generates is in this character set in HTTP
+  replies. Normally 'UTF-8' these days. If unset, DWiki does not label
+  text/html and text/plain HTTP replies with character set information.
+
+==== DWiki URL to file mapping
+
+When DWiki gets a request for a URL, it tries to turn it into a
+request for something under either _staticurl_ (if defined) or
+_rooturl_; whatever is left after subtracting the appropriate thing is
+the path being served relative to _staticdir_ or _pagedir_.
+_staticurl_ is checked first, so it can be a subset of the URL space
+available under _rooturl_.
+
+For safety reasons, DWiki only tries to process a request if the
+request's URL falls under either _staticurl_ or _rooturl_. If DWiki
+receives a request for anything outside those two, something is
+clearly wrong and it generates a terse error page.
+
+When it generates URLs for DWiki pages DWiki normally puts _rooturl_
+on front (as a directory). However, if you set _publicurl_ DWiki puts
+that on the front instead.
+
+This is useful if for internal reasons you receive requests with their
+URLs rewritten to something users shouldn't (or can't) use.  The case
+ChrisSiebenmann knows is Apache with URL aliases and the DWiki CGI-BIN
+being run via suexec.
+
+=== Authentication
+- _authfile_: Where DWiki can find user / password / group information
+  for the DWiki's users. If this is set, the DWiki has authentication.
+- _defaultuser_: If set, all otherwise not authenticated connections
+  get to be this user, *if* the user is in _authfile_. This should be
+  used carefully, as it makes *all* requests to the DWiki be
+  authenticated (since they all have a user, if even only the default
+  user).
+- _global-authseed_: This is a special magic token to make it harder
+  to brute-force people's DWiki passwords in some situations. It can
+  be any value and should be kept secret.
+- _global-authseed-file_: This is the file to read _global-authseed_
+  from, if it is set. The file has no special format, but should
+  contain some randomness and its contents should be kept secret.
+- _authcookie-path_: This controls the 'path=' value for the
+  authentication cookies generated by DWiki. If not set to a value, we
+  use the root URL; otherwise we use the value straight. If it is not
+  set, authentication cookes have no explicit 'path='
+  setting. ChrisSiebenmann has come to believe that you don't want to
+  set this, and it remains as a vestigial remnant.
+
+=== Comments
+- _commentsdir_: The root directory for storing comments in. The only
+  place DWiki writes to.
+- _comments-on_: Enable commenting in this DWiki. This requires that
+  _commentsdir_ be defined and that authentication be enabled.
+- _comments-in-normal_: Your standard templates display comments on
+  the normal view of the page instead of the 'showcomments' view.
+- _remap-normal-to-showcomments_: DWiki will remap the 'normal' view
+  for pages to the 'showcomments' view, thereby implementing
+  _comments-in-normal_ without you needing to change the standard
+  templates.
+
+=== Caching
+
+DWiki can optionally cache the results of page generation to speed
+up response time. See [[Caching]] for a longer discussion.
+
+- _cachedir_: The root directory for storing the caches.
+- _cache-warn-errors_: Log warnings about cache store errors. (These
+  are non-fatal but indicate that your cache isn't caching.)
+- _render-cache_: Enable caching the results of selected renderers and
+  renderer components. (Requires _cachedir_ to be set.)
+- _render-heuristic-ttl_: The TTL of renderer cache entries with
+  heuristic validators.
+- _render-anonymous-only_: Use the render cache only for the guest
+  user or for connections that are not authenticated.
+- _bfc-cache-ttl_: Enable a brute force page cache of complete pages
+  with a TTL of this many seconds. (Requires _cachedir_ to be set.)
+- _bfc-time-min_: A complete page will be cached if it took at least
+  this much of a second to be generated. Defaults to 0.75 of a second.
+- _bfc-load-min_: A complete page will be cached if the load average
+  is at least this high. No default; the BFC normally doesn't look at
+  the load average at all.
+- _bfc-time-triv_: Regardless of the setting of _bfc-load-min_, don't
+  bother looking at the load average if the page took at most this
+  long to generate. Defaults to 0.09 of a second.
+- _bfc-atom-ttl_: Use this TTL for Atom syndication requests, instead
+  of the normal one.
+- _bfc-atom-nocond-ttl_: Use this TTL for Atom syndication requests
+  that are not using conditional GET, and also force the caching
+  of the results of these requests regardless of the load.
+- _bfc-skip-robots_: If set, this is a list of User-Agent substrings
+  (formatted as for _bad-robots_, see later) for robots that should
+  not cause entries to be put into the BFC.
+- _slow-requests-by_: Delay all requests by this much,
+  in fractional seconds. Normally used only for testing BFC.
+
+=== Syndication feed controls
+
+- _atomfeed-display-howmany_: How many items at most an Atom feed
+  should display. If set, it must be a positive integer; if not set,
+  _atom::pages_ and _atom::comments_ use a default.
+- _feed-max-size_: How many kilobytes _atom::pages_ or
+  _atom::comments_ should try to limit their output to. If set, either
+  stops adding new entries (regardless of how many entries have been
+  processed already) once they have generated that many kilobytes or
+  more of output. Because of the 'or more' clause, you should allow
+  for a safety margin. If unset, syndication feeds are not
+  size-limited.
+- _feed-max-size-ips_: If set, this is a whitespace separated list of
+  IP addresses or tcpwrappers style IP address prefixes (eg,
+  '_66.150.15._') that _feed-max-size_ applies to. Syndication
+  requests from any other addresses are not size-limited. If unset,
+  _feed-max-size_ applies to all syndication requests, regardless of
+  what IP address makes the request.
+- _feed-start-time_: If set, pages older than this time will not
+  appear in Atom feeds, which is handy if you want to move a
+  DWiki, redirect the old URLs, and not flood people's Atom feeds
+  (because the Atom <id> for pages is the page's full URL).
+  The value can be specified either as an integer Unix timestamp,
+  as 'YEAR-MO-DA [HH:MM[:SS]]', 'YEAR/MO/DA', or an Atom format time
+  string, and is always in *local* time (even when specified as an
+  Atom format time string; sorry).
+- _atomfeed-tag_: If set, the _atom::pagetag_ renderer will use it
+  to  generate Atom <id>s for pages in the format <tag>:/<page path>.
+  This should normally be set to a _tag:_-based URI; see
+  [[here http://diveintomark.org/archives/2004/05/28/howto-atom-id]]
+  for a discussion.
+- _atomfeed-tag-time_: If set, the _atom::pagetag_ renderer will only
+  generate tag-formatted Atom <id>s for pages more recent than this
+  time. This can be used to make a graceful transition into
+  tag-based Atom <id>s for an existing DWiki (and then, with
+  _feed-start-time_, to graceful move it). This has the same time
+  format as _feed-start-time_.
+
+=== Other features:
+- _alias-path_: This sets the DWiki path for the third place to try to
+  find CamelCase links in (see [[Formatting]]). This allows a DWiki to
+  have a collection of CamelCase names for things that are globally
+  usable but that don't clutter up the DWiki root directory. \\
+  This is a *DWiki* path, not a filesystem path (and is implicitly
+  always an absolute DWiki path). The conventional value is _Aliases_.
+- _search-on_: enables searching. If it has the value 'authenticated',
+   only authenticated users can search.
+- _blog-display-howmany_: How many items the _blog::blog_ renderer
+  should try to restrict most pages it displays to. If set, it must be
+  a positive integer; if not set, _blog::blog_ uses a default.
+- _canon-hosts_: If set, this is a space-separated list of canonical
+  hostnames for this DWiki. If a request has a _Host:_ header that is
+  not in this list, DWiki immediately serves up a redirection to the
+  first hostname in the list, which is assumed to be the preferred
+  hostname.
+- _literal-words_: If set, this is a list of strings, separated by
+  '_ | _' (space, |, space), that will be rendered literally and not
+  considered to contain markup, as if each of them had been specified
+  in '_.pn lit <whatever>_' processing note directives.
+
+=== Dealing with bad clients:
+- _bad-robots_: If set, this is a list of User-Agent substrings,
+  separated by '_ | _' (space, |, space), for robots that should get
+  permission denied responses when they try to fetch pages in various
+  views that no robot should be fetching.  Currently the list of bad
+  views is atom, atomcomments, source, and writecomment, all of which
+  are typically fetched by robots that don't respect _rel="nofollow"_
+  on links.
+- _no-ua-is-bad-robot_: If set, any request with a missing User-Agent header
+  is considered to be from a bad robot.
+- _banned-robots_: If set, this is a list of User-Agent substrings
+  (formatted as for _bad-robots_) for robots that should get permission
+  denied responses on *all* requests.
+- _banned-ips_: If set, this is a list of IP addresses or tcpwrapper
+  style IP prefixes (as for _feed-max-size-ips_) for addresses that will
+  get access denied responses for all requests.

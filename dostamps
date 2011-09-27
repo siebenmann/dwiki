@@ -1,0 +1,46 @@
+#!/bin/sh
+# Handle saving and restoring timestamps on a directory hierarchy.
+#
+# usage:
+#	dostamps get|set DIR TIMESTAMPFILE
+#
+# TODO: should we default TIMESTAMPFILE to "$DIR.times"?
+
+usage() {
+	echo "usage: $(basename $0) get|set DIR TIMESTAMPFILE" 1>&2
+	exit 1
+}
+
+if [ $# -ne 3 ]; then
+	usage
+fi
+dir="$2"
+file="$3"
+if [ ! -d "$dir" ]; then
+	echo "$0: $dir not a directory" 1>&2
+	usage
+fi
+case "$1" in
+get)
+	(find "$dir" -type f -print | xargs stat -c '@%Y %n' |
+		sort >"$file".new) ||
+			exit 1
+	if cmp -s "$file" "$file".new; then
+		rm -f "$file".new
+		exit 0
+	else
+		mv -f "$file".new "$file"
+		exit 0
+	fi
+	;;
+set) if [ ! -f "$file" ]; then
+		echo "$0: no file $file" 1>&2;
+		usage
+	fi
+	while read ts fn; do
+		touch -h -m -c -d $ts $fn || exit 1
+	done <"$file"
+	exit 0	
+	;;
+*)	usage;;
+esac

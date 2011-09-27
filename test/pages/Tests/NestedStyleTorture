@@ -1,0 +1,22 @@
+= Torture test cleverly nested style starts and ends.
+
+This is a *perverse [[link end*it test _case_ example
+http://www.google.com/]]. This will otherwise get unfortunate tag soup.
+
+This is another *perverse {{ST:small:crazy end*it test, with _embedded_
+fonts}}. This ditto.
+
+Now we try harder, with *nesting*! To wit:
+
+* a *test [[link _case with*it {{ST:small:with_ ending}} stuff
+  http://www.google.com/]]. End text. \\
+  Okay, macros don't render inside link text (not even _ST_).
+* Try it *the {{ST:small:other way*: _inverted to an [[embedded_ link
+  example http://www.google.com]], I think that should work?}} With end
+  text.
+
+Okay, this is wierd: _does this space_? \\
+How about *this example*: _does it_?
+
+All right: {{ST:big:big text with a : or two : in the middle of it}}.
+And that's it.

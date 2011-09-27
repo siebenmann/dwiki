@@ -1,0 +1,23 @@
+= Test of inline images
+
+
+Look ma: Valid HTML 4.01 transitional!
+{{IMG:http://www.w3.org/Icons/valid-html401 88 31 Valid HTML 4.01
+Transitional ||| (remote image)}}
+
+Or locally: {{IMG:w3-icons/valid-html401.png 88 31 Valid HTML 4.01
+Transitional}}
+
+And again! {{IMG:w3-icons/valid-html401.png}} or the remote one:
+{{IMG:http://www.w3.org/Icons/valid-html401}}.
+
+Broken ones:
+# No memoized version: {{IMG:foobar}}
+# no alt text: {{IMG:foobar 10 10}}
+# Bad image sizes: {{IMG:foobar 0 10 alt}}, {{IMG:foobar 10 -1 alt}}.
+
+Things that are regrettably not errors because HTML allows image
+width and heights to be 'nn%' as well as integers:
+
+# Width or height not numbers: !{{IMG:foobar a 10 alt}},
+  !{{IMG:foobar 10 b alt}}.

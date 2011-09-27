@@ -1,0 +1,11 @@
+== New: _/oldest/_ virtual directory restriction
+
+DWiki has long been able to give people the latest N things in a
+virtual directory context (as _latest/<N>_). Now it can give them the
+oldest N things, using the obvious syntax: _oldest/<howmany>_.
+
+Just to show off, ranges properly convert themselves into 'oldest/<N>'
+at the end of their run, just as they convert themselves into
+'latest/<N>' at the start.
+
+Documentation has been updated appropriately.

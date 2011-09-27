@@ -1,0 +1,45 @@
+= Hello, I am a DWiki
+
+DWiki stands for 'Dinky Wiki', which is what [[/People/ChrisSiebenmann]]
+calls this for lack of a better name. As far as Chris knows on a casual
+scan, 'DWiki' is not being used as the name of any other Wiki software.
+
+I ([[/People/ChrisSiebenmann]]) wrote DWiki to have a good environment
+for writing documentation about how we do system administration work
+on our Unix systems. You can see a bigger list of [[Features]] if you
+want.
+
+DWiki's design choices are very slanted towards making it as easy as
+possible for us to write, revise, and maintain system
+documentation. (Because on past evidence, it if isn't dirt easy we
+just aren't going to do it.)
+
+I like WikiText, because it is a simple, low-effort way to write
+documentation that comes out looking decent. But I don't like the wiki
+interface for writing it: web browsers make crappy editing
+environments and limit the sort of changes you can easily do. So I
+wrote DWiki to have a good system for displaying wikitext that we'd
+write through other means.
+
+== Wiki or CMS?
+
+Some people say (strongly) that DWiki is not a Wiki because people
+(currently) can't edit DWiki pages over the web; they argue that
+instead it should be called a CMS (a (web) Content Management System).
+
+I'm willing to accept this argument in theory, but ...
+
+I like punchy, usefully descriptive names. My personal opinion is that
+'wiki' is one: calling DWiki a wiki tells you a great deal about it,
+while calling it a CMS tells you almost nothing.
+
+So while I may be willing to accept the argument, DWiki stays being
+called a wiki (and keeps the 'Wiki' in the name).
+
+I maintain web-based editing makes little sense for us, and wrote a
+bunch about why in WhyNotWebEditing.
+
+And one can always have a big debate over at the granddaddy Wiki,
+at http://c2.com/cgi/wiki?WikiPrinciples.
+
+{{CanComment}}

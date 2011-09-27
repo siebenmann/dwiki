@@ -1,0 +1,44 @@
+= Don't ask right now.
+
+* This is a test. \\
+  Of the indented list show.
+  * Of the indented list show.
+ 	* spacemore.
+     * more.
+        where
+		* more more!
+	    1 Motto!
+  0 And now a ... CHANGE!
+	- How about an: interior <dl>?
+	  With a <dd> of course. \\
+	     Huh? How's that?
+  - Maybe this will: look nice.
+  * Does it work right?
+     * And this
+      *   Too
+     Where?
+  And not any more.
+ Huh?
+
+Okay, here we go.
+* Another test.
+	* And again.
+
+> Cite test.
+> * What is generated ...
+>   > For another cite inside a list?
+> * It looks like we can't nest blockquotes inside lists, which means that
+>   I win.
+> 	* No, really, I win BIG.
+> Although the fomatting is going to give me a headache.
+
+-- straight to two: why
+** Because
+
+## HUh
+** subul
+
+#    
+## HUh
+** subul
+

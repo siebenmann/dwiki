@@ -1,0 +1,13 @@
+DWiki has a new formatting feature. If you write just '[[* * *|]]' on a
+line by themselves, they center and become a separator. Like, well,
+this:
+
+*			 *			 *
+
+You can't indent them, because I decided that would run too much risk
+of confusing things with pre-formatted text blocks.
+
+Why? I just decided I liked that style of chunk separator. (Maybe if I
+could get a <hr> variant that didn't stretch the entire width...)
+
+Note: feature subject to me changing my mind.

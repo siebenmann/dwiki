@@ -1,0 +1,19 @@
+== New: Atom feed autodiscovery
+
+There's a standard for autodiscovery of Atom feeds, involving
+_<link rel="alternate" type="application/atom+xml" href="...">_
+element in your _<head>_. Now DWiki has a _atom::autodisc_ renderer to
+create them.
+
+The current code only generates 'recently changed pages' Atom feed
+links, and so disappears entirely when there isn't one.  In theory one
+can have multiple autodiscoverable feeds (the first is the default,
+and they get _title="..."_ elements), but I don't quite feel like
+being that daring just yet.
+
+(I am also not confidant that clients have the UI issues involved
+sorted out. I'm not sure *I* have the issues sorted out; for example,
+should file pages have only the comment feed in the autodiscovery, or
+should they also have the recent changes for their directory feed in?
+Which better matches practical user expectations? Can I expect users
+to be aware of the difference between directory pages and file pages?)

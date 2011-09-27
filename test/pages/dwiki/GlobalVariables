@@ -1,0 +1,56 @@
+= DWiki Global Variables
+
+As TemplateSyntax discusses, one can use global variables in templates
+in several ways. However, it helps to know what global variables are
+available. Thus this incomplete listing.
+
+First, all ConfigurationFile directives are available as global
+variables.
+
+Then, during request processing DWiki internally defines a number of
+additional global variables:
+
+| _page_		| The current page's full path, in DWiki form.
+| _abspage_		| The current page's full path, including a '_/_' at
+			  the start.
+| _pagename_		| The page's name; its last path component.
+| _pagetype_		| The type of the page, usually 'file' or
+			  'dir'.					
+| _view-format_		| The current view being processed.
+| _relname_		| In blog::blog, the name of the current page
+			  relative to the blog directory being
+			  displayed.
+| _basepage_		| In a VirtualDirectory context, the full path
+			  of the non-virtual directory. Otherwise the
+			  same as _page_.
+| _:wikitext:title_	| After a piece of wikitext has been rendered,
+			  this is its title if any exists. The 'title'
+			  of a piece of wikitext is the text of the
+			  header that is at the start of the text, if
+			  there is one.
+| _login_		| The currently authenticated user.
+| _comment-ip_		| IP address that posted the current comment.
+| _comment-user_	| User that posted the current comment.
+| _:comment:post_	| The result of an attempt to post a comment.
+			  One of 'good', 'bad', 'badchar', or 'nocomment'
+			  (the latter if it was an attempt to post an
+			  empty comment). (Only defined during comment
+			  posting.)
+| _:error:error_	| Error type. Only defined during error
+			  processing.
+| _http-command_	| The type of HTTP command being processed,
+			  either GET or POST.
+| _http-version_	| The (claimed) version of HTTP that the
+			  current request used.
+| _remote-ip_		| The IP address the current request came
+			  from.
+| _server-name_		| The hostname or IP address for this web
+			  server that the sender
+			  of the current request claims to have used.
+
+Not all of these are defined all of the time. Generally a
+context-dependant variable is only defined when the current thing
+being processed has that sort of information.
+
+There are other global variables that get set, but they are for more
+internal use, and you're best off browsing the source code for them.

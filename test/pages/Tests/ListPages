@@ -1,0 +1,8 @@
+= List some of all pages.
+See also Manage/AllPages.
+
+All pages that start with a D or with People/: \\
+{{Striped:AllPages:D:People/}}
+
+Note that we list things if either the page name or the full path
+starts with the component.

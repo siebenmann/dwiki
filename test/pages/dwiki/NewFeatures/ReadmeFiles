@@ -1,0 +1,32 @@
+Directories can now have Readme files, called ((__readme)). Readme
+files are injected into pages via the new renderer ((inject::readme))
+(probably the first of several injectors).
+
+The current templates don't inject ((__readme)) in normal directory
+views, but do inject them for blog and blogdir views (as you may see
+from this directory). Blog and blogdir views now drop all files
+starting with ((__)), taking out ((__readme)) and ((__access)) and any
+future special magic files.
+
+{{CutShort}}
+
+This is perhaps a lame approach that ChrisSiebenmann will rethink
+later. The general problem is however quite real, and is at its root
+two problems:
+* different pages of the same type + view sometimes need to have
+  somewhat different contents. The differences can come from either
+  (or both) the page hierarchy or the template hierarchy, but they
+  have to come from somewhere.
+* while useful templates can be hard to write, so even with the
+  ability to specify what template a view + page combination is
+  rendered in saying 'put the differences into a custom template' is
+  not necessarily a satisfactory answer.
+
+Some sort of 'injection' support to add content to pages under some
+circumstances seems useful in general. It's possible the long run
+solution will be injecting full template pieces instead of just
+injecting wikitext content from the page area.
+
+(This all somewhat implies that much content positioning will be done
+by CSS, since that makes content much easier to inject without
+changing lots of things around it.)

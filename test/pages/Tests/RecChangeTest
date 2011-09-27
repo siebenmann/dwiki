@@ -1,0 +1,13 @@
+= This is a test page.
+Five most recent changes, just under here:
+
+{{RecentChanges:5:.}}
+
+How about globally, except not dwiki/NewFeatures?
+
+{{RecentChanges:5:-dwiki/NewFeatures}}
+
+How about under /People, /Category, and /Manage? (Note that this properly
+handles the slash at the start of the path.)
+
+{{RecentChanges:5:/People:/Category:/Manage}}

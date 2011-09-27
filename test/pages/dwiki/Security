@@ -1,0 +1,129 @@
+= Security Aspects of DWiki
+
+DWiki has a general attitude about security: it really distrusts
+incoming requests, it somewhat distrusts itself, but it has a rational
+trust of the people creating DWiki templates and pages. DWiki will try
+to save people from accidental mistakes, but doesn't bother with
+things that are just half-hearted attempts to stop people from
+deliberately sidestepping security restrictions. Moral: don't let
+people write DWiki pages unless you trust them.
+
+Some knowledge of the ProcessingModel and the ConfigurationFile (and
+what can be set there) may be helpful for the rest of this discussion.
+
+== A Quick Summary
+
+DWiki itself is written in Python (a lot of Python). This means that
+unless there is a gross implementation error in the Python
+interpreter, it is secure from simple problems such as buffer
+overruns. While DWiki uses some components from the standard Python
+libraries, they too are well-tested and believed to be entirely safe.
+
+Because it is quite careful at multiple levels about how it handles
+requests, hostile HTTP requests should not be able to trick DWiki into
+serving anything from outside the page directory (or the comments
+directory, or the static content directory). InvalidPageNames
+discusses things it won't serve even inside them.
+
+DWiki doesn't attempt to stop insiders from using DWiki to serve 'bad'
+content, ultimately because there are so many ways a malicious insider
+can do that. ChrisSiebenmann feels that it is better to be honest
+about not making *any* attempt rather than making an attempt and
+causing people to put more trust in it than it warrants.
+
+If run as a CGI-BIN, DWiki should not be run with a UID that has any
+special access to restricted files. But then, *no* CGI-BIN should be
+run that way.
+
+DWiki has some degree of optional [[Authentication]], but it is no
+stronger than the usual run of the mill login and password on other
+web sites. Really sensitive content is probably best not served from a
+web server that the public (whatever that means to you) can access.
+
+== Pages versus Templates
+
+What people can do with the ability to write DWikiText in DWiki pages
+is somewhat less powerful than what they can do with the ability to
+write DWiki templates. Similarly, errors in DWikiText are considered
+far less fatal than errors in templates; DWikiText errors just result
+in funny-looking pages, while template errors result in terse web
+error pages.
+
+Thus: while it's safe to let people write DWiki pages in general, you
+probably want to restrict (at least somewhat) who can write or modify
+your templates. Plus, your templates (being, you know, templates)
+shouldn't need modification all that often. People can create and
+modify pages all the time.
+
+= How DWiki tries to be secure
+
+== Cautious processing
+
+Internally, DWiki tries to operate in a relatively 'security
+conservative' fashion. For example, the frontend rejects clearly
+invalid things without passing them through to the DWiki core, because
+the core has a lot more power than the frontend so a mistake has
+larger ramifications.
+
+DWiki also is deliberately structured so as to give itself as little
+power as possible.
+
+== Errors Abort Processing
+
+DWiki can hit a number of internal problems while processing a
+request; for example, a template that's called for might be
+missing. When this happens, DWiki aborts processing the entire
+request, throwing an error all the way back to the front end, which
+generates a terse error page about the situation.
+
+This may be abrupt ... but it *is* safe.
+
+== File Access
+
+DWiki reads only a few files: the ConfigurationFile, the
+global-authseed-file file, the authfile password file, and things
+under the page, template, RCS, static files, and comments directories
+(if those are configured on).
+
+Except for the password file, the DWiki core only accesses files
+through a simple storage layer abstraction, which provides 'storage
+pools' to the rest of DWiki. Each storage pool confines all file
+requests to relative paths under the pool's root, explicitly ruling
+out InvalidPageNames when retrieving files for the rest of DWiki.
+
+~~The storage layer has no general file writing capabilities~~. The
+only interface it has for writing files is specifically designed for
+comments, using a specific naming and storage scheme. And only the
+comments directory uses a storage pool that supports this abstraction.
+
+=== Following Symlinks
+
+Unlike some web servers (eg, Apache), DWiki takes no special care to
+not follow symbolic links that point outside one of its storage pool
+directory roots. If you put such a symbolic link into a storage pool
+area, DWiki assumes that you know what you're doing.
+
+This is deliberate. Attempting to duplicate the kernel's _namei()_
+function in user space is inevitably very complicated (and prone to
+surprising races). Rather than run the risk of making a mistake in the
+amount of code required, DWiki is honest about the whole situation.
+
+== Limitations DWiki imposes on itself
+
+=== Limited URL scope
+
+DWiki refuses to serve any request that is not under _staticurl_ (if
+set) or _rooturl_. Anything under _staticurl_ must be a static request
+and is served only as such.
+
+=== Limited static-content serving
+
+In addition to dynamic DWiki pages, DWiki can serve static content via
+the _staticdir_ ConfigurationFile directive. Since DWiki's goals for
+serving static content are very modest (CSS files, images, etc), DWiki
+refuses requests for static directories. As mentioned in
+ProcessingModel, static content is served by the frontend, thereby
+keeping the amount of code involved in the process down.
+
+In addition, DWiki rejects any request for static content that is not
+in the default 'normal' view.

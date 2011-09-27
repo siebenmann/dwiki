@@ -1,0 +1,425 @@
+= DWikiText: DWiki page formatting
+
+DWiki pages are written in DWikiText, a simple way to add some
+formatting information to the sort of ordinary text that you'd write
+in a plain text email message. Indeed, DWikiText tries to understand a
+lot of the obvious things that people put in plain text files and do
+the right thing with them.
+
+DWikiText is a sort of WikiText, the family of text formatting systems
+used on Wikis in general; if you already know how wikis format text,
+you're most of the way to understanding DWikiText.
+
+If you want to see the raw DWikiText for any particular DWiki page,
+you can use the 'View Source' link that's part of the Page Tools menu
+at the bottom of most pages. (Directories don't have page source, and
+you can't see the page source of a page that you can't access.)
+
+Because it starts out as plain text, HTML and HTML characters in
+DWikiText have no effect. You can include &'s and <'s and >'s and so
+on without having to think about it. (This does mean that you can't
+include your own HTML markup; the only way of formatting DWiki pages
+is with DWikiText.)
+
+== Paragraphs
+
+Paragraphs are the basic thing in DWikiText, and they're done the same
+way as in plain text: lines of text, one after the other.  The one
+important thing is that the start of paragraphs are *not* indented at
+all (this is common in plain text email, although not universal).
+
+Paragraphs are separated from each other with blank lines. (In fact,
+any time you want to be sure that you've ended something in DWikiText,
+stick in a blank line.)
+
+=== Forcing a line break
+
+Sometimes you want to force a line break in the text. To do this, just
+end a line with '_ \\_' (space backslash backslash).
+
+== Emphasis and Fonts
+
+There are several ways to add different emphasis and fonts to text
+by surrounding the text you want font-ized with special characters.
+((*Emphasis*)) produces *emphasis*; ((_typewriter_)) produces
+_typewriter_; ((~~strong~~)) produces ~~strong~~. You can nest one
+style inside another to produce, for example, _monospaced ~~strong~~_
+(although not all combinations come out in browsers). Doubled versions
+are left untouched, instead of producing nothing, so '_**_' is **.
+
+There are two additional special text styles: the *code* style
+_!((...))_ and the *quoting* style _!``...''_. The code style
+produces typewriter text that takes the text literally (no other
+fonts, no anything); it was used to write most of these examples. The
+quoting style just writes the text literally without applying any
+styling at all; it's what you need to use to get, for example, a
+non-typewriter text [['*'|]].
+
+(There is also an alternate quoting style, _![[...|]]_, which may
+sometimes be easier or nicer. There is a small ambiguity with this
+quoting style, which will be mentioned later.)
+
+Fonts end at the end of paragraphs, and in fact pretty much anywhere
+where the type of thing in the page changes. This keeps an unclosed
+font style from having a global document effect.
+Global document effects are generally bad; no one wants one accident
+to turn the rest of the page into italics. (ChrisSiebenmann has seen
+it happen, and it's not pretty.)
+
+=== Font heuristics
+
+That was the simple version of the font rules. The reality is a bit more
+complicated.
+
+To save people from accidents, DWiki tries to be reasonably smart about
+when emphasis and fonts start. The basic idea is that emphasis should
+always have both an opening and a closing, and, *apart from '((_))'*,
+it surrounds words, so any apparent start of emphasis that is followed
+by whitespace isn't actually one, and when DWiki looks ahead to make
+sure the closing emphasis is there it ignores a closing character that
+has whitespace in front of it.
+
+The final wrinkle is how DWiki should behave for something like:
+
+>  Consider 'Dict *a, *b;' to be *an example*.
+
+In this case DWiki follows a rule Chris calls *minimal span*. The only
+proper closing ((*)) is the last one, so the italics run from it
+backwards to the '((*an))', the closest opening. The result is:
+
+> Consider 'Dict *a, *b;' to be *an example*.
+
+Because DWiki looks ahead at the raw text, these heuristics can
+be fooled if the ((*)), ((~~)), or ((_)) is inside a !((...)) or
+a ![[...]] and so on.
+
+Once an emphasis has actually started it's ended by the first matching
+emphasis character DWiki runs into, no matter whether it is preceded by
+whitespace or not.
+
+Because monospace is often used for very literal things, all that DWiki
+asks is that the '((_))'s be paired up. Monospace runs do not have to
+start or end next to words, and so there is no minimal span stuff.
+
+=== Additional font styles through  macros
+
+There are three additional special things that you can do to text.
+Because DWikiText has run out of good escape characters and they're
+expected to be uncommon, they're done through macros (which are
+discussed in more length later).
+
+The _ST_ macro allows the insertion of {{ST:big:big text}},
+{{ST:small:small text}}, {{ST:strike:strikethrough text}},
+{{ST:sup:super}}scripts, {{ST:sub:sub}}scripts, or
+{{ST:u:underlined text}}. Because the text to be formatted is placed
+inside the macro, only plain font styling can really be done to it.
+
+The _C_ macro allows the direct insertion of HTML character entities,
+either as a decimal number, a hexadecimal number prefixed with _x_, or
+by name, like _copy_ for {{C:copy}}, the copyright symbol. The available
+character entity names are listed in [[../dwiki/CharacterEntities]].
+
+The _AB_ macro allows you to insert {{AB:HTML:HyperText Markup
+Language}} <abbr> elements. Unfortunately, Internet Explorer 6 and under
+doesn't support <abbr> elements. (IE7 may.)
+
+For more details about all of these, see the Macros section.
+Unlike other macros, all of these can be used in comments.
+
+== Links
+
+There are several formats for links in DWiki text.
+* Straight URLs, written as text: http://www.google.com/; these are
+  always to some absolute place, for the obvious reason.
+* CamelCase words, which make links to other pages in the DWiki *if*
+  the pages exist.
+* Explicit links, written as (([[<link>]])), or (([[<text>|<link>]])),
+  or (([[<text ...> <link>]])), or even (([[|<link>]])).
+
+For explicitly specified links (([[...]])) in general, the link can be
+to some website, done with http:// as you'd expect, to some URL on the
+website hosting the DWiki, done by putting _<_ and _>_ around the URL,
+or to some other page on the DWiki (the default).
+
+If it's not given explicit text, the name (the visible text) of a link
+to a DWiki page is always the filename of the DWiki page (the last
+component in the path), not its full path or the literal value of the
+link. This keeps such names short and non-annoying, while still
+useful. The exception is ![[|<link>]], which uses the full text of the
+link.
+
+Explicitly given link text is run through DWiki's normal font styling
+process; (([[*Google*|http://www.google.com/]])) will thus turn into
+[[*Google*|http://www.google.com/]].
+
+For links to other DWiki pages, ChrisSiebenmann tends to use CamelCase
+words if that works out right (because they're very convenient) and
+![[...]] if the right name for the target page isn't a CamelCase word,
+or if it's in another directory and he doesn't feel like making a
+global alias for it.
+
+=== Interpreting wiki links
+
+The DWiki path '_/_' is the [[wiki root|/]], in an analogy to Unix and
+URI/URL roots. An absolute wiki link starts with _/_ and always refers to
+that absolute DWiki page.
+
+![[...]] links are considered relative by default (and can include
+'_.._' and so on as desired), except that if there's no page by the
+relative name and there is a page if we consider it an absolute link,
+DWiki does so. (This keeps me from having to write _/_ at the start of
+all my absolute links in ![[...]]'s.)
+
+CamelCase links are considered absolute by default, but if the
+absolute version isn't found and a relative version is, that gets
+used. If neither is found, DWiki tries an alias directory if that's
+configured, and if that fails the CamelCase word is not a link.
+
+When generating the HTML for pages, DWiki transparently rewrites the
+target of most links that point to DWiki redirection files to the
+target of the redirection. (See [[/dwiki/RedirectFile]] for details on
+what a redirection file is.)
+
+=== Extending the link search path
+
+If you make the text '_#pragma search DIR DIR2 ..._' the very first line
+in a page, then links that can't be found through the normal searching
+process will also be tried as if they were in _DIR_, _DIR2_, and so on.
+The directories cannot be relative paths.
+
+This is primarily handy for drafts of pages, which may be written in a
+different directory from their final home; add a _#pragma search_
+directive pointing to the final home, and any relative links should
+still come up right.
+
+=== Link abbreviations
+
+Every time you give a (([[...]])) link both text and a link (with either
+_![[...|...]]_ or _![[... ... ...]]_), DWiki remembers the pairing of
+the text and the link. Afterwards, you can use either as a *link
+abbreviation*; it will expand to the full pair.
+
+The (almost) unambiguous form is to use _|_ at the start or the end of
+the _![[...]]_: at the end to use the name of the link, at the end to
+use the URL of the link (whichever is shorter).
+
+~~Ambiguity~~: If you write ![[<text>|]], and the <text> is a valid
+name abbreviation, you get that, *not* the result of <text> with no
+text styling at all.
+
+You can write _![[<text>]]_ without the _|_. This has to be a name
+abbreviation, and only works if there are spaces in _<text>_, or
+_<text>_ isn't an absolute URL (!http:// or with < and > around it)
+and also isn't a real DWiki page.
+
+== Escaping things
+
+The special handling of ![[...]], !((...)), !``...'', and
+!http://foobar can all be turned off by putting a _!_ in front of them.
+(Technically this just escapes the *start* of the thing, leaving the
+rest of the text to be styled normally.)
+
+The only ways to escape font styling are !((...)), !``...'', or
+![[...|]].
+
+Macros (which look like _!{{....}}_ and will be discussed later) can
+also be escaped this way.
+
+== Preformatted text
+
+If you have a lot of completely preformatted text (perhaps a code
+example), you just put a space in front of it. The result looks like
+this:
+
+ If you have a lot of completely preformatted text (perhaps a code
+ example), you just put a space in front of it. The result looks like
+ this:
+
+Relative indentation in the preformatted text is usually preserved.
+(ChrisSiebenmann will figure out how to make this 'all the time'
+sometime. The technical answer is 'everything past the first
+whitespace character is preserved', and the problem there is tabs,
+which count as *one* whitespace character.)
+
+== Headers
+
+Headers are created by starting a line with between one or more _=_
+characters; that line becomes a header. The more _=_ characters, the
+smaller a header it is: = is a HTML <h1>, while ====== is a <h6>.
+
+== Separator lines
+
+Four or more dashes on a line, like so:
+ ----
+produce a horizontal cut line, like so:
+----
+
+If you don't like horizontal cut lines as separators, you can use the
+alternate separator '((* * *))'. If you put this (possibly with more
+white space between the [[*|]]s) on a line by itself, you get this:
+*			*				*
+Some people like this as a less abrupt separator.
+
+== Quoting things
+
+You can 'quote' wikitext like you would in email: stick '_> _' in
+front of everything you want to quote. Quotes nest. The usual visual
+result in common browsers is that everything is shown indented:
+> Like this. Despite what the semantic markup people may tell you
+> about keeping HTML pure, feel free to use this deliberately to get
+> indentation. This effect can be used for other purposes, for example
+> really short horizontal cut lines:
+> > > > > > ----
+Quoting stops when you stop putting the '_> _' at the start of
+lines.
+
+== Lists:
+
+There are three sorts of lists: ordinary, numbered, and what HTML
+calls 'definition lists' (created with <dl>, <dd>, and <dt>). They are
+written as:
+>  * an ordinary list entry.
+>  0 A numbered list entry. Ordinary number lists can start with any
+>    single digit.
+>  # Also a numbered list entry.
+>  - a definition list: please note that the colon is
+>    *required*. Everything before the colon is the term; everything
+>    afterwards is the definition. (The colon vanishes.)
+
+These come out looking like:
+* an ordinary list entry.
+0 A numbered list entry. Ordinary number lists can start with any
+  single digit.
+# Also a numbered list entry.
+- a definition list: please note that the colon is
+  *required*. Everything before the colon is the term; everything
+  afterwards is the definition. (The colon vanishes.)
+
+List entries can continue across multiple lines; the rule for this is
+that you must indent following lines, generally to at least the level
+of the text on the first line.
+
+=== Nested lists
+
+The primary way of nesting lists is just to indent the nested lists in
+the wikitest, like so:
+>  * A list.
+>    * a nested list.
+>      * a more nested list.
+
+If this is inconvenient to write, the nesting level of a list can also
+be set by using more than one ((*)), ((#)), ((0)), or ((-)) character
+*at the start of the line* (this doesn't work on indented nested
+lists, where it will be taken as just a single level of nesting).
+
+DWiki does the right thing if you change what type of list you're
+using in the middle of nesting, or abruptly jump back several nesting
+levels.
+
+== Tables
+
+Tables are created by starting to write table rows. Table rows are
+created by starting a line with a '_| _'; table cells are separated
+from each other with '_ | _'. A table row is ended explicitly by
+ending a line with '_ |_', or just implicitly by starting another
+table row. To continue a table row on another line, just indent the
+line (any amount will do).
+
+If all of that sounds complicated, let's just look at an example:
+>  |		| left
+>    | right |
+>  | up		| 10	| 20 |
+>  | down	| 30	| 40 |
+Turns into:
+> |		| left
+>   | right |
+> | up		| 10	| 20 |
+> | down	| 30	| 40 |
+
+A second type of tables is 'horizontal' tables, intended for situations
+where the most of the commonality and comparison is within a row.
+Horizontal tables are created by starting the first row with
+'_((|_.)) _' instead of the regular '_| _'. Thus the same table as
+above, started with a horizontal table start, turns into:
+
+> |_.    | left | right |
+> | up   | 10 | 20 |
+> | down | 30 | 40 |
+
+== Processing notes
+
+You can also change how normal text is processed with 'processing
+notes'. Processing notes are created by starting a line with _.pn_ and
+then following it with the notes and their arguments, separated from
+each other by whitespace. For example,
+
+ .pn no _ sub -> {{C:rarr}}
+
+makes [[_|]] render literally instead turning things into typewriter
+makes font, and turns -> into {{C:rarr}}. (And these changes would be
+undone with '_.pn yes unsub ->_'.)
+
+The available processing notes are:
+{{DocAll:processnotes}}
+
+Processing notes affect normal text: paragraphs, cells in tables,
+text in headings, and so on. They do not affect preformatted text,
+which is always shown just as written.
+
+Because of how they are implemented, some processing notes may
+have pecular and unanticipated effects on 'text' that is actually
+URLs in links. Be especially careful with substitutions.
+
+== Macros
+
+!{{...}} is a macro. Macros are used to do special magic expansion
+that doesn't fit within normal DWikiText processing.  Macros can take
+arguments, separated with :'s, as in (({{DocAll:macros}})). Available
+macros currently are:
+
+{{DocAll:macros}}
+
+This list is generated by the same code that finds macros when turning
+DWikiText into HTML, so it's guaranteed to be complete. The
+documentation is hopefully complete, but [[People/ChrisSiebenmann]]
+may have forgotten to update (or provide) it when he changed the code.
+
+Macros that generate lists of pages generate them as links to the
+pages in question, which is what you want.
+
+=== Access restrictions
+
+By default, pages are visible to everyone. If the DWiki has been set
+up with authentication, it's possible to restriction who can read a
+page. To do so, invoke the _Restricted_ macro (with appropriate
+arguments, if any) on the page.
+
+The whole issue of DWiki authentication is discussed in more detail at
+the [[/dwiki/Authentication]] page.
+
+=== Comments
+
+Similarly, if the DWiki is configured for it it's possible to allow
+authenticated users, or only some authenticated users, to comment on
+DWiki pages. You do this by invoking the _CanComment_ macro somewhere
+on the page with appropriate arguments.
+
+Unlike Restricted, ~~by default no one can comment on pages~~.
+
+=== DWiki-cuts
+
+The _CutShort_ macro will tell DWiki that in certain contexts (for
+example, in a 'blogdir' view of a directory, or in an Atom syndication
+feed) that the display of the page can stop there. This generates a
+note that to see the full content they should follow the link.
+
+== Forced plaintext
+
+By putting the line '_#pragma pre_' (and nothing else) as the very
+first line of a DWiki page, the rest of the page is forced to render
+as one giant <pre> block, exactly as if everything had a space in
+front of it. Since you don't actually have to put the space in front
+of every line, this is a much easier and more maintainable way of
+including plain text files in a DWiki.
+
+DWiki accepts '_#pragma plaintext_' as a synonym.

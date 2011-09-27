@@ -1,0 +1,18 @@
+All wikitext macros and template renderer functions now have Python
+docstrings. This is because there is a new macro, !{{DocAll}}, that
+spits out a list of macros or renderers and their docstrings, thereby
+creating a one-stop shop for a list of them all and documentation for
+them.
+
+[[../Formatting]] and [[../TemplateSyntax]] have been changed to use
+this, thereby killing several birds and a fix-me with one somewhat
+extended stone.
+
+In the process of writing docstrings, I fixed several irritating
+limitations and renamed a few renderers.
+
+ChrisSiebenmann likes this approach best because it keeps the
+documentation closely attached to the function, thereby serving as a
+clear visual reminder that a) change the function, update the
+documentation that's right there in front of him and b) write a new
+function, write a docstring to go with it.

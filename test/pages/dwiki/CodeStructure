@@ -1,0 +1,42 @@
+= The code structure:
+
+There's three chunks of code: the HTTP layer, the HTML view core, and
+the model.
+
+The model deals with view-independant wiki level things, primarily
+retrieving raw pages and templates. (To do this it calls on a storage
+pools managed by a storage layer; the storage layer handles much of
+the RCS magic.)
+
+The DWiki HTML view core gets a request context and is responsible for
+returning a response, whether that be rendered page content,
+redirections, or (rendered) errors. Renderers and template expansion are
+part of the HTML view core.
+
+The HTTP layer is responsible for generating the request context,
+sending the response (including conditional GETs and other fun), and
+giving the HTML view core ways of generating proper URLs for given
+wiki pages.
+
+The split between HTML view core and HTTP layer exists because the
+HTML view core is agnostic about how it is connected to the web, while
+the HTTP layer is intimiately tied to CGI-BIN versus Python
+BaseHTTPServer versus etc. So the HTML view core has everything that
+is web server independant.
+
+FIXME: investigate this Python SCGI thing I've heard bits about. Or is
+that WSGI? See http://www.python.org/peps/pep-0333.html and
+http://wiki.python.org/moin/WSGIImplementations. Unfortunately on a
+preliminary look it seems I might as well write to CGI-BIN to start
+with.
+
+I think that this is almost but not quite Model-View-Controller, but
+then I don't understand how MVC works (especially on the web).
+
+To look at:
+* http://java.sun.com/blueprints/patterns/MVC-detailed.html
+* http://www.phpwact.org/pattern/model_view_controller
+
+This suggests I am almost MVC except that my Controller is smeared
+over View code and that I have split the View into two pieces: the
+HTTP layer and the HTML view core.

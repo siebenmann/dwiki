@@ -1,0 +1,226 @@
+head	1.1;
+access;
+symbols;
+locks
+	cks:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2005.05.31.19.13.28;	author cks;	state Exp;
+branches;
+next	;
+
+
+desc
+@Initial version.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@= Ye Olde Formatting Teste
+This is, naturally, a test of how all of our formatting actually
+looks. (It has turned into sort of documenting things, too. You
+probably want to view the source.)
+
+== Lists:
+
+I'm not going to try to explain lists. Once you follow View Source, it
+should be obvious. The only tricky bit is that a list line that is
+continued on following lines must be *indented*; a flush-left line
+will be taken as returning to the paragraph (or starting one).  List
+demo:
+* This is an unordered list.
+* with another entry *continued
+  on another line* (see View Source).
+## A nested numbered list.
+000 ... and going deeper!
+*** Still nested, but we've switched styles.
+** And we can abruptly switch styles as we de-nest, as we did here.
+* back down to the original unordered list.
+0000 We can jump levels in a big way.
+** And drop them abruptly (this is second level).
+And back to the land of happy paragraphs. We've also got the third
+type of list on hand:
+- definition lists:  ... which may come in handy when I get around to
+  writing up detailed documentation on this thing.
+- *this thing* being: DWiki. Configuration, TemplateSyntax, operation,
+  etc.
+Definition lists don't come out *quite* as they're written in ASCII,
+but it's closer than some of the other choices. Definition lists nest
+with more leading characters, like the other lists.
+
+== Tables:
+|	| left	| right |
+| up	| 10	| 20 |
+| down	| 30	| 40 |
+Tables are extremely low-rent. [[Chris||People/ChrisSiebenmann]]
+figures that this pretty much matches what he wants.
+
+The downside is that more complicated tables may render, how shall we
+say, a little less than optimally. You're best off sticking to tables
+that have something in all of the cells and that are always the same
+shape.
+
+FIXME: I need to do more work on styling tables well. At the moment
+they are barely better than just sticking ASCII blocks in. I can
+steal ideas from other WikiText implementations.
+
+== Links:
+
+Link formats:
+* Straight URL as text: http://www.google.com/
+* Explicitly marked wiki links: [[People/Chris]].
+  For in-wiki links, the name shown is shortened to the last
+  component. These can also be external _http://_ links.
+* Marked links with specific text:
+  [[the crazed person behind this|People/cks]].
+  Because I keep using _||_ instead of just _|_, you can use either to
+  separate the label and the link.
+* CamelCase names as wiki links: People/ChrisSiebenmann. 
+  CamelCase words are only links if the target page exists.
+
+The preferred link format for internal wiki links is the explicit wiki
+link ![[....]], because that allows a wider variety of useful names
+than CamelCase.  (eg, I do not want to have to CamelCase the names of
+all of the machines I want to write about.)
+
+=== Interpreting wiki links
+
+The DWiki path '_/_' is the [[wiki root|/]], in an analogy to Unix and
+URI roots. An absolute wiki link starts with _/_ and always refers to
+that absolute DWiki page.
+
+![[...]] links are considered relative by default (and can include
+'_.._' and so on as desired), except that if there's no page by the
+relative name and there is a page if we consider it an absolute link,
+DWiki does so. (This keeps me from having to write _/_ at the start of
+all my absolute links in ![[...]]'s.)
+
+CamelCase links are considered absolute by default, but if the
+absolute version isn't found and a relative version is, that gets
+used. If neither is found, the CamelCase is not a link.
+
+Thus all of the CamelCase DWiki's in this paragraph actually refer to
+the root [[/DWiki|/DWiki]]. The wiki link [[DWiki]] refers to the
+current directory one, [[/dwiki/DWiki|DWiki]]. (This is unfortunately
+obscured by DWiki's new habit of rewriting CamelCase links that point
+to redirects to the redirection target, but trust Chris, this is
+what's actually happening.)
+
+== Text formatting:
+Running text (in paragraphs, lists, tables, and in general all
+containers) is styled with fonts, links, macros, and magic line
+breaks.
+
+A '_ \\_' (space backslash backslash) at the end of a line, and only
+at the end of a line, produces a <br/>.
+
+=== Font styles:
+
+~~Bold~~, _type writer text_, and *italic*. Note that if we don't
+close one, like say ~~bold here, that it dies at the end of the
+paragraph.
+
+No stray formatting putting 2/3rds of your text into italic,
+nosirree. I like my formatting self-contained.
+
+There is one other font style: *code style*, which produces things
+like '((char *dp_null;))'.  Code style is _monospace_ with no further
+font interpretation, and is done by a !((...)) construct. It exists
+because ChrisSiebenmann keeps doing it by other, hackier means.
+
+I could have used _/_ for italics, but one major usage of dwiki
+is going to be documenting our Unix systems. When doing this I
+will be writing a lot more file paths than italics. Similarly,
+_monospace_ gets used more often than italics (or underline).
+
+== Others:
+
+A line of dashes will produce a horizontal cut, like:
+----------
+this. You need at least four. These can come pretty much anywhere.
+
+== Indents produce code:
+ Like so.
+ This is literal preformatted text and is going to stay that way.
+ (I suppose you can do ASCII tables if you're so inclined.)
+Notice that that was all one <pre> block. Also notice that that HTML
+markup was quoted, just like this '&' will be.
+
+You need at least one whitespace character on the line. More than one
+whitespace character produces real in-<pre> whitespace out of the
+rest, like so:
+ Left.
+  Indented one more space, with & and <pre> thrown in as a bonus.
+ Back left.
+
+== Quoting things
+
+I don't quite know what to call this, but you can quote things just
+like you would in email: put '_> _' at the start of the quote lines.
+> Like so. \\
+> This is a new quoted paragraph.
+> > Quotes nest, too.
+> >
+> > You can put anything in a quote that you could put in normal text,
+> > and it will all work out right. For example:
+> > * lists.
+> > * and everything nests.
+> Even if you go back one level.
+Quotes disappear when you stop putting the quotes in.
+
+== Macros
+!{{...}} is a macro. Macros are used to do special magic expansion.
+Macros can take parameters, separated with :'s. Available macros
+currently are:
+* AllPages: arguments are prefixes to restrict the list of pages to.
+* CutShort: stop showing the page right at that point in some
+  contexts. Arguments restrict when it operates to just the listed
+  views.
+* ListDir: list what's in the current directory. An argument restricts
+  it to either files ('file') or subdirectories ('directory').
+* ListRefs: arguments are the referenceable things to search for.
+* RecentChanges: first argument is how many to show. 0 means
+  everything. The default is (currently) 50.
+* Restricted: restrict a page to authenticated users. Arguments
+  are which users or groups to restrict access to, or if they
+  start with a dash what to disallow access to; if both allow
+  and disallow arguments are given, you must pass both sets.
+  Restricted has no effect if the DWiki has no authentication configured.
+* Striped: makes another macro generate lists of pages as a
+  comma-separated line, instead of the real list that it normally
+  does. Invoked as _!{{Striped:<macro>[:arg:arg...]}}_.
+
+So that [[People/ChrisSiebenmann]] can keep track, just in case he
+ever forgets, here is a guaranteed accurate list of all current macros
+(because the code generates it itself, not Chris having to remember to
+update things):
+
+{{DocAll:macros}}
+
+== Escaping things:
+
+You can put a ! in front of !http://foobar, ![[..]], or !{{..}} to
+escape their special meaning. Technically this just escapes the
+meaning of the special leadin, leaving everything else to get styled
+stylishly.
+
+If you write _![[<text>|]]_, ie you supply no link name/URL, the text
+is produced un-WikiText-ified. (This is different from the case where
+there is a link, in which the text *will* be WikiTexted for fonts (but
+not links or macros).) This is the only way to escape font styling.
+
+Testing: [[*Google*|http://www.google.com/]]. Yep, that text is
+styled.
+
+=== And that's all folks
+At least until [[People/ChrisSiebenmann]] starts adding more.
+
+Disclaimer: not entirely guaranteed to be complete and
+comprehensive. See _wikirend.py_ in the source code.
+@

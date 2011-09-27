@@ -1,0 +1,15 @@
+<h1> @{linkshortnormal}: Recent Entries #{blog/entfor.tmpl} </h1>
+#{blog/subdirs.tmpl}
+<!-- Bug: should be real CSS, not inline styles -->
+<table border=0> <tr>
+<td width="76%" align=left valign=top style="padding-right: 1.5em;"> 
+@{blog::blog}
+</td>
+<td align=left valign=top style="padding-left: 0.5em; border-left: 1px dotted;">
+	#{struct/readme-dir.tmpl}
+	<p> This is more text, so that we will run down the side of the
+	    page and I can see if things collide madly as they probably
+	    will. I hate layout. </p>
+</td>
+</tr> </table>
+#{blog/seemore.tmpl}@{range::blogrange}@{range::calbar}

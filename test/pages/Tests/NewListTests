@@ -1,0 +1,41 @@
+= Some tests of new list formatting stuff.
+
+* This should be a multiple paragraph entry.
+
+  Continued just as is.
+* This should be an entry.
+
+* and another one, but with a <p> between.
+
+Now we set up the bomb.
+
+* one level.
+  * two levels.
+    that is continued.
+
+    with a new paragraph!
+  that is back to one level.
+* and one level.
+  * two levels.
+    that is continued
+
+  new paragraph in *one level*, not two level.
+
+Let us start something sensible, in isolation.
+
+* now, the tricky case of an indented thing that we should turn into a quote.
+	Like so. This should be a quote.
+		And more so.
+	Like so mark 2.
+	* this should be inside the blockquote. I think it won't be.
+
+* and again:
+	This is quoted
+
+	Will this be? What *does* this come out as?
+
+Final torture test, that is probably going to require some torturing:
+
+* this is a list.
+
+	This is a pre block, not a quotation.

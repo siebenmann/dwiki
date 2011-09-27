@@ -1,0 +1,13 @@
+#{html/dtd}
+<html>#{struct/head.tmpl}
+<body>
+<h1> Login Failed </h1>
+
+<p> Your login attempt failed; either there is no user by the name you
+attempted to log in as, or the password is wrong. Please try
+again, or return to the page you were viewing, @{post::oldpage}. </p>
+
+#{struct/loginbox.tmpl}
+<hr>
+#{site-sig.tmpl}
+</body> </html>

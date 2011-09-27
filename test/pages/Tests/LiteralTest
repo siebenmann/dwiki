@@ -1,0 +1,18 @@
+== Test literals.
+.pn lit x86_86 lit *foobar lit foobar*
+
+This is a section of text with x86_86, *foobar, foobar*, and some random
+things_with_underscores. More test: x85_86; x86_68. Also *Foobar things
+with foobaR*.
+
+Hmm. This is going to explode: *Starting *foobar italics foobar* ending*
+
+Testing again: foobar*
+
+More testing, for the global invalid_id setting and ~~not a bold~~.
+Yet, ~~this is bold~~ and some of_this is typewriter_.
+
+(Also, bonus ``literal text with *foobar* and some_id and so on
+~~quoting~~ that should work, and have < and & and so on escaped''.)
+
+Also: escaped !``literal text'' had better work.

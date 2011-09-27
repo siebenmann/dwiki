@@ -1,0 +1,24 @@
+= Character entity names recognized by DWiki
+
+This is the automatically generated big list of character entities
+recognized by (this) DWiki in the _C_ macro. For the meanings and more
+precise specifications of these, see the [[Character entity references
+in HTML 4 http://www.w3.org/TR/html401/sgml/entities.html]] from the
+[[HTML 4.01 http://www.w3.org/TR/html401/]] specification.
+
+Note that not everything in this list may show as a character in your
+browser, or in other people's browsers. Also, this list is pretty much
+the full HTML 4.01 list. Older versions of HTML don't define all of
+these entities; the [[Wikipedia page
+http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references]]
+is the best reference for what entities are defined in what version of
+HTML. (Since DWiki doesn't know what HTML version you're labelling its
+output as, it can't restrict the entities _C_ will accept.)
+
+The character entity list, with names and how they show:
+
+{{ShowCharEnts}}
+
+Some tedious but possibly important detail: DWiki takes its list of
+known character entities from the Python [[htmlentitydefs module
+http://docs.python.org/lib/module-htmlentitydefs.html]].

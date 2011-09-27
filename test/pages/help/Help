@@ -1,0 +1,12 @@
+= Help on working with me
+
+Hello and welcome to this DWiki.
+
+If you want to find something, see [[FindingPages]]. \\
+If you just want to move around me, see [[GettingAround]]. \\
+If you want to know how to write or edit pages, see [[WritingPages]]. \\
+If you're looking for an RSS or Atom feed from me, see [[AtomSyndication]].
+
+The pages in this directory are intended to be helpful, and not so
+much technical. Technical DWiki issues (such as the configuration
+file) are discussed over in the [[/dwiki]] directory.

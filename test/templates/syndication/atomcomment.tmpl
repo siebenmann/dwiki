@@ -1,0 +1,8 @@
+<entry>
+<title type="html">#{|comment/user|comment/ip} on /${page}</title>
+<id>tag:${wikiname}:${page}:${:comment:name}</id>
+<link rel="alternate" type="text/html" href="@{atom::commenturl}" />
+<author><name>#{|comment/user|comment/ip}</name></author>
+<content type="html">%{atom::comment}</content>
+<updated>@{atom::commentstamp}</updated>
+</entry>

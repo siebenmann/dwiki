@@ -1,0 +1,17 @@
+== New: DWiki can generate Google Sitemaps
+
+I added the ability for DWiki to generate Google Sitemap format XML
+files, using the view 'sitemap'. The information included is very basic
+currently: just the URL for each file page, all of them set to priority
+0.8 (in the hopes that Google will decide that all of the directories
+are priority 0.5 and prefer returning file page results).
+
+Google does not say what Content-Type you should return sitemaps
+in, so I have opted for 'application/xml'.
+
+In the future, something as elaborate as Atom rendering may be
+done. For now, everything is hardcoded in the _sitemap::minurlset_
+renderer.
+
+Updated: now directories are shown too, at priority 0.6. This feature
+is clearly going to be in flux for a while.

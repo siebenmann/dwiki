@@ -1,0 +1,27 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2005.05.22.08.08.11;	author cks;	state Exp;
+branches;
+next	;
+
+
+desc
+@initial rev.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@= This is a page that is under RCS
+
+But it won't display, because it will be modified but unlocked.
+@

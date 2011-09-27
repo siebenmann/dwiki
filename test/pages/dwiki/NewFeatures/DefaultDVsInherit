@@ -1,0 +1,6 @@
+Default directory views, mentioned before in DefaultDirViews, are now
+inherited from parent directories if the child specifies no particular
+desire about the whole thing.
+
+This is convenient for setting an entire hierarchy to a BlogView
+(qv).

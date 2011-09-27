@@ -1,0 +1,46 @@
+One obvious way of handling blogs with categories is to create
+appropriate directory hierarchies for each category, then hardlink a
+page's file into all of the appropriate 'category' directories.
+However, this raises a problem: DWiki's idea of a page's identity
+is its path.
+{{CutShort}}
+
+This results in several visible problems:
+* different paths for the same hardlinked pages will necessarily have
+  different sets of comments.
+* atom and blogdir views can repeat the same logical page multiple
+  times, once for each separate path it appears in.
+
+Using redirects (symlinks, say) isn't a really great solution, because
+it's hard to have the code work out when a redirect should still be
+included in the result set of a view. Right now the answer is
+'always', which is the right answer when redirects are considered not
+so important aliases instead of important structural pieces.
+
+As a starting point, DWiki now has code that excludes subsequent
+copies of hardlinked files from atom and blogdir views. The 'first'
+copy is the copy with the path that sorts lexically first. Of course
+there are some problems with this:
+
+* Adding a hardlink can change which path is first, which means that
+  to all appearances your Atom feed drops an old page and adds a new
+  page.
+* In blogdir view, pages may render differently in different
+  directories (including due to different inherited access
+  permissions).
+
+The Atom feed issue is a general one that comes up any time a DWiki
+page is moved around, and can't be solved short of a fundamental
+change to DWiki's idea of a page's identity. (Which is not going to
+happen.) The comment issue is similar (and actually worse for renamed
+pages, since then the old comments just disappear).
+
+I am willing to call the blogdir problem a 'don't *do* that' issue and
+brush it under the carpet.
+
+It's possible that pages with more than one hardlinks to them should
+be marked in some visible way. It's also possible that they shouldn't
+be; it's hard to see what exactly users could do with the
+information. (To present something sensible, like 'where are other
+copies of the page', would really require keeping a database of DWiki
+pages. This is likely to be a 'no!' for the foreseeable future.)

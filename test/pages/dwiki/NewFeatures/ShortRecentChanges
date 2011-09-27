@@ -1,0 +1,6 @@
+If !{{RecentChanges}} is invoked in a !{{Striped:...}} context, it now
+names the links to the pages by the name of the page instead of the
+page's full path.  This turns out to be much less annoying if many (or
+even some) of the changes are deep in a hierarchy.
+
+Rational: you asked for a compact display so you're going to get it.

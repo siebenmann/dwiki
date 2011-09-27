@@ -1,0 +1,56 @@
+= How to navigate a DWiki
+
+A DWiki is made up of a bunch of pages in a directory hierarchy. (This
+is unlike a traditional wiki, which has a more or less flat namespace
+with no directories, subdirectories, etc.)
+
+Besides from following any links found on a DWiki page, there are a
+few other ways to navigate around a DWiki.
+
+== Navigating the directory structure
+
+Every DWiki page has 'breadcrumbs' up at the top of the page that show
+where you are in the DWiki's directory hierarchy and give you links to
+everything above the page. For this page, that says that you are in
+the [[/help]] subdirectory of this [[DWiki's root|/]].
+
+If you go to a directory it will generally tell you what pages and
+subdirectories are inside it. Some pages, like the DWiki's starting
+page, will usually tell you what subdirectories are in their
+directory, so you can jump directly to something that seems
+interesting.
+
+(Some directories show different views of their contents than just
+plain lists of what pages and subdirectories they have. If you hit a
+directory like this, you can use the Page Tools at the bottom of the
+page to ask to 'See As Normal' to get a simple list.)
+
+== [[/Category]]: finding sorts of pages
+
+By convention, in [[/Category]] are some automatic indexes of pages
+that mark themselves as being in various categories.
+
+== [[/Manage]]: lists of pages
+
+By convention, in [[/Manage]] there are a number of DWiki pages that
+present information about the pages on the DWiki: a list of every
+page, a list of every page in the order of recent changes, and so on.
+
+~~Note~~: because most of these pages list some variety of
+*everything* in the DWiki, they may get very long.
+
+== Notice the page tools
+
+At the bottom of every DWiki page there are various 'Page Tools'
+links. While these don't move you around the DWiki as such, they can
+provide useful other views of the page and useful tools.
+
+== Searching
+
+If searching is enabled and available to you (it depends on the
+DWiki's configuration), the bottom of every page will have a 'Search'
+box where you can enter a word.
+
+Unfortunately DWiki searching is kind of simplistic right now; you
+have to search for a word, and you have to get the capitalization
+right. (With cleverness you can search for a phrase.)

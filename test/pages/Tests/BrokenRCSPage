@@ -1,0 +1,5 @@
+= This is a page that is under RCS
+
+But it won't display, because it will be modified but unlocked.
+
+And here's the modification, which will break it.

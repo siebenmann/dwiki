@@ -1,0 +1,96 @@
+= What templates DWiki uses
+
+Per ProcessingModel, DWiki ultimately produces output by expanding a
+template. This means that DWiki has to figure out what template to use
+for this process, and because the TemplateSyntax is fairly limited, it
+is much simpler for DWiki to start with a separate template for every
+different view of things it wants to have.
+
+This means that while DWiki tries not to hardcode template names or
+the structure of the template directory, there are a certain amount of
+hardcoded names it knows about that need to be there for proper DWiki
+operation.
+
+The short list of such templates is:
+
+* ((dwiki/view-*.tmpl)), ((dwiki.tmpl)): starting view templates.
+* ((views/*)): conventional location for templates that display a
+  particular ordinary view.
+* _error.tmpl_, ((errors/*)): displaying errors (always 404 responses).
+* _login-error.tmpl_: displaying a login error (a regular page, not a
+  404).
+* Comment templates:
+** _comment/comment.tmpl_: used to show each comment when we're
+   showing all comments.
+** _comment/posting.tmpl_: used to show the result of posting a
+   comment. By convention, _comment/posted-~~<result>~~.tmpl_ is used
+   to display specific results, where _<result>_ is one of 'good'
+   (the comment was posted successfully), 'bad' (something went wrong),
+   'badchars' (the comment has bad characters in it), or 'nocomment'
+   (the comment was empty and DWiki refused to post it).
+* _blog/blogdirpage.tmpl_: used to show each page in BlogDir view.
+* _blog/blogentry.tmpl_: used to show each page in Blog view.
+* _syndication/atomentry.tmpl_: used to render an Atom feed entry for
+  each page.
+* _syndication/atomcomment.tmpl_: used to render an Atom feed entry
+  for each comment.
+
+All paths are relative to the template directory.
+
+== Determining a template for a view
+
+For views that are displayed using templates, DWiki tries to find the
+starting template by looking in three places, in order:
+
+0 _dwiki/view-~~<view>~~-~~<pagetype>~~.tmpl_
+0 _dwiki/view-~~<view>~~.tmpl_
+0 _dwiki.tmpl_
+
+By convention, everything that generates text/html pages just goes
+through _dwiki.tmpl_ so that there is one place that does top-level
+'skinning' for the entire DWiki. Only views that both use templates
+and generate something besides text/html sidestep this.
+
+The standard _dwiki.tmpl_ uses the _#{<...}_ first-found template
+inclusion mechanism (see TemplateSyntax) to pull in the real per-view
+content. It looks in four places to try to find this content, in this
+order:
+
+# _Overrides/...$(page)/$(view-format).tmpl_
+# _Overrides/...$(page)/all.tmpl_
+# _views/$(view-format)-$(pagetype).tmpl_
+# _views/$(view-format).tmpl_
+
+The first two allow page and directory hierarchy specific overrides;
+the latter two are the generic places. Most views don't need to
+distinguish between file types, but the 'normal' view must use
+different templates for files and directories (since a directory
+doesn't have wikitext to display).
+
+The current template-based views are: normal, history, search, blog,
+blogdir, atom, atomcomments, sitemap, showcomments, and writecomment.
+The login and logout views are 'synthetic' and don't actually display
+anything unless an error happens. The 'source' view simply dumps the
+page content out straight without getting anywhere near templates.
+
+Note that the atom and atomcomments views are special: although they
+render through templates, they generate application/atom+xml content
+instead of text/html. Thus they use ((dwiki/view-*)) templates
+directly, bypassing _dwiki.tmpl_. The sitemap view is similarly
+special, although it generates application/xml content.
+
+== Error templates
+
+Errors are rendered by the template _error.tmpl_. There are special
+error renderers _error::title_ and _error::body_ that look for
+error-specific additional templates in the subdirectory _errors/_.
+Each type of error looks for titles as _errors/<error>-title.tmpl_ and
+main error body as _errors/<error>.tmpl_ (with internal defaults if
+they don't exist).
+
+Current error types: badaccess, badformat, badpage, inconsistpage,
+nopage.
+
+== Everything else is free and floating
+
+That's it. DWiki has no other hardcoded template names.

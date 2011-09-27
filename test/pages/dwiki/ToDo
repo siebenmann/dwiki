@@ -1,0 +1,93 @@
+= DWiki bugs/needfix
+
+_/{....}_ as a template comment, because I think I want them. (maybe
+another character, but ehh; this sort of looks like a C/etc comment.)
+
+inode *ctime* is last modified, inode mtime is created. The split has
+started. This may or may not work well; I'll have to see. (Partly
+based on what else screws with ctimes in our Unix environment.)
+
+It seems clear that ctime is not too useful in at least some
+context. I should use it for safety in Atom feed generation and some
+other contexts, but not otherwise by default.
+
+http://projects.edgewall.com/trac/wiki/WikiFormatting documents
+some stuff better than me, plus has 'processors'. I could steal
+that.
+
+Searching needs to be less lame, at least for searching through the
+searchbox. It probably wants to be case-independant and possibly only
+for word starts (instead of word boundaries on both sides; arguably
+all searches should be only word boundary start ones).
+
+The real rule is not 'identifier boundary', it is 'identifier
+component boundary', which is \b or a-z0-9 at the start, and \b or A-Z
+at the end.
+
+It should be possible to create an Atom feed template that included
+all of the comments as part of the page.
+
+CSS work. This implies that I need to actually understand CSS. I laugh
+at myself, hollowly. (Progress: we now style some stuff with CSS.)
+
+We should be able to see the history page for any RCS-but-not-displayable
+page.
+
+There should be some form of RecentChanges that throws in time
+information. (Clearly not Striped'able.)
+
+== Open issues
+
+Do I want a 'render this page as wikitext' magic template option?
+That's what the injectors hard-code right now.
+
+writecomment needs some way to generate a good link to help/DWikiText,
+so that people can actually know what to write a comment in. (It has
+one now, but the way may be a bit lame.)
+
+Do we need a way to turn off WikiWord links? (The current approach is
+to use (([[...|]])), which is perhaps good enough for the rare cases.)
+
+Should we forbid switching to alternate views in a virtual directory?
+The 'normal' view doesn't work entirely right (drops subdirectories);
+this may be a bug. (Fixed now: the listdir renderer needs to always
+include all subdirectories, despite their timestamps possibly being
+outside the restriction.)
+
+We need to sort out when a link stays in the same view and when it
+doesn't. At the moment it is somewhat ad-hoc.
+
+(([[...]])) links don't chase redirects, and they should. Well, now
+they do and I'm not convinced it's the right thing. It's convenient,
+but it changes the explicitly written link text; this might be good or
+it might be bad.
+
+Decide: should access restrictions look sort of like Unix access
+restrictions, being enforced top-down, or the current bottom-up way? I
+am starting to think that bottom-up is open to some reliability
+issues. But on the other hand, top-down has semantic issues too.
+
+Profile the code. Laugh hysterically. Fix what I can.
+
+DWiki should be more configurable through the filesystem. Can we
+support adding new views (directory and/or file) by reading the
+canonical template directory, for example? This would suffice for
+anything that doesn't require special handling.
+
+== Long-range:
+
+DWiki knows a lot about what views do what. Unfortunately I suspect
+that this is impossible to work around, especially given how
+_htmlviews.py_ is set up.
+
+Templates should mark up with <div> and so on. \\
+wikirend.py needs to style-mark much of the things that it emits.
+I would like to find some general augmentation mechanism, although
+it's probably not going to be pretty.
+
+We're going to need to genericize access control. I think it
+will be some matrix of view + file patterns + file attributes.
+(Punt for now, everyone can see everything.)
+
+-----
+This is a permanently FIXME page.

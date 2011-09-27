@@ -1,0 +1,7 @@
+<h1> Commenting on @{linktonormal} </h1>
+#{|comment/preview.tmpl|comment/page.tmpl}
+<p> Enter your comment (using <a href="@{rooturl}help/DWikiText">wiki-text</a> for formatting):
+%{comment::form}
+</p> <p>Your comment will be formatted with
+<a href="@{rooturl}help/DWikiText">DWikiText</a>.</p>
+#{comment/writebody-anon.tmpl}

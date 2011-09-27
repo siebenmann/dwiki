@@ -1,0 +1,9 @@
+- 1. _128.100.0.0_ to _128.100.255.255_: The proper /16 that contains
+  128.100.128.0.
+- 2. _128.100.128.0_ to 128.101.127.255_: A /16 sized address range
+  starting at 128.100.128.0.
+- 3. _128.100.128.0_ to _128.100.255.255_: The portion of the proper /16
+  starting at 128.100.128.0.
+
+Bug: if you had an unclosed text style in the definition portion of
+the list, there could be an awful kaboom.

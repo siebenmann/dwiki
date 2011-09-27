@@ -1,0 +1,23 @@
+= References on WikiText
+Chris is keeping these around for his own reference:
+* http://c2.com/cgi/wiki?TextFormattingRules
+* http://en.wikipedia.org/wiki/Wikipedia:How_to_edit_a_page
+* http://daringfireball.net/projects/markdown/syntax
+
+DWiki doesn't have as much formatting as some versions of WikiText.
+It's probably not going to grow any of them, since the wiki rendering
+engine is already the largest source file (almost twice the size of
+the next largest, which is the RCS file parsing module).
+
+DWiki's formatting evolves periodically as Chris convinces himself
+that the old markup was a bunch of annoying hoops and he needs to do
+it simpler. Usually this results in _wikirend.py_ getting larger.
+
+Looking back, DWikiText owes a lot to Markdown syntax; ChrisSiebenmann
+raided Markdown for a lot of ideas. (As usual, Markdown is more
+elaborate than DWikiText. I'm gloomy enough about DWiki's code to
+suspect it might be less code to parse, too.)
+
+Somewhere in here there is an essay about why I differ from, eg,
+Markdown over things like HTML links. (Terse form: I don't expect
+external links to be a big part of DWiki pages that we write.)

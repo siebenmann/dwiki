@@ -1,0 +1,21 @@
+DWiki has a new template handling scheme: the core idea is that we now
+have a way of a) picking the first existing template from a list of
+them and b) generating candidate templates by variable substitution
+and 'all parent directories' expansion. This gives DWiki a simple and
+general framework for doing things like 'template injection', which
+lets us skin an entire directory hierarchy (but not the entire wiki)
+with things like blog sidebars.
+
+This also gives us a single top-level template that generates all
+normal HTML-based pages, thereby giving us a single place to skin the
+entire site. The per-view templates in ((views/*)) (now only a
+convention) now just generate view-specific information, leaving all
+of the rest up to the top-level template.
+
+The clarity and lack of stupid template piece duplication of the
+result is a clear indication of how it is a better scheme. (And no
+more silly things like splitting a <div> start and end into different
+files and hoping they get included in the right spots.)
+
+[[../TemplateSyntax]] and [[../TemplatesUsed]] have been revised
+appropriately.

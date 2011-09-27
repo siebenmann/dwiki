@@ -1,0 +1,41 @@
+DWiki now supports comments on pages; comments are themselves written
+in DWikiText. Currently pages have to be specifically enabled for
+this; in the future I will have a better global or semi-global
+mechanism for this.
+{{CutShort}}
+
+Pages are enabled for comments with !{{CanComment}}, which takes
+optional arguments ala !{{Restricted}} to say who can or cannot
+comment. Comments must come from logged in people. If you want a
+globally commentable DWiki, enable a default user.
+
+Like blog-style directory rendering, actual comment rendering (and
+even the comment form handling itself, preview included, except for
+the bit where we post comments) is handled by renderers and
+templates.
+
+Only files can be commented on, not directories.
+
+Comments are stored in a separate directory hierarchy, the
+_commentdir_ hierarchy, as files in a directory that corresponds to
+the page they're attached to. Comments are given meaningless internal
+names based on their contents (including user and ip, but not
+including time); this handily guarantees unique file names for
+different comments *plus* suppressing duplicate comments from the same
+place and person. (I could suppress entirely duplicate posts if I
+wanted to change the storage scheme a bit.)
+
+The time a comment was made isn't stored in the comment's data file;
+it is implicit in the timestamp of the file. Moral: make sure that
+your backups preserve file modtime, because otherwise if you restore a
+DWiki everything gets jumbled up.
+
+As a safety measure, no wikitext macro works in comment wikitext.
+
+Comments don't have an independant existence, and as a consequence you
+cannot see their wikitext through DWiki; you have to look at the raw
+filesystem version. Nor can they be deleted (through the web) or
+edited after posting.
+
+You can't see comments on pages that you can't see, and you can't
+write comments for such pages either.

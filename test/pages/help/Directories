@@ -1,0 +1,54 @@
+= Directories in DWiki
+
+DWiki encourages you to use directories to group DWiki pages together
+and to organize your DWiki's hierarchy of information. (Besides, since
+you're editing pages in Unix they're convenient for keeping the output
+of _ls_ commands to a reasonable size.)
+
+Unlike normal pages, directories clearly don't have ordinary text of
+their own to display. Instead, DWiki offers several 'views' of a
+directory's contents:
+* the *normal* view just lists the directory's pages and
+  subdirectories in a big list, sorted alphabetically.
+* the *blogdir* view is a 'changelog' style display of every page in
+  the directory, most recent to oldest.
+* the *blog* view is like the *blogdir* view, except that it shows all
+  pages under the directory (including pages in subdirectories), but
+  only the first so many of them, and then provides a number of tools
+  to navigate around all of these pages.
+
+You can switch to different views of a directory by using the
+appropriate links in the Page Tools menu at the bottom of a
+directory's page.
+
+== Setting the default view for a directory
+
+Directories normally default to being viewed in the normal view
+(that's why it's called that). However, if a file called
+_.flag.prefview:~~<view>~~_ exists in a directory, that view becomes
+the default view instead.
+
+If you make two or more files like that for different views, what
+happens is undefined. (Okay, DWiki picks one using arcane internal
+rules.)
+
+== Directory 'readme' files
+
+If you create a file called ((__readme)) in a directory, it will be
+shown at the start of the text in the 'blog' and 'blogdir' views.
+
+== Directory-wide default permissions
+
+You can set up default access permissions and commentability for
+everything under a directory by creating a file called ((__access)) in
+the directory and putting in appropriate _CanComment_ and _Restricted_
+macros.
+
+When it checks permissions, DWiki starts at the page and walks
+backwards up the directory hierarchy until it has to give up; the
+first [[__access|]] file that has something to say about the thing in
+question (page access or commentability) is the one that wins.
+
+This means that [[__access|]] files lower in the directory hierarchy
+can give back access to things that a higher level took away. This is
+deliberate, but please be aware of it.

@@ -1,0 +1,36 @@
+== New: optional disk-based caching
+
+Having run out of other ways to really improve performance, I added
+a disk-based caching infrastructure to DWiki and then put in two
+caches.
+
+The real cache is the renderer cache, which stores the results of
+selected renderers (currently just the _wikitext_ renderers). Via some
+glue it's also used to store the results of the filesystem walk that's
+the expensive bit of _blog::prevnext_.
+
+The Brute Force Cache is for dealing with Slashdotting style situations;
+it just caches complete requests for N seconds when the system seems to
+be under load. I also hijacked it as a convenient place to add extra
+caching for Atom feeds and to force this caching on software that
+doesn't do conditional GET.
+
+(For more details, see [[../Caching]].)
+
+This required a new storage pool class. Like the comment store, it
+uses a customized and restricted interface to write things (and a new
+interface to read them). The cache storage pool stores *objects*, not
+data blobs, using the cPickle module to make the swap back and forth.
+(This may be a mistake, but it's fast and easy.)
+
+Since removing files in DWiki makes me nervous, I didn't bother to
+implement any sort of cache cleaning; you get to do that by hand. The
+cache has TTLs, and the renderer cache has validation layered on top
+of the cache object store, but when they detect something invalid they
+just ignore it. (On the other hand, the cache storage layer does use
+temporary files and _rename()_, so in a sense it's already removing
+files.)
+
+In theory the cache interface is generic, so later I can hook up
+a [[memcached http://www.danga.com/memcached/]] setup or something
+without having to change higher-level code.

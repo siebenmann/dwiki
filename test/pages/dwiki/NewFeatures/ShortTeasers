@@ -1,0 +1,23 @@
+With blog-style things now decently supported, there is the problem
+that some pages want to be longer than is comfortable for display in a
+blog setting. Now wikitext can signal that only the front should be
+shown in some contexts, like so:
+{{CutShort}}
+
+This is done by the !{{CutShort}} macro. In the future it will take
+arguments to specify just when to cut things off.
+
+!{{CutShort}} is not enabled in normal wikitext rendering; it is only
+enabled in the new _wikitext:short_ renderer. We assume that things
+like the blog entry template will use that one instead of wikitext.
+
+This does raise the interesting issue of how a !{{Restricted}} set
+after a !{{CutShort}} works. The current decision is that only
+restrictions up to the cut point are checked, because this allows you
+to put teasers up for the un-authenticated or wrongly-authenticated
+yet hide the full text.
+
+(That this is easier to code and runs faster is only
+incidental. Honest. Would ChrisSiebenmann do something like that?)
+
+(No, don't answer that question.)

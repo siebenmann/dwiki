@@ -1,0 +1,18 @@
+= Testing slim tables.
+
+|_. This is a start | and more. |
+| This should continue | with more. |
+
+And done.
+
+Here's another example:
+
+|_. 0		| Success.					| ABC
+| 1		| Failure case A.				| DEF
+| 2		| Failure case B.
+| 3		| Failure case C, with a bunch of long text that I hope
+		  will wind up forcing a linewrap so that I can see how
+		  that comes out in real life, and so on and all that
+		  and am I done yet? I should darnedly well be.	| GHI
+
+End of table.

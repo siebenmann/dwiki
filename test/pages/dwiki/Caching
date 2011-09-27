@@ -1,0 +1,119 @@
+= DWiki's caching system
+
+DWiki has optional caching in order to speed up generating results
+repeatedly. DWiki uses a disk-based cache for this (although the
+interface is abstracted and alternate forms of caching may be introduced
+someday). There are two caches, which can be enabled separately: the
+renderer cache and a brute force page cache.
+
+DWiki never removes the files of out of date cache entries from the
+disk cache; instead, it stops considering out of date ones to be
+valid. Cleaning out the detritus is left for an external process.
+ChrisSiebenmann considers this safer; giving a program an automated
+_unlink()_ makes him nervous.
+
+See ConfigurationFile for the options controlling the behavior of
+the caches.
+
+== The brute force cache
+
+The brute force page cache is about as simple as you can get: it caches
+complete requests for a configured time (called a time-to-live, or TTL).
+That's it. The BFC is intended as a load-shedding measure when DWiki is
+under significant load, so it only acts under certain circumstances:
+
+* only on _GET_ or _HEAD_ requests.
+* only on requests without a _Cookie:_ header.
+* requests only get put into the cache if the system seems loaded.
+
+(For speed, when something is valid in the cache DWiki just serves
+it without checking the system load.)
+
+A good BFC TTL is on the order of 30 seconds to three minutes or so;
+long enough to shed significant load if you are getting a lot of hits
+to a few pages and short enough that dynamic pages won't become too
+outdated. (And that waiting to see a comment show up or whatever is
+not *too* annoying.)
+
+Because Atom syndication requests are among the most expensive pages to
+compute, the BFC can be set to give them a longer TTL than usual. There
+is a second TTL that can be set for Atom requests that aren't using
+conditional _GET_; the idea is that if requesters cannot be bothered to
+be polite, we can't be bothered to serve fresh content. Setting this
+option always caches the results of such requests, even if the load is
+low, which means that even people doing proper conditional GET requests
+will use the cached results for as long as their (lower) TTL says to.
+
+It's actually faster to serve static pages from the static page
+server code than from the BFC, so the BFC doesn't try to cache
+static pages.
+
+=== The two sides of the BFC
+
+It's important to understand that the BFC does not check load when it
+is checking to see if something is in its cache. This means there are
+two stages to processing a request: deciding what TTL to use for cache
+checks, and deciding whether to cache something that was not current in
+the cache.
+
+The TTL used is:
+# _bfc-atom-nocond-ttl_ if this is an unconditional request for an Atom
+  view, if set.
+# _bfc-atom-ttl_ for Atom view requests in general, if set.
+# _bfc-cache-ttl_ otherwise.
+
+Pages enter the BFC cache either because the system seems to be
+loaded or because _bfc-atom-nocond-ttl_ was set and they were an
+unconditional request for an Atom view.
+
+Once something is in the cache, it will be served from the cache if it
+is not older than the check TTL. Different requests can use different
+check TTLs for the same cached page; for example, conditional GETs
+versus other requests for Atom views.
+
+== The renderer cache
+
+The renderer cache caches the output of various renderers, and a few
+precursor generator routines. The output is cached with a validator, and
+the cached results are validated before they get used; this means that
+renderer cache entries do not normally use a TTL, and in theory could be
+valid for years.
+
+Some cache entries only have heuristic validators, where DWiki can be
+fooled if people try hard enough. These cache entries do have a TTL,
+so that if the heuristic is fooled DWiki will pick up the new result
+sooner or later.
+
+Currently cached are various wikitext to HTML renderers (most of the
+time) and the expensive bit of _blog::prevnext_ (this must use a
+heuristic validator).
+
+Unfortunately, a DWiki page that has comment or access restrictions
+must be cached separately for each DWiki user that views it. Under some
+situations this can result in a number of identical copies being cached
+under different names. If you want to avoid this, DWiki lets you turn
+off renderer caching for non-anonymous users.
+
+=== Force-invalidating the _blog::prevnext_ cache
+
+The general validator for the _blog::prevnext_ is the modification
+time for all of the directories involved that had files in them at the
+time (the latter condition is for technical reasons). The heuristical
+validator checks that some of the file timestamps are still the same,
+but it can't check all of them and still be a useful cache.
+
+So the easy way to invalidate this is to change the modification
+time of a directory involved, for example with _touch_.
+
+== Disk space usage
+
+Much like comments, each page that has something cached for it
+becomes a subdirectory, with the various cached things in files. The
+different sorts of caches use different top-level directories under the
+_cachedir_, so you have paths like _~~cachedir~~/bfc_ and
+_~~cachedir~~/renderers_.
+
+Because some results include absolute URLs that mention the current
+hostname, DWiki must maintain separate caches for each _Host:_ header it
+sees. These are handled as subdirectories in each cache directory,
+so _~~cachedir~~/bfc/localhost/..._ and so on.

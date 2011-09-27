@@ -1,0 +1,12 @@
+#{html/dtd}
+<html> #{struct/head.tmpl}
+<body>
+#{struct/header.tmpl}
+
+<div id="documentbody">
+	#{!comment/posted-$(:comment:post).tmpl}
+</div>
+
+#{struct/bottom.tmpl}
+</body>
+</html>

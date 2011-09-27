@@ -1,0 +1,39 @@
+DWiki now has a simple hierarchical way of handling access to pages
+for various things (both access *and* commentability), so you can give
+(or take away) permissions for things to entire directory trees at a
+shot. We use a simple implementation where directories can have a
+magic file called ((__access)), which creates default permissions for
+everything under them.
+{{CutShort}}
+
+[[The file|__access]] is an ordinary page, but it should contain appropriate
+invocations of !{{Restricted}} and/or !{{CanComment}} (and anything of
+this nature that I add later). To keep clutter down, ((__access)) is
+not shown in the blogdir view of directories.
+
+Checking stops at the first page that has the type of access control,
+so subdirectories or pages can grant permissions that parent
+directories have taken away. ChrisSiebenmann currently considers this
+a feature, although you may disagree. (This way is more efficient
+although less like searching Unix paths. Hmm. The arguments for
+changing this rise.)
+
+Hierarchical access control interacts oddly with !{{CutShort}} pages.
+If a cut-short page has access control below the cut that would deny
+access and is being viewed in a context where the cut happens, then
+the access is allowed because DWiki decides that the page had
+something to say about authentication and the answer in this context
+was 'sure, go ahead'.
+
+The ((__access)) page can have actual content if you want, but I
+suspect that people are not going to be looking at it too often.
+
+At the moment, access control continues to apply only to viewing
+files; viewing directories is not access controlled. This may change
+as ChrisSiebenmann is of two minds about it.
+
+~~Important note:~~ things like all-pages and recent-changes continue
+to show page names for pages that are not accessible, and probably
+always will. Therefor, don't put anything sensitive into the actual
+names of pages. (This is unlikely to ever change for reasons that
+don't fit in this margin.)

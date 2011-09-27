@@ -1,0 +1,13 @@
+Symbolic links inside the DWiki page area now cause redirections if
+their value would be a valid redirection in a REDIRECT line.
+
+For example: FrobTig, which is a symlink in /Aliases with the value
+'_../People_'.
+
+We could have tried using os.path.realpath() on the symlink and taking
+the result relative to the store root, but I think that that has more
+subtle explosive breakages.
+
+Symbolic links that don't resolve to a real DWiki page this way are
+interpreted normally, so you can still have symlinks that point to
+files outside the DWiki pagestore root.

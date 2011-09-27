@@ -1,0 +1,29 @@
+= Atom syndication for DWiki changes
+
+RSS and Atom feeds, also know as 'syndication', are a way of having a
+special reader keep track of the latest news from some area of a web
+site; RSS and Atom are different formats for the feed information. But
+then, if you're reading this you probably already know all that.
+
+DWiki provides Atom feeds for recently changed pages and recent
+comments. It doesn't currently support RSS feeds, although it may in
+the future. (Most feed readers should support Atom format feeds, and
+if they don't they should be upgraded to do so.)
+
+At the bottom of every page supporting Atom feeds, there is a 'Atom
+Syndication' toolbar that has appropriate links. What they are feeds
+for depends on what they are attached to:
+* The 'Recent Pages' Atom feed is for recently changed pages under
+  that directory.
+* Thus, the 'Recent Pages' link on the [[DWiki root|/]] will
+  give you a recently changed pages feed for the entire DWiki.
+* The 'Recent Comments' on a page is for recent comments to
+  that page; it only appears if the page allows comments.
+* The 'Recent Comments' on a directory is for recent comments to any
+  pages under that directory; on the [[DWiki root]], that is recent
+  comments on any page in the DWiki.
+
+Unless your feed reader is unusually featurefull, Atom feeds are
+unauthenticated and so will not pick up any restricted content.  (To
+pick up restricted content, the feed reader needs to give the DWiki
+server a valid authentication cookie.)

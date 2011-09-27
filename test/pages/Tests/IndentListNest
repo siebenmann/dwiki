@@ -1,0 +1,35 @@
+= Don't ask right now.
+
+* This is a test. \\
+  Of the indented list show.
+  * Of the indented list show.
+	* more.
+		* more more!
+	        1 Motto!
+  0 And now a ... CHANGE!
+	- How about an: interior <dl>?
+	  With a <dd> of course. \\
+	  Huh? How's that?
+  - Maybe this will: look nice.
+  * Does it work right?
+  And not any more.
+
+Okay, here we go.
+* Another test.
+	* And again.
+
+> Cite test.
+> * What is generated ...
+> > For another cite inside a list?
+> * It looks like we can't nest blockquotes inside lists, which means that
+>   I win.
+> 	* No, really, I win BIG.
+> Although the fomatting is going to give me a headache.
+
+This is a test of definition lists, with signatures messed in. so:
+
+-- signoff.
+
+* this is a list.
+-- ~~indented~~: to push the left margin right, in text layout (not politics).
+--- ~~indented twice~~: to use a hammer.

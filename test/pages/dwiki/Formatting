@@ -1,0 +1,295 @@
+= Ye Olde Formatting Teste
+This is, naturally, a test of how all of our formatting actually
+looks. (It has turned into sort of documenting things, too. You
+probably want to view the source, using the toolbar at the bottom.)
+
+== Lists:
+
+I'm not going to try to explain lists. Once you follow View Source, it
+should be obvious. The only tricky bit is that a list line that is
+continued on following lines must be *indented*; a flush-left line
+will be taken as returning to the paragraph (or starting one).  List
+demo:
+* This is an unordered list.
+* with another entry *continued
+  on another line* (see View Source).
+  # A nested numbered list.
+	0 ... and going deeper!
+	* Still nested, but we've switched styles.
+  * And we can abruptly switch styles as we de-nest, as we did here.
+  And back to the original list entry.
+* back down to the original unordered list.
+And back to the land of happy paragraphs. We've also got the third
+type of list on hand:
+- definition lists:  ... which may come in handy when I get around to
+  writing up detailed documentation on this thing.
+- *this thing* being: DWiki. Configuration, TemplateSyntax, operation,
+  etc.
+Definition lists don't come out *quite* as they're written in ASCII,
+but it's closer than some of the other choices. Definition lists nest
+with more leading characters, like the other lists.
+
+=== Nested Lists
+
+The primary way of writing nested lists is to actually indent the
+nested lists in the wikitext, as you can see in the 'View Source' for
+this page. Sometimes this is awkward; in that case, you can use more
+than one of the list-start characters, like this:
+* A list.
+** Another nested
+   list with another line.
+*** Really nested.
+00 List types can change.
+* And we're done.
+
+Note that if you continue such a nested list on a new line, the new
+line's indentation must be deeper than the start characters for the
+list.
+
+== Tables:
+|	| left	| right |
+| up	| 10	| 20 |
+| down	| 30	| 40 |
+Tables are extremely low-rent. [[Chris||People/ChrisSiebenmann]]
+figures that this pretty much matches what he wants.
+
+The downside is that more complicated tables may render, how shall we
+say, a little less than optimally. You're best off sticking to tables
+that have something in all of the cells and that are always the same
+shape.
+
+'Horizontal' tables, where the only border lines are horizontal and
+fainter, are created by starting a table with ((|_.)) instead of ((|)):
+
+|_. Code | Meaning			| Look at body?
+| 200	| Successful page fetch		| Yes (if _GET_)
+| 301	| (Permanent) redirect		| No
+| 304	| Not modified			| No
+| 404	| Access denied (don't retry)	| Only for error text
+
+FIXME: I need to do more work on styling tables well. At the moment
+they are barely better than just sticking ASCII blocks in. I can
+steal ideas from other WikiText implementations.
+
+== Links:
+
+Link formats:
+* Straight URL as text: http://www.google.com/
+* Explicitly marked wiki links: [[People/Chris]].
+  For in-wiki links, the name shown is shortened to the last
+  component. These can also be external _http://_ links, or absolute
+  local URLs if they're written with _<_ and _>_ around
+  them, eg _![[</>]]_.
+* Marked links with specific text:
+  [[the crazed person behind this|People/cks]].
+  Because I keep using _||_ instead of just _|_, you can use either to
+  separate the label and the link.
+* Marked links with space-separated words:
+  [[Chris Siebenmann People/cks]]. The last word is taken as the link
+  destination.
+* CamelCase names as wiki links: People/ChrisSiebenmann. 
+  CamelCase words are only links if the target page exists.
+
+The preferred link format for internal wiki links is the explicit wiki
+link ![[....]], because that allows a wider variety of useful names
+than CamelCase.  (eg, I do not want to have to CamelCase the names of
+all of the machines I want to write about.)
+
+=== Interpreting wiki links
+
+The DWiki path '_/_' is the [[wiki root|/]], in an analogy to Unix and
+URI roots. An absolute wiki link starts with _/_ and always refers to
+that absolute DWiki page.
+
+![[...]] links are considered relative by default (and can include
+'_.._' and so on as desired), except that if there's no page by the
+relative name and there is a page if we consider it an absolute link,
+DWiki does so. (This keeps me from having to write _/_ at the start of
+all my absolute links in ![[...]]'s.)
+
+CamelCase links are considered absolute by default, but if the
+absolute version isn't found and a relative version is, that gets
+used. If neither is found, DWiki tries an alias directory if that's
+configured, and if that fails the CamelCase is not a link.
+
+Thus all of the CamelCase DWiki's in this paragraph actually refer to
+the root [[/DWiki|/DWiki]]. The wiki link [[DWiki]] refers to the
+current directory one, [[/dwiki/DWiki|DWiki]]. (This is unfortunately
+obscured by DWiki's new habit of rewriting CamelCase links that point
+to redirects to the redirection target, but trust Chris, this is
+what's actually happening.)
+
+[Actually these days DWiki retargets *all* links that point to
+redirects, which may or may not be the right thing to do but does make
+it *much* harder to see this.]
+
+=== Link abbreviations
+
+Every time you give a (([[...]])) link both text and a link (with either
+_![[...|...]]_ or _![[... ... ...]]_), DWiki remembers the pairing of
+the text and the link. Afterwards, you can use either as a *link
+abbreviation*; it will expand to the full pair.
+
+The (almost) unambiguous form is to use _|_ at the start or the end of
+the _![[...]]_: at the end to use the name of the link, at the end to
+use the URL of the link (whichever is shorter). Eg, [[|People/cks]].
+
+You can write _![[<text>]]_ without the _|_. This is always taken to
+be a name abbreviation, and only if there are spaces in _<text>_ or
+_<text>_ isn't an absolute URL (!http:// or with < and > around it) or
+a real DWiki page.
+
+== Text formatting:
+Running text (in paragraphs, lists, tables, and in general all
+containers) is styled with fonts, links, macros, and magic line
+breaks.
+
+A '_ \\_' (space backslash backslash) at the end of a line, and only
+at the end of a line, produces a <br/>.
+
+=== Font styles:
+
+~~Bold~~, _type writer text_, and *italic*. Note that if we don't
+close one, like say ~~bold here, that it dies at the end of the
+paragraph.
+
+No stray formatting putting 2/3rds of your text into italic,
+nosirree. I like my formatting self-contained.
+
+There is one other font style: *code style*, which produces things
+like '((char *dp_null;))'.  Code style is _monospace_ with no further
+font interpretation, and is done by a !((...)) construct. It exists
+because ChrisSiebenmann keeps doing it by other, hackier means.
+
+I could have used _/_ for italics, but one major usage of dwiki
+is going to be documenting our Unix systems. When doing this I
+will be writing a lot more file paths than italics. Similarly,
+_monospace_ gets used more often than italics (or underline).
+
+NOTE: the font styles are applied with heuristics. See DWikiText
+for the full details.
+
+=== Macro font styles
+
+The _ST_ macro is written _!{{ST:<style>:text ...}}_, and formats
+the enclosed text in the given HTML font style, which must be one
+of big, small, strike, sub, sup, or u.
+
+The _C_ macro is used to insert a HTML character entity as either a
+decimal number, a hexadecimal number starting with _x_, or a named
+character entity from the list in CharacterEntities. Note that not all
+of them are *sensible* entities, and some of the more exotic of these
+may not render in the browser of your choice, although all of them are
+valid HTML 4.01 transitional.
+
+Some examples: {{C:1048}}, the Cyrillic capital letter "I"; {{C:x6C34}},
+the Chinese character for water. Certain sorts of cuteness are
+ruthlessly exterminated, like {{C:funky}}, {{C:10}} or {{C:x1F}}.
+
+Having numeric character entities be valid in your DWiki's chosen
+character set is up to you. (Of course, the only really sensible
+character set these days is utf-8.)
+
+HTML <abbr> elements are written _!{{AB:<abbreviation>[:text ...]}}_.
+Once an abbreviation has been used once its expansion is remembered, so
+you can write {{AB:API:Application Programming Interface}} once and then
+thereafter use just _!{{AB:API}}_ to get {{AB:API}}. An abbreviation
+without an available expansion is considered an invalid macro, so that
+you notice.
+
+(AB torture test: {{AB:SWD:The Ministry of "Silly Walks" & Other Such
+Strangeness}}.)
+
+Unlike most macros, these *can* be used in comments.
+
+== Others:
+
+A line of dashes will produce a horizontal cut, like:
+----------
+this. You need at least four. These can come pretty much anywhere.
+
+If you don't like really big horizontal lines, there's also the
+three-stars separator style, like so:
+* * *
+This is written as '_[[* * *|]]_' without line indentation (although
+you can put more whitespace between the stars if you want).
+
+== Indents produce code:
+ Like so.
+ This is literal preformatted text and is going to stay that way.
+ (I suppose you can do ASCII tables if you're so inclined.)
+Notice that that was all one <pre> block. Also notice that that HTML
+markup was quoted, just like this '&' will be.
+
+You need at least one whitespace character on the line. More than one
+whitespace character produces real in-<pre> whitespace out of the
+rest, like so:
+ Left.
+  Indented one more space, with & and <pre> thrown in as a bonus.
+ Back left.
+
+== Quoting things
+
+I don't quite know what to call this, but you can quote things just
+like you would in email: put '_> _' at the start of the quote lines.
+> Like so. \\
+> This is a new quoted paragraph.
+> > Quotes nest, too.
+> >
+> > You can put anything in a quote that you could put in normal text,
+> > and it will all work out right. For example:
+> > * lists.
+> > * and everything nests.
+> Even if you go back one level.
+Quotes disappear when you stop putting the quotes in. Despite what the
+semantic markup people may tell you, feel free to use quotes to
+produce indentation if it works for you.
+
+== Macros
+!{{...}} is a macro. Macros are used to do special magic expansion.
+Macros can take parameters, separated with :'s. Available macros
+currently are:
+
+{{DocAll:macros}}
+
+This list is generated by the same code that finds macros when turning
+DWikiText into HTML, so it's guaranteed to be complete. The
+documentation is hopefully complete, but [[People/ChrisSiebenmann]]
+may have forgotten to update (or provide) it when he changed the code.
+
+Macros that generate lists of pages generate them as links to the
+pages in question, which is what you want.
+
+== Escaping things:
+
+You can put a ! in front of !http://foobar, ![[..]], or !{{..}} to
+escape their special meaning. Technically this just escapes the
+meaning of the special leadin, leaving everything else to get styled
+stylishly.
+
+If you write _![[<text>|]]_, ie you supply no link name/URL, the text
+is produced un-DWikiText-ified. (This is different from the case where
+there is a link, in which the text *will* be DWikiTexted for fonts (but
+not links or macros).) This is the only genera way to escape font
+styling (as _!((...))_ is not exactly general).
+
+Testing: [[*Google*|http://www.google.com/]]. Yep, that text is
+styled.
+
+== Pragmas
+
+Pragmas have to be the very first line in the page. There are two:
+* _#pragma pre_ (or _#pragma plaintext_) forces the rest of the page
+  to be treated as plaintext, not wikitext.
+* _#pragma search DIR1 [...]_ adds any listed directories to where
+  DWiki searches for relative links, after all of the hard-coded
+  searches.
+
+The search pragma is handy when drafting pages somewhere other than
+their final directory.
+
+=== And that's all folks
+At least until [[People/ChrisSiebenmann]] starts adding more.
+
+Disclaimer: not entirely guaranteed to be complete and
+comprehensive. See _wikirend.py_ in the source code.

@@ -1,0 +1,35 @@
+DWiki now supports 'virtual directories': directories that don't
+really exist but instead serve to limit what's shown for a real
+directory. For example, you can limit what's shown for a real
+directory to only the most recent 5 things, or to only things written
+on 2005/05/29.
+{{CutShort}}
+
+This is expected to be most useful when applied to a _blogdir_ view.
+
+Virtual directories are added on to the end of a directory, and are
+themselves treated as directories. The three types that currently
+exist are:
+* *calendar*: with the format ((<year>/[<month>/[<day>]])), all as
+  digits; show just things from the specified time period. For
+  example, [[../29thNewFeatures]] (which redirects to such a thing).
+* *latest*: with the format ((latest/<howmany>)), shows the most
+  recent <howmany> items.
+* *range*: with the format ((range/<start>-<end>)) shows the most
+  recent entries from the start'th to the end'th.
+
+DWiki also lacks any direct support for generating links to virtual
+directories, although you can use REDIRECT files to point to them.
+
+This approach is essentially an alternate way of supplying additional
+arguments to existing views, instead of creating alternate views for
+the virtual directories. I think this is the appropriate take on the
+whole thing for DWiki.
+
+There is somewhat lame support for navigating backwards and forwards
+through the limits. Usefully, breadcrumbs do a lot of the work for the
+calendar based thing, although you cannot drill *down* from year to
+month or month to day. In the future there will be some sort of
+calendar block or strip or something. I am enamoured of a simple strip
+of days with content or something, although that would have to be a
+view all of its own.

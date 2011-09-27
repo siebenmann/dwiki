@@ -1,0 +1,31 @@
+== New: _feed-max-size_ and _feed-max-size-ips_
+
+This is all because LiveJournal has undocumented size limits on
+incoming syndication feeds, limits that DWiki can easily blow past.
+Since I actually wanted LiveJournal to be able to get syndication
+feeds from me, DWiki has grown two new configuration settings.
+
+_feed-max-size_ is an integer kilobytes. It is a rough limit on how
+large any feed can be; once DWiki generates a feed that is this many
+kilobytes or larger it stopps adding more entries, regardless of the
+setting for _atomfeed-display-howmany_. If unset, there is no size
+limit.
+
+_feed-max-size-ips_ restricts _feed-max-size_ to the whitespace
+separated list of IP addresses or tcpwrappers style IP address
+prefixes (eg '_66.150.15._' to get all of ((66.150.15.*))).
+Syndication fetches from other addresses will behave as if there was
+no _feed-max-size_.
+
+Strictly speaking, _feed-max-size_ limits only the size of the
+_atom::pages_ or _atom::comments_ output to that size. Whatever else
+is tacked on to make up a feed (hopefully not very big) will add some
+extra size.
+
+Moral: undersize _feed-max-size_ a bit. For LiveJournal, the limit is
+apparently 150 kilobytes (currently), so setting it to '120' or so
+should provide a comfortable safety margin.
+
+Although I'm not entirely fond of this (to put it one way), the
+documentation has been updated appropriately, making this feature more
+or less official.

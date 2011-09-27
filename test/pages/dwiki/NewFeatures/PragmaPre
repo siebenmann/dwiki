@@ -1,0 +1,20 @@
+A DWiki page (technically, any wikitext, so comments too) can now
+start with the line '_#pragma pre_' to declare that the entire rest of
+the page is simply preformatted text and should be barfed out as such
+(minus the #pragma line, which is swallowed). '_#pragma plaintext_' is
+accepted too.
+
+This is a much more convenient and maintainable way to stick plaintext
+files (such as program source or something) into a DWiki than
+indenting the entirity of their text one space.
+
+Note that this does not make the page come out as text/plain. The page
+is still text/html and fully templated, it's just that the wikitext is
+one big <pre> lump, instead of more sophisticated formatting.
+
+It's unlikely that DWiki will acquire any other sorts of pragmas (eg
+to say 'format this as nicely HTML-ized Python code'), partly because
+ChrisSiebenmann is dubious about the 'nicely HTML-ized' bit of any
+formatters since they invariably involve aesthetic decisions that
+people (eg, him) can and do object to. Having an easy way of including
+plaintext is the 80%-90% solution, and that is the DWiki way.

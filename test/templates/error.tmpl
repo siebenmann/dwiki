@@ -1,0 +1,14 @@
+#{html/dtd}
+<html><head><title>@{error::title}</title>
+#{html/css}
+</head>
+<body>
+#{struct/header.tmpl}
+
+<div id="documentbody">
+@{error::body}
+</div>
+
+#{struct/bottom.tmpl}
+</body>
+</html>

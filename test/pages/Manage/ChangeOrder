@@ -1,0 +1,9 @@
+= All pages in change order:
+{{RecentChanges:0}}
+
+This list does not exclude redirection pages, since the wiki would
+otherwise have to *read* all the pages, not just walk the entire wiki
+tree. Walking is presumed to be fast; loading content, not so much.
+
+-----
+This is a Category/PageManagement page.

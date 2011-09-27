@@ -1,0 +1,18 @@
+Template expansion via _#{...}_ now removes a final newline if such a
+final newline is present. (It doesn't remove more than one newline.)
+
+The final newline is really an implementation artifact of files; it's
+there because lines end with newlines, not because people consider it
+to be part of the file's *real* content. Deleting it thus brings
+template expansion closer to inserting people's idea of the file's
+contents into place.
+
+It also means that we avoid having templates introduce whitespace into
+undesired places. For example:
+>  [There's more starting at %{blog::seemore}#{blog/rangemore}]
+and _blog/rangemore_ of:
+>  or %{range::moreclip}
+doesn't introduce a gap between the end of %{range::moreclip}'s output
+and the ']' in what the browser displays. (See how we didn't think of
+_blog/rangemore_ as *actually* having a newline at the end as part of
+it?)

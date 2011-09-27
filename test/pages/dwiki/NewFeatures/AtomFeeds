@@ -1,0 +1,43 @@
+DWiki can now generate Atom feeds for recently changed pages and
+recently made comments, either for the entire DWiki or for some
+subtree of it. For comments, this can be down to an individual
+article.
+
+At the moment, pages in the Atom feed are rendered without macros
+except for _CutShort_, for efficiency reasons. All of the links
+are turned into absolute links (with http:// et al), since this is
+basically required. Nulled-out macros produce a small message to that
+effect in the generated content, so that people reading the Atom feed
+can tell that something is going on.
+{{CutShort}}
+
+Atom feeds are implemented as two new views, 'atom' and
+'atomcomments', with a associated pile of new renderers. Unfortunately
+the requirements of the Atom XML format make it all but impossible to
+reuse standard renderers to display the content of things, because all
+the actual HTML has to be escaped into oblivion. (Plus, bonus absolute
+links.)
+
+ChrisSiebenmann doesn't like the view name 'atomcomments' and may come
+up with a better one sometime.
+
+There is a new _atom::feeds_ renderer that creates the core of a feed
+toolbar. (ChrisSiebenmann decided that this fit badly into the page
+toolbar, which is for things that the browser can show you
+natively. Atom feeds are a different sort of tool.)
+
+Limitations:
+* Atom feeds don't handle non-plain-ASCII in the wikitext. XML
+  requires things to be converted to HTML entities, even if we label
+  it as utf-8 (I believe), and we don't know how to do that unless we
+  take wild swings at the character set.
+* If the wiki is running on a non-standard port, your guess is as good
+  as ChrisSiebenmann's as to what happens next. A couple of feed
+  readers seem to want the port not to be there (liferea for Linux
+  pukes if it is there, NetNewsWire for OS X is okay if it's not), so
+  we currently omit it.
+
+The Atom feed is almost but not quite 100% valid. The invalid bit is
+that the latest Atom RFC has changed the tags used for dates; DWiki
+generates both old and new date tags, which is invalid in either
+view.

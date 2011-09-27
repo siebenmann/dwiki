@@ -1,0 +1,15 @@
+Directories can now be displayed as a 'blogdir', which treats the files
+in the directory as if they were blog entries: they are sorted by
+modification time, most recent first, and then they are all displayed
+inline with a title.
+
+A chunk of this behavior is controlled by templates and new renderers.
+'blogdir' is a new view, only valid for directories, which uses
+((blogdir.tmpl)). The ((blog::blogdir)) renderer does the direct
+expansion, running each file through the template ((blog/blogentry.tmpl)).
+
+There are also new renderers for the new blog-like time format and for
+showing the owner of a file. (Currently the Unix and/or RCS owner.)
+
+This is ... how shall we say it ... not hugely scalable over the long
+run in terms of time structure and number of entries.

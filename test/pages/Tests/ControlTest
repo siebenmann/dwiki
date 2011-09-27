@@ -1,0 +1,24 @@
+== Do control characters validate?
+
+This is a C-d:  right there.
+
+Here is it wrapped up in ((code:  and)) [[plain  <-- there|]].
+
+This may or may not validated.
+
+No, it's not. To quote the validator on excluded characters:
+> (0 to 31 inclusive and 127 to 159 inclusive)
+
+(but we want to skip tab & newline.) Steal badchars from the
+comments module I think.
+
+See http://www.w3.org/MarkUp/html3/latin1.html
+and http://ppewww.ph.gla.ac.uk/%7Eflavell/charset/
+
+Also in a <pre> block, for completeness:
+
+ This should be C-d right here:  <-- there.
+ Multiple in a <pre>:  .
+ And this is done.
+
+Okay, this is a test of several:  done.

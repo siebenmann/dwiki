@@ -1,0 +1,15 @@
+== New: _#pragma search ..._
+
+I got tired of the relative links in my blog drafts (written in an
+entirely different directory than their eventual home) not working.
+So, introducing _#pragma search_; this adds additional directories to
+search for pages when resolving relative links, both WikiWords and
+explicit ![[...]] links. The directories listed in a search pragma must
+be absolute path names, and are searched only after the hard-coded
+possibilities have been exhausted (including the alias directory for
+WikiWords).
+
+You can't have both a _#pragma search ..._ and a _#pragma pre_
+in the same page, partly because it doesn't make any sense.
+(This is the simple way of getting out of handling multiple
+_#pragma_ directives.)

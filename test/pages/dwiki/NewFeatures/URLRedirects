@@ -1,0 +1,3 @@
+A DWiki [[../RedirectFile]] can now point to absolute URLs as well
+as local DWiki pages. Absolute URLs are written like they would be in
+_![[...]]_; either http:// or _<...>_.

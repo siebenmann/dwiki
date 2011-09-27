@@ -1,0 +1,9 @@
+== New: various new configuration options
+
+Not covered before now are various new configuration options that have
+been quietly added to DWiki over the five or so years that I have been
+using it as mostly a blogging engine. As you might expect, a bunch of
+these have to do with dealing with obnoxious clients of various sorts.
+
+They are by and large documented in [[../ConfigurationFile]]. I am not
+going to try to remember them here.

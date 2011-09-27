@@ -1,0 +1,31 @@
+= This is just a test.
+
+If there was actual contents, I would have written something here.
+Something better.
+
+However, let's show you the recent changes (most recent first):
+* {{Striped:RecentChanges:10}}.
+
+Recently commented on pages (see also [[|Manage/RecentComments]]):
+* {{Striped:RecentCommentedPages:10}}
+Recent comments: {{Striped:RecentComments:10}}.
+
+See [[help/Help]] for help on working with [[DWiki|]]. \\
+The most recent DWiki features are always at [[dwiki/NewFeatures]];
+see also [[dwiki/Features]].
+
+The recent changes list does not exclude redirection pages, since
+it would otherwise have to *read* all the pages, not just walk the
+entire wiki tree. Walking is presumed to be fast; loading content,
+not so much.
+
+(Revised: a limited-scope recent changes list does drop redirection
+pages, because otherwise it is vaguely irritating. Since it examines a
+finite and generally low number of pages, this is okay.)
+
+To see all pages: Manage/AllPages
+
+This is a DWiki.
+
+Subdirectories: {{Striped:ListDir:directory}} \\
+Pages marked with FIXME: {{Striped:ListRefs:FIXME}}.

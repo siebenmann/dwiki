@@ -1,0 +1,35 @@
+= Redirection Files
+
+Files in the page directory can create HTTP redirections, making it
+trivial to support plurals, moved/renamed pages, and so on. There are
+two ways of doing it: _REDIRECT_ content and symbolic links.
+
+If a file starts with a line that says '_REDIRECT *somewhere*_', and
+does not have more than a few lines of content, DWiki considers it a
+redirection. The *somewhere* is basically interpreted as if it was
+appearing in a _![[....]]_, so it can be:
+* redirection to another DWiki page.
+* redirection to an external web site, written as _!http://...._
+* redirection to an absolute URL on this web site, written as
+  _<...>_
+These files are generically called REDIRECT files.
+
+A symbolic link is only considered a redirect if DWiki can 'resolve'
+it into an existing page. To resolve the symbolic link redirect, DWiki
+tries to interpret the symbolic link's value as if it was appearing in
+a _![[...]]_ as a DWiki relative page name.
+
+If the symbolic link doesn't resolve this way, DWiki treats the whole
+thing as an ordinary page; this keeps 'ordinary' uses of symlinks
+intact in most cases, including when the symlinks point to something
+outside the DWiki page directory.
+
+Redirects to http:// links or absolute URL links are a convenient way
+of creating WikiWord abbreviations to external things for local
+use. Make an appropriate REDIRECT file, stick it in your Aliases area,
+and now every page in the DWiki can say GoogleSearch or something and
+get a link, bam.
+
+(WikiWord redirection rewriting means that in many cases the generated
+link will even point to the real target instead of the REDIRECT file,
+as you can see here.)

@@ -1,0 +1,23 @@
+== New: Page Titles
+
+Pages now have accessible 'titles', sort of. A page's title is taken
+to be the value of the header that starts the page, if said header is
+on the very first line. (So this page's nominal title is 'New: Page
+Titles'.) The header level doesn't matter; a _<h6>_ is as good as a
+_<h1>_, so long as it's the first line on the page.
+
+This info is available only after the page has been rendered, in the
+new global context variable _:wikitext:title_. Fortunately for us,
+Atom feed entries can have their fields in any order, so we are free
+to generate _<title>_ after _<content>_.
+
+Why did I do this? First, it's suitably low rent, and second I decided
+I wanted some vague way to generate semi-real page titles in Atom
+feeds instead of the current full path to the page (ever so helpful
+and informative as it is).
+
+The only tricky bit was making sure that only the appropriate magic
+wikitext renderers set the page title, and not all the times that we
+spin through wikitext looking for, eg, permissions. (Especially
+important in Atom feeds, as Atom feeds look at everyone's permissions
+before they do the real rendering.)

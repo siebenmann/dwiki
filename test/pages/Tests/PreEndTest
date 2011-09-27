@@ -1,0 +1,13 @@
+= Torture test for a <pre> region ending at end of page.
+
+(okay, a bit more than that by now.)
+
+ this is the first pre region
+ there will be a blank line in here soon.
+
+ there it was. technically that was a line with a space on it, which is
+ really what we want. now here's another that's really blank.
+
+ this is a pre
+ region
+ that ends at the end of the page.

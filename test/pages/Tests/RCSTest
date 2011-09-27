@@ -1,0 +1,8 @@
+= This is a test of putting files into RCS.
+
+This file is in RCS. Everything should work. (Famous last words.)
+
+Here's another line added.
+
+This is the change that is not yet checked in that is making this
+page have that 'has been modified' bit on its history display.

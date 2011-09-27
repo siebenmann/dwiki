@@ -1,0 +1,31 @@
+== New: Text formatting via macros
+
+I (ChrisSiebenmann) found myself with a genuine need for text set in
+HTML <strike>. Rather than try to invent a formatting setup for this
+that did not make me cringe, I just punted to the easy solution: macros
+that do text formatting.
+
+So, DWiki now has grown the new macros:
+* _ST_ for the font styles DWiki didn't already have.
+* _C_ for character entities, and _ShowCharEnts_ to show the named
+  entities we support.
+* because I was there anyways, _AB_ for <abbr>, so I could have those
+  cute inline abbreviation expansion things. Tragically <abbr> is not
+  supported by IE 6 and less, so _AB_ may quietly change to generating
+  <acronym> someday.
+* and finally, _IMG_ to generate <img>. Width, height, and alt text is
+  mandatory, and there is a hacky way to also roll title text in too.
+  (Title text is optional.)
+
+Through special black magic, _ST_, _C_, and _AB_ can be used in comments
+(the omission of _IMG_ is deliberate). In theory this lets a commenter
+cause character set explosions, but in practice a bad commenter can just
+write UTF-8 directly (UTF-8 is the common and only sane character set
+choice, so).
+
+Implementing these as macros means that they have some limitations. You
+can't nest _C_, _AB_, or a differently styled _ST_ inside an _ST_, and
+currently none of them can be done inside link text (_![[....]]_).
+
+These macros are a bit of a hack. It's relatively easy to implement
+bits of HTML this way, but I'm not sure if it's good design overall.

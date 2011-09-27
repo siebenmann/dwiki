@@ -1,0 +1,65 @@
+= A brief sketch of the Dwiki processing model
+
+The core of DWiki is a template expansion engine and a collection of
+(text) renderers; DWiki displays pages by figuring out what template
+to use and then rendering it out.
+
+Renderers generate text based on the current context, such as the page
+that is being displayed. The most important (and largest) renderer is
+the *wikitext* renderer, which takes page content in DWiki's
+[[wiki text format|Formatting]] and turns it into HTML.
+
+Other renderers create things like the navigation 'breadcrumbs' up at
+the top of this page and and the page tools and last-modified lines at
+the bottom. Renderers generally create only the essential pieces of
+that information; surrounding text is created through template
+expansion. Renderers are hardcoded parts of DWiki and are thus written
+in Python.
+
+Templates are text files; they get expanded by the template engine
+through a recursive process of applying template 'macros' to their
+text. Template macros can insert other (expanded) templates, insert
+text taken from context variables, and insert the results of
+renderers. A typical template might look like:
+>  <html><head><title>${|wikititle|wikiname} :: ${page}</title></head>
+>  <body> @{breadcrumbs} <br/>
+>  @{wikitext}
+>  <hr> #{footer.tmpl} #{site-sig.tmpl} </body> </html>
+(the actual templates that render this DWiki are somewhat more
+complicated than that, but this shows the flavour.)
+
+DWiki produces all pages this way. Displaying different types of pages
+(regular pages versus directories) and different views of the same
+page (such as the history view) is done by selecting a different
+starting template; the template (presumably) uses different renderers
+that the normal view.
+
+Errors are also rendered using templates (if an appropriate template
+exists). This allows some error pages to reuse renderers as
+appropriate; for example, the no-such-page error template includes
+breadcrumbs just as regular pages do, as you can see at
+[[NoSuchPage]].
+
+~~Wart~~: the view source display is not done by a template: it just
+barfs the content out straight as plain text. One current limitation
+of renderers and templates is that they can't control the
+content-type, which is set in the HTML view core.
+
+~~Wart~~: the mapping of view + file attributes to templates is
+currently hard-coded.
+
+== The frontend versus the core
+
+DWiki is divided into two components: the front end and the core. The
+front end receives raw HTTP requests, figures out if they are proper
+requests, and then passes them to the core to go through the core's
+processing. If the front end can detect that a HTTP request is not
+something that the core can handle, it rejects it immediately with a
+terse error.
+
+Similarly, if the core encounters a processing error it throws an
+exception up to the front end, which logs it and generates another
+terse error.
+
+It is the front end that can optionally serve static files; the core
+is not involved in that process.

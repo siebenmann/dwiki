@@ -1,0 +1,29 @@
+= Virtual Directories in DWiki
+
+A virtual directory is a way of restricting what pages get shown out
+of a real directory. It works by tacking on 'virtual' directories
+after the real directory (ie, as subdirectories) to tell DWiki what
+you want to see.
+
+Virtual directories restrict pages based on their most recent
+modification time. There are three versions available:
+
+* *calendar*: with the format ((<year>/[<month>/[<day>]])), all as
+  digits. Only pages most recently changed in the time period get
+  selected.
+* *latest*: with the format _latest/<howmany>_. They show just the
+  most recently changed _<howmany>_ pages.
+* *oldest*: with the format _oldest/<howmany>_. They show just the
+  least recently changed _<howmany>_ pages.
+* *range*: with the format _range/<start>-<end>_. They show the
+  start'th to the end'th most recently changed page.
+
+All pieces of a virtual directory must really *be* virtual. If you
+have a directory _Foo/_ with a _Foo/2005/_ subdirectory (or file), you
+cannot use the virtual directory _Foo/2005/05/_ to see things from May
+of 2005 in _Foo/_. Moral: let DWiki organize things based on time for
+you, don't do it yourself.
+
+Virtual directories are paid attention to by some renderers, which are
+generally used in some views. You can get the full list in
+TemplateSyntax.

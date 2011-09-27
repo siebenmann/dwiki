@@ -1,0 +1,34 @@
+DWiki now has an extremely low-rent generic from-the-web search
+functionality. It's so low-rent I'm not sure I'm going to keep it, but
+we'll have to see.
+{{CutShort}}
+
+Instead of doing something clever, it is basically the code that
+implements !{{ListRefs:...}} ripped out. (ListRefs now calls the code,
+so I do not go mad.)
+
+It exists mostly because I didn't feel like grepping the page store
+to see where I had mentioned something. So.
+
+Because I am dubious about it, search must be enabled in the
+configuration file with 'search-on'. Possibly this should be a
+feature. 'search-on' can be set to _authenticated_, in which case
+searching is restricted to authenticated users.
+
+At least I now have the chance to put smarter searching code in one
+place and I might even say I have a motivation to do that. Not *much*
+of a motivation, but ...
+
+In the process I got irritated at HTTP (again) and discovered more
+things about CSS layout and objects. Today's hint: put all of the text
+that you want to stay with the form in a single line *inside* the
+<form> block, or 'lo, the browser will rearrange it.
+
+I do still really wish forms could generate URLs with query suffixes
+like '((?search&searchfor=whatever))'; that would have made my life
+simpler and the URLs less ugly. (I could intuit a view from the
+presence of _searchfor_ alone, but that is too much black magic right
+now and I prefer not to guess too much when dealing with web input.)
+
+DWiki is an odd combination of deep paranoia and gleeful flowers of
+uncaring about such semi-security things.

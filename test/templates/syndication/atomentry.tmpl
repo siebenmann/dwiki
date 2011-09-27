@@ -1,0 +1,11 @@
+<entry>
+<id>@{atom::pagetag}</id>
+<link rel="alternate" type="text/html" href="@{atom::pageurl}" />
+<author><name>@{blog::owner}</name></author>
+<content type="html">%{atom::pageterse}
+#{syndication/linkbr}</content>
+<title type="html">${|:wikitext:title|abspage}</title>
+#{syndication/category}
+<updated>@{atom::modstamp}</updated>
+<published>@{atom::timestamp}</published>
+</entry>

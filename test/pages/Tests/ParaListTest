@@ -1,0 +1,27 @@
+= Don't ask right now.
+
++ this is a test.
+  of more.
++ of the continued list show.
+++ and of the indented list show.
+++ This will come out as a great big paragraph. Lorem ipsum whatever whatever,
+   this requires a lot of typing and I can't remember the typical latin slug
+   that newspapers use for all of of that and I am irritated with myself and
+   so on.
+** also of the indented list show.
+   and more. sigh.
+** yet more.
+*** yet more!
++++ switch up!
+* and more.
++ and yet more!
+
+Now to the indentation test.
+
++ We start
+  with a simple case.
+  + and then we indent.
+    to a more complicated one.
+    I think it will come out right.
+  Or will it?
+* That's an interesting question

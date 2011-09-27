@@ -1,0 +1,34 @@
+This is the current codebase for DWiki, my Python based wiki-oid engine
+that I use for my techblog Wandering Thoughts (among other things),
+http://utcc.utoronto.ca/~cks/space/blog/
+
+It is not a completely useful or documented codebase at the moment.
+
+Bits:
+- test: hierarchy of basic templates, pages, and so on for testing. It's
+  also served as the base set of files for my production uses of DWiki.
+
+- wiki.conf: sample / example / testing configuration file
+
+- dwiki-serv.py: serve DWiki using Python's built in web server code.
+  Suitable only for testing.
+
+Note that timestamps of files in test/ matter. Since git doesn't
+support file timestamps, there is a primitive shell script to save
+and restore them to a file:
+
+	./dostamps set test test.timestamps
+		# restore test/* timestamps from test.timestamps data
+
+	./dostamps get test test.timestamps
+		# save test/* timestamps to test.timestamps
+
+You need to do the former before starting to do stuff with DWiki.
+You want to do the latter before commiting any new or changed files
+in test/*.
+
+Author:
+Chris Siebenmann
+
+Copyright:
+GPL v3 for now. Someday there will be notes about this in files and so on.

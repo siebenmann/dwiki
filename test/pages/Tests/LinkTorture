@@ -1,0 +1,29 @@
+= A torture test for spanning links.
+
+This tests links that span more than one line to make sure that they
+match right and come out OK.
+
+A [[google
+http://www.google.com/ ]] multi-line test. And [[google]]
+
+A [[last week http://slashdot.org/]] test, repeated for [[last
+week]] line-crossing link recognition.
+
+A [[second
+test http://utcc.utoronto.ca]]
+and now on one line: [[second test]].
+
+Now with |: [[second
+week|http://www.utoronto.ca/]] and [[second week]] and [[second
+week]].
+
+More words: [[a long
+matcher
+http://news.bbc.co.uk/]]. [[a long matcher]]. [[a
+long matcher]]. [[a
+long
+matcher]]. [[a long
+matcher]].
+
+Another [[two weeks|http://reddit.com]]. [[two
+weeks]].

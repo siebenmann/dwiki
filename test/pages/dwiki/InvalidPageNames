@@ -1,0 +1,29 @@
+= Page Names That DWiki Won't Serve
+
+There are some paths and page names that DWiki categorically refuses
+to serve, even if they seem to resolve to real files. Because they're
+enforced by both low-level code and high-level code, they apply to
+DWiki pages, static files being served by DWiki, and even
+templates. (Technically they apply to comments too, but comments can't
+generate file names that violate these rules.)
+
+== What gets rejected:
+
+Any path that includes a path component that starts with a _._, ends
+with _,v_ or a _~_, or is _RCS_.
+
+Any non-relative path that includes _.._, _._, or a sequence _//_;
+usually this might appear in the URL of an incoming request. (Incoming
+requests are not *supposed* to include things like that. But
+ChrisSiebenmann declines to believe that everyone sending DWiki
+requests is going to do what they're supposed to.)
+
+DWiki will reject [[REDIRECT files|RedirectFile]] that either have too
+many '..' entries (so that they are trying to escape the root of the
+page directory) or that fail these checks after they've potentially
+been converted from relative path names to absolute inside-DWiki
+paths.
+
+When DWiki rejects bad paths, generally it says that there is no page
+by that name. Sometimes it rejects the request entirely in huge
+flames.

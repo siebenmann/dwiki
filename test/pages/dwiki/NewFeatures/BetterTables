@@ -1,0 +1,33 @@
+DWiki's tables can now have rows that span multiple lines, using
+indentation to continue them on subsequent lines just like with
+lists. The appearance is straightforward; just write:
+>  | start your table | another cell that
+>    is continued on another line | the end cell |
+>  | cell one | cell two | cell three |
+
+A row is closed by having a '_ |_' at the end of a line, or just by
+starting a new row.
+
+{{CutShort}}
+An example:
+| _root_	| If present, this is taken as the root directory that
+		  further configuration directives can specify paths
+		  relative to. |
+| _pagedir_	| The root directory of the page hierarchy. |
+| _tmpldir_	| The root directory of the template hierarchy.
+| _rooturl_	| The URL of the root of the DWiki page hierarchy,
+		  specified without the trailing _/_.
+
+As you can see, because DWiki is obsessive the final '_ |_' on a line
+is optional; if you omit it and go on, DWiki will just slam the whole
+stack of open markup closed.
+
+Cell contents are aligned to the top left of the cell, because this
+seems to be about right for visual appearance for things that
+ChrisSiebenmann wants.
+
+The sole problem with this table markup style is that GNU Emacs wants
+to put a starting ' |' on things when it autoindents, and won't
+autoindent on subsequent lines. Unfortunately I don't think I can find
+a visually appealing character that GNU Emacs will do the right thing
+with.

@@ -1,0 +1,88 @@
+= Writing pages for this DWiki
+
+DWiki directories and pages are just ordinary directories and files
+located under a special directory, the DWiki 'page directory'. To
+create or edit a DWiki page, you just use the editors and other tools
+you would ordinarily use to work with normal text files; your favorite
+editor, your favorite spellchecker, etc. (Normally you do this on the
+web host machine, which is probably running Unix.)
+
+For this DWiki, the page directory is _{{ShowCfgVar:pagedir}}_.
+
+~~Note:~~ Unlike traditional wikis, you cannot edit or create DWiki
+pages through your web browser. (You can write comments if everything
+is set up to allow it, although you may need to authenticate yourself
+first.)
+
+== Writing ordinary pages
+
+Instead of being written in HTML or anything complicated, DWiki pages
+are written in a form of plain text called DWikiText. You can read
+about it at that link, or use the 'View Source' link at the bottom of
+most pages to see what their wiki-text version looks like.
+
+To write an ordinary DWiki page, just work on a file under
+_{{ShowCfgVar:pagedir}}_; the page's name relative to the root of this
+DWiki is its Unix path relative to that directory.
+
+DWiki rejects certain page names that it considers bad or invalid; you
+can see the full discussion in [[../dwiki/InvalidPageNames]]. Although
+you can create a file with an invalid name through Unix, DWiki will
+never serve that file as a page.
+
+=== Categorizing pages
+
+The simple way to put a page into a 'category' is to make a category
+structure of directories and then put the page into the appropriate
+spot.
+
+The other way is to explicitly mark the page in its wiki-text, by
+adding a note about it to the bottom of the page. The note
+conventionally looks like:
+>  ----
+>  This is a Category/Help page.
+
+Then you create an actual Category/Help page that uses the ListRefs
+macro to list all pages that contain a reference to the full category
+name, in this case (({{ListRefs:Category/Help}})), with suitable
+explanatory text. (You can see this in the wikitext source for
+[[Category/PageManagement]], for example.)
+
+== Character sets
+
+DWiki doesn't change what you write in wikitext; if you put accents or
+other non-ASCII characters in, DWiki will send them out to visitors
+exactly as they are. It's your job to make sure that you write files
+in the same character set that the DWiki is configured to tell clients
+that the pages are in.
+
+This DWiki's character set is set to be: {{ShowCfgVar:charset}}.
+
+== Directories
+
+See [[Directories]] for a discussion of what happens with directories
+in DWiki, because this is complicated enough to call for its own page.
+
+== Magic redirection files
+
+Sometimes you may have page names that should really redirect readers
+to other pages, not be pages themselves. For example, moving a page,
+or pointing the plural of a name at the singlar version of the name
+(or vice versa).
+
+DWiki supports this with [[redirection files dwiki/RedirectFile]],
+which are described more at that link.
+
+=== Special page-name aliases
+
+By convention, the DWiki page directory [[|/Aliases]] (which means
+that for this DWiki it is the Unix directory
+_{{ShowCfgVar:pagedir}}/Aliases_) is used for convenient CamelCase
+aliases for DWiki pages. Such aliases can be used anywhere in the
+entire DWiki, without having to make them an explicit link and specify
+the path and so on.
+
+To actually work as aliases, these should be [[redirection files]].
+Then not only will they redirect any visitors, but when users see
+DWiki pages that use those aliases they'll see a direct link to the
+target page.

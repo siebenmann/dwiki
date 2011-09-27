@@ -1,0 +1,7 @@
+#{blog/day.tmpl}
+<div class="blogentry">
+<div class="entryid"> <h2> @{linkrelname} </h2> </div>
+#{|blog/wikiblog.tmpl|needauth.tmpl}#{comment/tools.tmpl}
+<small>Written @{blog::timeofday} by @{blog::owner}.</small>
+</div>
+<p> </p>

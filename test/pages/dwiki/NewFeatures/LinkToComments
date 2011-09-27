@@ -1,0 +1,10 @@
+== New: linktocomments renderer
+
+This is a little new renderer that creates a link to a page in the
+view necessary to show comments. In turn, this has caused the 'your
+comment has been posted' template page to be tarted up so that it
+uses it, thereby letting people who have posted comments see them in
+the page they go to.
+
+(I have decided not to have it link to the comment section of the
+page, just on general principle. I may change my mind about this.)

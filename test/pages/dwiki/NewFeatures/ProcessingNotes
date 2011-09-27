@@ -1,0 +1,14 @@
+== New: DWikiText has 'processing notes' (and better quoting)
+
+These are directives that change how DWikiText is interpreted to do
+things like turn off certain font characters or map a simple-to-type
+character sequence like '->' to a HTML entity. They are documented
+in DWikiText so I am not going to repeat myself here.
+
+In the process I added a new and less annoying plain quoting
+mechanism: !``...''. It looks better in ASCII than it probably
+does in the font here.
+
+(The code for this was written in August of 2007 or so, but I sat
+on it because I wasn't entirely sure I liked the feature. Well, nuts
+to that; time to roll things out and just go.)

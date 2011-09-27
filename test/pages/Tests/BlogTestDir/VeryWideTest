@@ -1,0 +1,6 @@
+= A very wide test.
+
+This has a really wide non-breakable line. We do it as a <pre> line,
+since that's the easiest and typical.
+
+ This is a really really wide preformatted line that because it is preformatted cannot be broken.

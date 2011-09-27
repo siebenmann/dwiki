@@ -1,0 +1,21 @@
+== New: Better Last-Modified handling
+
+Over the past while it has become increasingly obvious that it's
+useful for as many responses as possible to carry a _Last-Modified:_
+header. (The last straw was wanting Google's index to show
+modification dates for DWiki pages.)
+
+My reason for killing _Last-Modified:_ was so that things like logging
+in and logging out, which can't be reflected in the timestamp, would
+still have conditional _GET_s be served new pages. But since the
+conditional _GET_ logic is in DWiki itself, I can have DWiki be
+smarter about it.
+
+DWiki now separates the page timestamp from the idea of whether the
+page timestamp is reliable or simply vaguely useful information. The
+page timestamp will always be served if it exists at all, but
+conditional _GET_s only look at the page timestamp if it's reliable
+(which means that if authentication is on, the answer is generally
+'not').
+
+This should work much better.

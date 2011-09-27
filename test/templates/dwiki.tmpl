@@ -1,0 +1,13 @@
+#{html/dtd}
+<html> #{struct/head.tmpl}
+<body>
+#{struct/header.tmpl}
+
+<div id="documentbody">
+#{|dwiki/overrides.tmpl|dwiki/standard.tmpl}
+#{struct/datecrumbs.tmpl}
+</div>
+
+#{struct/bottom.tmpl}
+</body>
+</html>

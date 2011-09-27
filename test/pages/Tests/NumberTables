@@ -1,0 +1,7 @@
+= A test of tables with numeric table cells
+
+| 10000		| one.
+| 1000		| two.
+| 100		| three.
+| -10		| four.
+| 1.01		| five. with a long tail.

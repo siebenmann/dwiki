@@ -1,0 +1,20 @@
+== New: directories can have an index 'page'
+
+I've decided that sometimes I really want a directory to have an
+index page, not just a list of the contents. So now I can, with the
+unimaginatively named 'index' view. It's mostly template based; the
+normal template uses _inject::index_ to display an ((__index)) file.
+However, the view has several special properties:
+
+* unlike other directory views, it is not inherited by subdirectories.
+* it is only listed as an available view in the page tools area if
+  there is a file called ((__index)) in the directory.
+* if ((__index)) is a redirection, the index view will just generate
+  a redirect to the target.
+
+(Thus, the index view could be used to replace the _wikiroot_
+[[configuration directive ../ConfigurationFile]].)
+
+The index view is valid on directories even without a ((__index))
+page in the directory. Right now the template just displays a normal
+directory listing in that case.

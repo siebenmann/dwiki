@@ -1,0 +1,12 @@
+The _RecentChanges_ DWikiText macro now accepts additional arguments
+that are the list of directories to restrict the listing to, or with a
+dash at the front, directories to exclude from the listing. If you
+combine both, both criteria must match: in an included directory and
+not excluded.
+
+This lets a RecentChanges listing exclude areas that churn too much or
+are otherwise less interesting to list. (Perhaps, for example, a blog
+sub-hierarchy in a DWiki.)
+
+If there is a common directory prefix that scanning is limited to, the
+scan is efficient: only that directory and lower is looked at at all.

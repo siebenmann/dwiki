@@ -1,0 +1,14 @@
+#pragma pre
+This will come out as preformatted text (although not text/plain; it is
+still wrapped with the HTML framing and all that). Call it a convenient
+way to put up code and other plaintext content without having to indent
+the entire file.
+
+Which would be ... kind of annoying. (Perhaps more than kind of annoying.)
+This does escape < and & and so on, including things like:
+</pre>
+
+You know I really can't remember the rules that HTML uses to parse the
+whole thing. I am still vaguely boggled that <textarea> doesn't hork
+its shoes when some clever bugger puts a </textarea> in the whole thing.
+(Maybe I will experiment with TWO of them. Who knows!)
