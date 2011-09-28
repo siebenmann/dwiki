@@ -179,6 +179,13 @@ up response time. See [[Caching]] for a longer discussion.
 - _bfc-skip-robots_: If set, this is a list of User-Agent substrings
   (formatted as for _bad-robots_, see later) for robots that should
   not cause entries to be put into the BFC.
+- _imc-cache-entries_: Enable an in-memory cache of complete pages with
+  this many entries. Only meaningful when DWiki is running as a preforking
+  SCGI server. The IMC skips all pages that the BFC skips.
+- _imc-cache-ttl_: The TTL, in seconds, of entries in the in-memory cache;
+  must be provided if _imc-cache-entries_ is.
+- _imc-resp-max-size_: The maximum size (in kilobytes) of pages that will
+  be cached in the in-memory cache. The default value is 256 KB.
 - _slow-requests-by_: Delay all requests by this much,
   in fractional seconds. Normally used only for testing BFC.
 

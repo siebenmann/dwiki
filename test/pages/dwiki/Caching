@@ -3,8 +3,10 @@
 DWiki has optional caching in order to speed up generating results
 repeatedly. DWiki uses a disk-based cache for this (although the
 interface is abstracted and alternate forms of caching may be introduced
-someday). There are two caches, which can be enabled separately: the
-renderer cache and a brute force page cache.
+someday). There are three caches, which can be enabled separately: the
+renderer cache, a disk based brute force page cache, and an in-memory
+brute force page cache that is only used if DWiki is running as a
+preforking SCGI server.
 
 DWiki never removes the files of out of date cache entries from the
 disk cache; instead, it stops considering out of date ones to be
@@ -70,6 +72,31 @@ Once something is in the cache, it will be served from the cache if it
 is not older than the check TTL. Different requests can use different
 check TTLs for the same cached page; for example, conditional GETs
 versus other requests for Atom views.
+
+== The in-memory cache
+
+The in-memory cache is essentially a version of the brute force cache
+that holds pages in memory instead of on disk. It's only effective in
+environments where DWiki serves multiple requests from the same process;
+currently it's only used if DWiki is running as a preforking SCGI
+server. Because it holds pages in memory as page response objects, the
+in-memory cache is about the fastest way that DWiki can serve requests.
+In particular it's faster to serve static pages from the IMC than from
+disk, so unlike the BFC the IMC does cache static pages.
+
+Because IMC entries disappear automatically and are essentially free to
+create, the IMC caches pages unconditionally when active (unlike the
+BFC). This means that it should normally have a relatively low TTL,
+often lower than the BFC's TTL. Note that because the IMC is before the
+BFC, it can load its cache from BFC cache hits.
+
+For obvious reasons, it's pointless to set the IMC cache size to be
+larger than the number of requests a preforked SCGI process will serve
+before exiting.
+
+To keep IMC memory usage under control, the IMC has a settable maximum
+page size that it will cache. Tune this as appropriate for your
+environment.
 
 == The renderer cache
 

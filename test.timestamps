@@ -225,7 +225,6 @@
 @1143330277 test/pages/Tests/SearchPragmaTest
 @1143338464 test/pages/dwiki/Formatting
 @1143347458 test/pages/dwiki/NewFeatures/PragmaSearch
-@1143496265 test/pages/dwiki/Caching
 @1143861898 test/templates/blog/blog-show.tmpl
 @1143862198 test/templates/views/blog.tmpl
 @1143870752 test/templates/blog/blog-index.tmpl
@@ -258,4 +257,5 @@
 @1306936630 test/pages/help/DWikiText
 @1306937173 test/pages/dwiki/NewFeatures/ProcessingNotes
 @1306937385 test/pages/dwiki/NewFeatures/VariousConfigBits
-@1306938608 test/pages/dwiki/ConfigurationFile
+@1317228424 test/pages/dwiki/Caching
+@1317228676 test/pages/dwiki/ConfigurationFile
