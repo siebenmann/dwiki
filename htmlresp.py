@@ -16,7 +16,7 @@ redirHtml = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 class Response:
 	def __init__(self):
 		self.code = 200
-		self.headers = {}
+		self.headers = {'Vary': 'Cookie,Host', }
 		self.content = ""
 		self.cookie = Cookie.SimpleCookie()
 		self.charset = None
