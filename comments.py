@@ -203,7 +203,7 @@ def commentpreview(context):
 	# will never go off for people just starting to write comments.
 	if not verify_ip_prefix(context):
 		#context.set_error("mismatch in comment origin: previp %s: %s" % (repr(context.getviewvar('previp')), repr(comdata)))
-		context.set_error("mismatch in comment origin: previp %s (%s)" % (repr(context.getviewvar('previp')), context[error_var]))
+		context.set_error("info: mismatch in comment origin: previp %s (%s): %s" % (repr(context.getviewvar('previp')), context[error_var], repr(comdata)))
 	elif 'comments-report-drafts' in context:
 		# We can optionally log all draft comments, even ones that do
 		# not fail any of the rules. Note that this is verbose and
@@ -520,8 +520,8 @@ class WriteCommentView(views.TemplateView):
 		# to match, we don't generate any explicit errors; we
 		# just fall through to another preview pass.
 		#
+		#X#   verify_ip_prefix(self.context) and \
 		if self.context.getviewvar("post") and \
-		   verify_ip_prefix(self.context) and \
 		   self.context.page.comment_ok(self.context):
 			if not post(self.context, self.response):
 				self.error("badrequest")
