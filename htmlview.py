@@ -133,6 +133,8 @@ class WebServices:
 		if view == "index" and \
 		   not context.model.is_index_dir(page):
 			return False
+		if context.model.disallows_view(page, view):
+			return False
 		if context.page != page or context.view != view:
 			context = context.clone_to_page(page)
 			context.setview(view)

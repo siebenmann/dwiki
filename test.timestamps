@@ -259,3 +259,5 @@
 @1306937385 test/pages/dwiki/NewFeatures/VariousConfigBits
 @1317228424 test/pages/dwiki/Caching
 @1317228676 test/pages/dwiki/ConfigurationFile
+@1323382253 test/pages/Tests/.flag.noview:blogdir
+@1323456218 test/pages/dwiki/NewFeatures/DisallowDirViews

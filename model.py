@@ -388,6 +388,23 @@ class Model:
 					return (posview, cp)
 		return (None, None)
 
+	# Directories can disallow certain views on themselves; such
+	# views get redirected to the default view. (Things get slightly
+	# weird if they *are* the default view; don't do that.)
+	# Of course, we have to check the real page in case of a virtual
+	# directory. Like preferred views, this is done with a flag file:
+	#	.flag.noview:<disallowed view>
+	#
+	# TODO: should this (like the preferred view) be inherited down
+	# a tree, or should it be purely local as it is now?
+	def disallows_view(self, dpage, view):
+		dpage = dpage.me()
+		if dpage.type != "dir":
+			return False
+		flagn = ".flag.noview:" + view
+		fpath = utils.pjoin(dpage.path, flagn)
+		return self.pstore.exists(fpath)
+
 	def is_index_dir(self, dpage):
 		if dpage.type != "dir":
 			return False

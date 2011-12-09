@@ -161,6 +161,16 @@ class GenericView(object):
 			self.error("badformat")
 			return True
 
+		# Some directories decline to be viewed in some views.
+		# This causes a redirection to the default view for the
+		# directory. For obvious reasons, this only works if the
+		# view is set explicitly.
+		if self.page.type == "dir" and \
+		   'view-format-set-explicitly' in self.context and \
+		   self.model.disallows_view(self.page, self.view):
+			self.response.redirect(self.context.nuri(self.context.page))
+			return True
+
 		# Is this a magic redirect page?
 		if self.page.is_redirect():
 			res =  self.page.redirect_target()
@@ -285,5 +295,3 @@ class PostView(GenericView):
 		else:
 			self.post()
 		return self.response
-	
-
