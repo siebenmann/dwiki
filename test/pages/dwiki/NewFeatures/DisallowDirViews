@@ -1,0 +1,25 @@
+Directories can now say that they don't want to be rendered in specific
+view types. The usage case Chris has in mind is his techblog, where the
+blogdir view of categories is utterly huge because it renders hundreds
+of entries. Because this is intended to be a graceful gentle fix,
+trying to view a directory in a disallowed view generates a (permanent)
+redirection to the default view of the directory. To avoid redirection
+loops, this redirection only happens if the view has been specified
+explicitly as a URL parameter.
+
+(For obvious reasons, disallowed views are also disallowed in virtual
+directories derived from a particular real directory.)
+
+This is done similarly to DefaultDirViews: touch a file in the directory
+called _.flag.noview:~~<viewname>~~_. Unlike default views, this is not
+currently inherited by child directories.
+
+The 'See As' page tools links also exclude disallowed view types. Right
+now they do so a little bit too thoroughly, in that they exclude the
+default view if it's also disallowed. Moral: don't do that, even though
+the code saves you from a redirection loop in this case.
+
+Right now there is no restrictions on what (directory) views can be
+disallowed, so you can disallow Atom feeds. This is probably not a
+feature and will probably not be staying, although Chris may change
+his mind about this or just be lazy.
