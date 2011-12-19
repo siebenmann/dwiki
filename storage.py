@@ -12,7 +12,7 @@
 
 import rcsfile
 import os, os.path, pwd, stat
-import sha
+import hashlib
 import time, cPickle, tempfile
 
 import derrors, utils
@@ -410,7 +410,9 @@ def makedirs(name):
 # Store comments in a read/write pool.
 class CommentStoragePool(StoragePool):
 	def blobname(self, blob):
-		return sha.new(blob).hexdigest()
+		h = hashlib.sha1()
+		h.update(blob)
+		return h.hexdigest()
 	
 	# The biggest and most complex operation is writing something
 	# new to the store.

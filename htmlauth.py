@@ -15,7 +15,7 @@
 # On the other hand it requires no dynamic storage, which I consider
 # a feature. (Ie, it's lots simpler.)
 
-import sha
+import hashlib
 
 import authcookie, htmlrends, views, template, httputil
 
@@ -26,7 +26,7 @@ import authcookie, htmlrends, views, template, httputil
 # different values, but it means that you can't copy a password from
 # one person to another.
 def encryptPassword(user, raw):
-	return sha.new(user + ":" + raw).digest().encode("base64")[:-1]
+	return hashlib.sha1(user + ":" + raw).digest().encode("base64")[:-1]
 
 # This returns the (plaintext) secret for a given user entry in a
 # given context.

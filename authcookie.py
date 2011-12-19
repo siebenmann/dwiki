@@ -12,12 +12,12 @@
 # Cookies must be objects that obey the Cookie module's interface.
 
 # The hash is currently SHA1.
-import sha
+import hashlib
 
 # For some reason the base-64 encoding always appends a newline.
 # BITE ME.
 def genHashVal(val, secret):
-	hv = sha.new(secret + val)
+	hv = hashlib.sha1(secret + val)
 	return hv.digest().encode("base64")[:-1]
 
 def setCookie(cookie, name, val, secret):

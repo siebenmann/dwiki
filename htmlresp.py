@@ -3,7 +3,7 @@
 # Most of the variables on this object are public.
 import Cookie
 import time
-import sha
+import hashlib
 
 redirHtml = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -38,7 +38,9 @@ class Response:
 
 	def setEtag(self):
 		if self.content and self.code == 200:
-			ahash = sha.new(self.content).hexdigest()
+			h = hashlib.sha1()
+			h.update(self.content)
+			ahash = h.hexdigest()
 			self.headers['ETag'] = '"%s"' % ahash
 		elif 'ETag' in self.headers:
 			del self.headers['ETag']
