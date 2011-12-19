@@ -63,7 +63,7 @@ def setup_options():
 	parser.add_option('-p', '--port', type="int", metavar="PORT",
 			  dest="port", help="listen on port PORT (default %default)")
 	parser.add_option('-a', '--address', type="string", metavar="ADDR",
-			  dest="addr", help="listen at only IP address ADDR")
+			  dest="addr", help="listen only at IP address ADDR")
 	parser.set_defaults(servtype = "default", howmany= -1, profile=False,
 			    port=8010, addr='')
 	return parser
