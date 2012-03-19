@@ -25,6 +25,8 @@ timeFmts = ('%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M',
 class SimpleDWConf(config.Configuration):
 	wordlist_items = ( "bad-robots", "banned-robots", "bfc-skip-robots",
 			   "literal-words", )
+	list_items = ( 'banned-ips', )
+	
 	def __init__(self):
 		super(SimpleDWConf, self).__init__()
 		self.must_exist.append("rooturl")

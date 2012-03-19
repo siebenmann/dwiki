@@ -44,6 +44,11 @@ class Configuration(object):
 			self.kv[key] = self.kv[key] + " | " + val
 		else:
 			self.kv[key] = val
+	def addListItem(self, key, val):
+		if key in self.kv:
+			self.kv[key] = self.kv[key] + " " + val
+		else:
+			self.kv[key] = val
 
 	# Verification functions.
 	def hasvalue(self, what):
@@ -163,6 +168,8 @@ def loadfile(fp, cfg = None):
 			tl[1] = tl[1].strip()
 		if tl[0] in cfg.wordlist_items:
 			cfg.addWordListItem(tl[0], tl[1])
+		elif tl[0] in cfg.list_items:
+			cfg.addListItem(tl[0], tl[1])
 		elif tl[0] in cfg:
 			raise derrors.CfgErr, "setting %s supplied more than once" % tl[0]
 		else:
