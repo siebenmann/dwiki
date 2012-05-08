@@ -265,3 +265,5 @@ up response time. See [[Caching]] for a longer discussion.
 - _banned-ips_: If set, this is a list of IP addresses or tcpwrapper
   style IP prefixes (as for _feed-max-size-ips_) for addresses that will
   get access denied responses for all requests.
+- _banned-comment-ips_: If set, this is like _banned-ips_ but only applies
+  to attempts to write comments.

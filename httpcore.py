@@ -778,6 +778,22 @@ def IpKiller(next, logger, reqdata, environ):
 	else:
 		return next(logger, reqdata, environ)
 
+# Kill bad comment sources outright, like IpKiller/banned-ips, but only
+# for attempts to leave comments. This is less severe than banned-ips and
+# so can be applied more broadly. Note that this applies to both GET and
+# POST requests.
+def IpCommentKiller(next, logger, reqdata, environ):
+	if reqdata['view'] != 'writecomment':
+		return next(logger, reqdata, environ)
+	cfg = get_cfg(environ)
+	ipl = cfg['banned-comment-ips']
+	sip = environ.get('REMOTE_ADDR', '')
+	if not sip or httputil.matchIP(sip, ipl):
+		logger.warn("banned comment IP denied access")
+		return httputil.genError("disallowed", 403)
+	else:
+		return next(logger, reqdata, environ)
+
 # Kill insane requests, so that lower layers don't have to deal with
 # various sorts of irritating explosions.
 # We cannot completely validate the path because of synthetic pages
@@ -983,6 +999,7 @@ dwikiStack = (
 	(CacheCleaner, 'cachedir'),
 	(RobotKiller, 'bad-robots'),
 	(RobotKiller2, 'banned-robots'),
+	(IpCommentKiller, 'banned-comment-ips'),
 	(IpKiller, 'banned-ips'),
 	(InsaneKiller, ''),
 	(ReqKiller, ''),
