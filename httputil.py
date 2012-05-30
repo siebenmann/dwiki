@@ -166,14 +166,12 @@ def hostFromEnv(env):
 # Match an IP address -- usually the request source -- against a (string)
 # list of IPs or tcpwrappers style IP prefixes. Returns True or False,
 # depending on whether or not things matched.
+# CHANGED: ipLst much actually be a netblock.IPRanges object; we match
+# with 'in'.
 def matchIP(sip, ipLst):
 	if not ipLst:
 		return False
-	for ip in ipLst.split():
-		if (ip[-1] == '.' and sip.startswith(ip)) or \
-		   ip == sip:
-			return True
-	return False
+	return sip in ipLst
 
 # We should do better.
 # See http://www.peterbe.com/plog/html-entity-fixer and

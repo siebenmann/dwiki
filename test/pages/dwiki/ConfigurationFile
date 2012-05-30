@@ -202,11 +202,13 @@ up response time. See [[Caching]] for a longer discussion.
   for a safety margin. If unset, syndication feeds are not
   size-limited.
 - _feed-max-size-ips_: If set, this is a whitespace separated list of
-  IP addresses or tcpwrappers style IP address prefixes (eg,
-  '_66.150.15._') that _feed-max-size_ applies to. Syndication
-  requests from any other addresses are not size-limited. If unset,
-  _feed-max-size_ applies to all syndication requests, regardless of
-  what IP address makes the request.
+  IP addresses, tcpwrappers style IP address prefixes (eg
+  '_66.150.15._'), or IP CIDRs (eg '_66.150.15.0/25_') that
+  _feed-max-size_ applies to. Syndication requests from any other
+  addresses are not size-limited. If unset, _feed-max-size_ applies to all
+  syndication requests, regardless of what IP address makes the request.
+  This option can be specified multiple times; if so, all the addresses
+  are merged together.
 - _feed-start-time_: If set, pages older than this time will not
   appear in Atom feeds, which is handy if you want to move a
   DWiki, redirect the old URLs, and not flood people's Atom feeds
@@ -262,8 +264,9 @@ up response time. See [[Caching]] for a longer discussion.
 - _banned-robots_: If set, this is a list of User-Agent substrings
   (formatted as for _bad-robots_) for robots that should get permission
   denied responses on *all* requests.
-- _banned-ips_: If set, this is a list of IP addresses or tcpwrapper
-  style IP prefixes (as for _feed-max-size-ips_) for addresses that will
-  get access denied responses for all requests.
+- _banned-ips_: If set, this is a list of IP addresses, tcpwrapper
+  style IP prefixes, or CIDRs (as for _feed-max-size-ips_) for addresses
+  that will get access denied responses for all requests. It can be
+  specified multiple times.
 - _banned-comment-ips_: If set, this is like _banned-ips_ but only applies
   to attempts to write comments.

@@ -7,6 +7,7 @@
 # FIXME: no longer so low-rent. Document better.
 #
 import os.path
+import netblock
 import derrors
 
 class Configuration(object):
@@ -14,6 +15,9 @@ class Configuration(object):
 	must_exist = ['pagedir', 'tmpldir', 'wikiname',]
 	canon_dirs = { 'pagedir': 'pages', 'tmpldir': 'templates',
 		       'rcsdir': 'rcsroot' }
+	wordlist_items = ()
+	list_items = ()
+	ip_ranges = ()
 	
 	def __init__(self):
 		super(Configuration, self).__init__()
@@ -49,6 +53,11 @@ class Configuration(object):
 			self.kv[key] = self.kv[key] + " " + val
 		else:
 			self.kv[key] = val
+	def addIpRanges(self, key, val):
+		if key not in self.kv:
+			self.kv[key] = netblock.IPRanges()
+		for ipr in val.split():
+			self.kv[key].add(ipr)
 
 	# Verification functions.
 	def hasvalue(self, what):
@@ -170,6 +179,8 @@ def loadfile(fp, cfg = None):
 			cfg.addWordListItem(tl[0], tl[1])
 		elif tl[0] in cfg.list_items:
 			cfg.addListItem(tl[0], tl[1])
+		elif tl[0] in cfg.ip_ranges:
+			cfg.addIpRanges(tl[0], tl[1])
 		elif tl[0] in cfg:
 			raise derrors.CfgErr, "setting %s supplied more than once" % tl[0]
 		else:

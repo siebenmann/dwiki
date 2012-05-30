@@ -1,0 +1,3 @@
+[submodule "netblock"]
+	path = netblock
+	url = git://github.com/siebenmann/python-netblock.git
