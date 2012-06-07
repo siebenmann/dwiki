@@ -7,11 +7,26 @@ It is not a completely useful or documented codebase at the moment.
 Bits:
 - test: hierarchy of basic templates, pages, and so on for testing. It's
   also served as the base set of files for my production uses of DWiki.
+  test/pages/dwiki/ contains various documentation on DWiki's operation.
 
 - wiki.conf: sample / example / testing configuration file
+  See test/pages/dwiki/ConfigurationFile
 
 - dwiki-serv.py: serve DWiki using Python's built in web server code.
   Suitable only for testing.
+
+- dwiki-cgi.py: run DWiki as a CGI.
+- dwiki-scgi.py: SCGI-based frontend for DWiki. Its usage is complex,
+  see -h/--help. It communicates with your web server (or SCGI client)
+  over a Unix domain socket.
+
+- dwiki-cat.py: a relatively raw rendering interface for DWiki.
+  Mostly suitable for examining the internals and dumping raw pages.
+
+All four DWiki frontends take a common core of options (in addition
+to some options specific to each frontend) and expect to be given
+a configuration file as their main argument. See the output of
+the -h/--help option from each of them.
 
 Note that timestamps of files in test/ matter. Since git doesn't
 support file timestamps, there is a primitive shell script to save
