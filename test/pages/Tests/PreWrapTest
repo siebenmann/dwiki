@@ -1,0 +1,27 @@
+= This page has wrapped pre text
+
+.pn prewrap on
+The following preformatted text should wrap. Yes, it is that famous text
+yanked from one of the generator sites. What can I say, I wanted some
+preformatted text and I didn't feel like sticking DWiki code in here.
+
+ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sagittis
+ libero at lectus porta gravida. Integer quis ligula nisl, vitae adipiscing
+ turpis. Morbi lobortis accumsan turpis, id lacinia nulla viverra non. Quisque
+ nec quam sit amet lorem lobortis scelerisque. Quisque euismod urna in
+ nibh mollis eu blandit felis imperdiet. Quisque porttitor sagittis purus,
+ at auctor lorem luctus nec. Fusce dolor nisl, pharetra sed laoreet at,
+ egestas id dolor. Ut non purus sem. Sed vel vulputate magna. Pellentesque
+ nec viverra sem. Proin tempus accumsan nisl, mollis cursus ligula sodales in.
+
+ Praesent tempus nunc vitae sem fermentum congue. Maecenas egestas lectus
+ sit amet sem viverra varius. Nulla ultrices sollicitudin rhoncus. Sed mattis
+ varius sapien, vitae pretium elit posuere a. Aenean fermentum arcu in magna
+ faucibus posuere. Nam egestas feugiat nisl eu tincidunt. Donec quam odio,
+ tincidunt a semper id, pretium sit amet risus. Duis vulputate magna vitae
+ enim molestie blandit eget non nunc. Donec eget nisi dui. Vivamus id dui
+ dolor, quis pharetra mi. Aenean id dolor nisi. Phasellus at turpis sed ipsum
+ mollis fringilla. Maecenas nec urna eget dolor ultricies malesuada. Class
+ aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
+ himenaeos. Aenean ut convallis ante. Mauris bibendum vulputate urna, nec
+ bibendum quam facilisis non.

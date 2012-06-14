@@ -827,3 +827,18 @@ def pn_nosub(rend, args):
 	rend.clear_stopwords()
 	return True
 register_pnote("nosubs", pn_nosub, 0)
+
+def pn_prewrap(rend, args):
+	"""Turn on word-wrapping in preformatted text or turn it back off
+	again (which is the default state and the normal behavior of
+	HTML's _<pre>_). The sole argument is either '_on_' or '_off_'.
+	Word-wrapping preformatted text can look better in many cases
+	because it avoids scrollbars and keeps the entire text visible."""
+	if args[0] == "on":
+		rend.setPreWrap(True)
+	elif args[0] == "off":
+		rend.setPreWrap(False)
+	else:
+		return False
+	return True
+register_pnote("prewrap", pn_prewrap, 1)

@@ -144,9 +144,13 @@ start_entity['table'] = '<table border="1" cellpadding="4">'
 start_entity['td'] = '<td valign="top">'
 start_entity['ntd'] = '<td valign="top" align="right">'
 start_entity['horitable'] = '<table class="horizontal">'
+# This is researched from various places. 'word-wrap: break-word' is
+# apparently not necessary any more so I am leaving it out for now.
+start_entity['prewrap'] = '<pre style="white-space: pre-wrap;">'
 # Easiest way to handle this:
 end_entity['horitable'] = end_entity['table']
 end_entity['ntd'] = end_entity['td']
+end_entity['prewrap'] = end_entity['pre']
 
 #fake entity for straight-to-two lists:
 start_entity['innerlist'] = '<div style="margin-left: 2em">'
@@ -537,6 +541,7 @@ class WikiRend:
 		self.searchPath = []
 		self.disabledStyles = {}
 		self.textSubs = {}
+		self.preWraps = False
 		if options is None:
 			self.options = 0
 		else:
@@ -745,9 +750,12 @@ class WikiRend:
 		#pretextmp = {hasspace: '\t'}		#s-t trick
 		#pretext = [pretextmp.get(x,x) for x in pretext]	#s-t trick
 		pretext.append("\n")		# XXX: cks added.
-		self.handle_begin('begin', 'pre')
+		entity = 'pre'
+		if self.preWraps:
+			entity = 'prewrap'
+		self.handle_begin('begin', entity)
 		self.handle_plaintext(''.join(pretext))
-		self.handle_end('end', 'pre')
+		self.handle_end('end', entity)
 	filter_routines['indented'] = indented_handler
 
 	def quote_handler(self, tok):
@@ -1599,6 +1607,8 @@ class WikiRend:
 			del self.textSubs[word]
 	def delAllSubs(self):
 		self.textSubs = {}
+	def setPreWrap(self, val):
+		self.preWraps = val
 
 	# For macros: insert a link to a page. The title of the link is
 	# either pn or the title of the page, depending on the setting
