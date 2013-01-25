@@ -134,6 +134,11 @@ being run via suexec.
   set, authentication cookes have no explicit 'path='
   setting. ChrisSiebenmann has come to believe that you don't want to
   set this, and it remains as a vestigial remnant.
+- _logins-report-bad_: If present in the configuration file, DWiki will
+  log the username (or at least the first 50 characters of it) for bad
+  logins with unknown usernames. This is not necessarily a good idea but
+  at one point was interesting to track what form-stuffing spammers were
+  doing.
 
 === Comments
 - _commentsdir_: The root directory for storing comments in. The only
