@@ -166,7 +166,7 @@ def setLoginFromPassword(context, user, password):
 		# As a hack, we can report bad logins for nonexistent
 		# usernames, because they are often people trying to
 		# file comment spam. (!!)
-		if context['logins-report-bad']:
+		if context.get('logins-report-bad', False):
 			if len(user) > 50:
 				user = user[:50] + " <truncated>"
 			context.set_error("warning: bad login. login name: " + repr(user))
