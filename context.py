@@ -11,6 +11,7 @@
 import copy
 
 import utils
+import rendcache
 
 class Context(object):
 	def __init__(self, cfg, model):
@@ -297,6 +298,14 @@ class HTMLContext(Context):
 		res = self.getcache(("pagekids", rp))
 		if res is not None:
 			return res
+		res = self._get_disk_cpc(page)
+		if res is not None:
+			# If the general disk cache hit, we must load
+			# the in-memory cache.
+			self.setcache(("pagekids", rp), res)
+			return res
+		# Full miss. Go to all the work.
+		# 
 		# descendants() may return an iterator, which is
 		# absolutely no good to cache. So we must list-ize
 		# it, no matter how annoying that is.
@@ -304,4 +313,33 @@ class HTMLContext(Context):
 		# To be sure we sort it before we store it.
 		utils.sort_timelist(res)
 		self.setcache(("pagekids", rp), res)
+		self._set_disk_cpc(page, res)
 		return res
+
+	# Get and store page descendent lists in the generator disk cache,
+	# because they are time-consuming to compute. This is kind of a
+	# hack; see comments in pageranges.py for a similar case. Maybe
+	# I should merge them?
+	def _get_disk_cpc(self, page):
+		if not rendcache.cache_on(self.cfg) or page.virtual() or \
+		   page.type != "dir":
+			return None
+		return rendcache.fetch_gen(self, page.path, "page-kids")
+	# TODO: is this validator good enough? Probably.
+	def _set_disk_cpc(self, page, plist):
+		if not rendcache.cache_on(self.cfg) or page.virtual() or \
+		   page.type != "dir":
+			return
+		v = rendcache.Validator()
+		v.add_mtime(page)
+		ds = {page.path: True}
+		# note that Storage .children() (and thus .descendants()
+		# et al) never returns directories. This is a bit
+		# regrettable.
+		for ts, ppath in plist:
+			pdir = utils.parent_path(ppath)
+			if pdir in ds:
+				continue
+			ds[pdir] = True
+			v.add_mtime(self.model.get_page(pdir))
+		rendcache.store_gen(self, "page-kids", page.path, plist, v)

@@ -112,8 +112,9 @@ so that if the heuristic is fooled DWiki will pick up the new result
 sooner or later.
 
 Currently cached are various wikitext to HTML renderers (most of the
-time) and the expensive bit of _blog::prevnext_ (this must use a
-heuristic validator).
+time), the expensive bit of _blog::prevnext_ (this must use a heuristic
+validator), and the general 'find all descendants of this directory'
+operation that underlies a lot of the blog engine.
 
 Unfortunately, a DWiki page that has comment or access restrictions
 must be cached separately for each DWiki user that views it. Under some
@@ -131,6 +132,12 @@ but it can't check all of them and still be a useful cache.
 
 So the easy way to invalidate this is to change the modification
 time of a directory involved, for example with _touch_.
+
+The 'find all descendants' cache is similarly invalidated by changing
+a directory modification time. Unlike the _blog::prevnext_ case, the
+directory times are the only thing that this cache checks. This is a bit
+of a pity but the performance improvements from caching this information
+are very visible.
 
 == Disk space usage
 

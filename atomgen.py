@@ -176,7 +176,10 @@ def _fillpages(context):
 	cutpoint = get_cutpoint(context)
 	cuttime = get_cuttime(context)
 
-	dl = context.page.descendants(context)
+	#dl = context.page.descendants(context)
+	# We deliberately use this context routine because it uses the
+	# disk cache (if that exists).
+	dl = context.cache_page_children(context.page)
 
 	# Force the generator to be expanded to a full list so we can use
 	# .sort on it.

@@ -86,7 +86,6 @@
 @1117566817 test/pages/dwiki/RCS/Formatting,v
 @1117570420 test/templates/blog/blogentry-std.tmpl
 @1117571145 test/pages/dwiki/NewFeatures/DocStringDocs
-@1117572914 test/passwd
 @1117589039 test/templates/wikiauth.tmpl
 @1117591467 test/pages/dwiki/NewFeatures/ShortRecentChanges
 @1117593027 test/pages/dwiki/NewFeatures/TemplateNewlines
@@ -257,8 +256,9 @@
 @1306936630 test/pages/help/DWikiText
 @1306937173 test/pages/dwiki/NewFeatures/ProcessingNotes
 @1306937385 test/pages/dwiki/NewFeatures/VariousConfigBits
-@1317228424 test/pages/dwiki/Caching
 @1323382253 test/pages/Tests/.flag.noview:blogdir
 @1323456218 test/pages/dwiki/NewFeatures/DisallowDirViews
 @1339683377 test/pages/Tests/PreWrapTest
 @1359140622 test/pages/dwiki/ConfigurationFile
+@1359671470 test/passwd
+@1359671914 test/pages/dwiki/Caching
