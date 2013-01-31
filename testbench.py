@@ -1,10 +1,10 @@
 #!/usr/bin/python
 #
 # A DWiki test bench. Usage:
-#	testbench.py [-P] CFG COUNT URL [RENDERER]
+#	testbench.py --help
 #
 import sys, time
-import profile, pstats
+import cProfile as profile, pstats
 import urlparse
 import itertools
 
@@ -57,7 +57,7 @@ def doStatProf(*args):
 	bench.statprof.start()
 	runLimited(*args)
 	bench.statprof.stop()
-	bench.statprof.display(percent_threshold=1.0)
+	bench.statprof.display()
 
 def doTime(cnt, *args):
 	args = (cnt,) + args
@@ -73,7 +73,7 @@ def setup_env(url):
 		'SERVER_PROTOCOL': 'HTTP/1.0',
 		'SERVER_NAME': 'localhost',
 		'SERVER_PORT': '80',
-		'REMOTE_ADDR': 'localhost',
+		'REMOTE_ADDR': '127.0.0.1',
 		'REMOTE_PORT': '9999',
 		'REQUEST_METHOD': 'GET',
 		'REQUEST_URI': url,
@@ -105,6 +105,9 @@ def usage():
 def setup_options():
 	parser = dwconfig.setup_options("%prog [--help] [options] CONFIG URL COUNT [RENDERER]",
 					"testbench 0.1")
+	parser.add_option('-B', '--no-bfc', dest="rmconfig",
+			  action="append_const", const="bfc-cache-ttl",
+			  help="disable the Brute Force Cache")
 	parser.add_option('-P', '--profile', dest='operation',
 			  action="store_const", const=doProfile,
 			  help="profile, using the Python profiler")
