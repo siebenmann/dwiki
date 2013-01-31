@@ -46,6 +46,7 @@ def bannedcontent(txt):
 	       "http://community.babycenter.com/" in txt or \
 	       "http://2gbmemory.net" in txt or \
 	       "http://gmconference.ca/" in txt or \
+	       "http://www.talentclick.com/" in txt or \
 	       '<a href="http://' in txt or \
 	       '<a href=http://' in txt or \
 	       '[url]http://' in txt or \
