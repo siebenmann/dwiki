@@ -23,6 +23,12 @@ Bits:
 - dwiki-cat.py: a relatively raw rendering interface for DWiki.
   Mostly suitable for examining the internals and dumping raw pages.
 
+- dpasswd.py: add entries to a DWiki password file. Has bugs about
+  in-place updates, which should be fixed.
+
+- testbench.py: a timing and profiling test harness. Using statprof
+  requires some external assistance beyond the scope of this README.
+
 All four DWiki frontends take a common core of options (in addition
 to some options specific to each frontend) and expect to be given
 a configuration file as their main argument. See the output of
