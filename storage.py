@@ -35,11 +35,12 @@ def join2(a, b):
 # Implicitly, a plain file object is not displayable if it has no contents
 # at all.
 sBad, sInconsist, sGood, sLocked, sNoRCS = range(5)
+noStat = object()
 class FileObj(object):
 	type = "file"
-	def __init__(self, fname, st = None):
+	def __init__(self, fname, st = noStat):
 		# fname is fully resolvable
-		if not st:
+		if st is noStat:
 			st = fillStat(fname)
 		self.real = bool(st)
 		self.name = fname
@@ -95,6 +96,8 @@ class FileObj(object):
 
 	# The owner of a normal file is a pretty simple idea in
 	# theory, but kind of annoying to implement in practice.
+	# FIXME: pwd.getpwuid() is a hot path for Atom feed generation
+	# and should be cacheable somehow.
 	def owner(self):
 		if not self.real:
 			return None
@@ -255,12 +258,7 @@ class StoragePool:
 	def validname(self, relname):
 		if relname == '':
 			return True
-		if utils.boguspath(relname):
-			return False
-		for d in relname.split("/"):
-			if not utils.good_path_elem(d):
-				return False
-		return True
+		return utils.goodpath(relname)
 
 	def get(self, relname, missIsNone = False):
 		# We don't need to revalidate the damn name if it's
@@ -291,6 +289,8 @@ class StoragePool:
 	def set_cache(self, state):
 		self.cache_on = state
 
+	# INTERNAL INTERFACE: takes a full path name, not a relative
+	# name. This is dangerous.
 	def getStat(self, fname):
 		if fname in self.stcache:
 			return self.stcache[fname]
@@ -298,6 +298,18 @@ class StoragePool:
 		if self.cache_on:
 			self.stcache[fname] = st
 		return st
+
+	# Get the type of a name as a string (or None if it doesn't exist).
+	# The name is *relative*.
+	def get_type(self, relname):
+		fname = join2(self.root, relname)
+		st = self.getStat(fname)
+		if not st:
+			return None
+		elif stat_isdir(st):
+			return "dir"
+		else:
+			return "file"
 
 	def fromdir(self, relname, fname, st):
 		__pychecker__ = "no-argsused"

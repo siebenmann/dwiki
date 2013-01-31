@@ -3,7 +3,7 @@
 # (Actually it's a list of (modtime, path) tuples, but small difference.)
 
 import re
-import time, calendar
+import time, calendar, datetime
 
 import derrors, utils
 import htmlrends
@@ -131,17 +131,35 @@ def restriction(context):
 	else:
 		return rtype
 
-# Compare our calendar range to a modtime.
-def calendar_cmp(cargs, modtime):
-	t = time.localtime(modtime)
-	for i in (0, 1, 2):
-		if cargs[i] is None:
-			break
-		res = cmp(t[i], cargs[i])
-		if res != 0:
-			return res
-	# Must be equal, we haven't failed yet.
-	return 0
+# Convert a calendar range to two Date objects, one the start and
+# one the end day of the range.
+# crange[0] = year, crange[1] = month, crange[2] = day.
+# None/zero is 'not set', ie the range covers the entire month or the entire
+# year. Year is always set.
+def crange_to_limits(crange):
+	if crange[2]:
+		t = datetime.date(crange[0], crange[1], crange[2])
+		return (t, t)
+	elif crange[1]:
+		_, dcnt = calendar.monthrange(crange[0], crange[1])
+		return (datetime.date(crange[0], crange[1], 1),
+			datetime.date(crange[0], crange[1], dcnt))
+	else:
+		return (datetime.date(crange[0], 1, 1),
+			datetime.date(crange[0], 12, 31))
+
+# basically cmp(modtime, (start, end)):
+# returns: 0 if modtime falls within start to end
+#	   1 if modtime > end
+#	   -1 if modtime < start
+def calendar_cmp(start, end, modtime):
+	t = datetime.date.fromtimestamp(modtime)
+	if t < start:
+		return -1
+	elif t > end:
+		return 1
+	else:
+		return 0
 
 # Filter a (modtime, path) list based on the restriction chosen through
 # virtualization.
@@ -170,8 +188,9 @@ def filter_files(context, flist):
 		rl = []
 		just_before = None
 		just_later = None
+		r1, r2 = crange_to_limits(rargs)
 		for e in flist:
-			r = calendar_cmp(rargs, e[0])
+			r = calendar_cmp(r1, r2, e[0])
 			if r > 0:
 				just_before = e[0]
 			elif r < 0:
@@ -319,8 +338,23 @@ def entriesIn(context, ctuple):
 	dl = context.cache_page_children(context.page.me())
 	if not dl:
 		return False
+	cstart, cend = crange_to_limits(ctuple)
+
+	# We search for days a lot; this case is worth optimizing
+	# specifically.
+	# NOTE: this is lame.
+	if cstart == cend:
+		for e in dl:
+			t = datetime.date.fromtimestamp(e[0])
+			if cstart == t:
+				return e[0]
+			elif t < cstart:
+				return False
+		return False
+
+	# general case.
 	for e in dl:
-		res = calendar_cmp(ctuple, e[0])
+		res = calendar_cmp(cstart, cend, e[0])
 		if res == 0:
 			return e[0]
 		# If we've passed the time, we can stop now.
@@ -361,12 +395,13 @@ def genBar(context, scopelist):
 def outsideRange(context, cstart, cend):
 	before = None
 	after = None
+	cstart1, _ = crange_to_limits(cstart)
+	_, cend2   = crange_to_limits(cend)
 	for e in context.cache_page_children(context.page.me()):
-		r1 = calendar_cmp(cend, e[0])
-		r2 = calendar_cmp(cstart, e[0])
-		if r1 > 0:
+		r = calendar_cmp(cstart1, cend2, e[0])
+		if r > 0:
 			before = e[0]
-		elif r2 < 0:
+		elif r < 0:
 			after = e[0]
 			return (before, after)
 	return (before, after)

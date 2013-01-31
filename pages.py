@@ -77,6 +77,12 @@ class Page(object):
 		self.timestamp = self.pfile.timestamp()
 		self.modstamp = self.pfile.modstamp()
 
+	# Internal use only, for virtual pages that do not want to
+	# load a nonexistant file from the page store.
+	def _setup(self, path, model):
+		self.name, self.path = utils.canon_path(path)
+		self.model = model
+
 	# Internal use only:
 	def _get(self, page):
 		return self.model.get_page(page)
@@ -107,6 +113,18 @@ class Page(object):
 	def children(self, whattype = None):
 		if self.type != "dir":
 			return []
+		if whattype:
+			# Worth optimizing, since the common case is
+			# whattype == "dir" and in a large directory
+			# of blog entries we'd otherwise unnecessarily
+			# set up a lot of file pages.
+			pathlist = [utils.pjoin(self.path, z)
+				    for z in self.pfile.contents()]
+			clist = [self._get(x) for x in pathlist if
+				 self.model.pstore.get_type(x) == whattype]
+			return clist
+
+		# no whattype
 		clist = [self._get(utils.pjoin(self.path, z)) for
 			 z in self.pfile.contents()]
 		if whattype:
@@ -192,7 +210,7 @@ class Page(object):
 
 class VirtDir(Page):
 	def __init__(self, path, model, root):
-		super(VirtDir, self).__init__(path, model)
+		super(VirtDir, self)._setup(path, model)	# sorta evil
 		self.root = root
 		self.type = "dir"
 		self.timestamp = root.timestamp
@@ -222,5 +240,10 @@ class VirtDir(Page):
 		return self.root
 
 	def descendants(self, context):
+		# It is evil to call into the context so that we can load
+		# descendant information from the caches, but it vastly
+		# speeds up handling virtual directories. We'll live with
+		# it for now.
+		# (This just shows that the interface is wrong.)
 		return pageranges.filter_files(context,
-					       self.root.descendants(context))
+					       context.cache_page_children(self.root))

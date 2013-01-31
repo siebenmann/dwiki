@@ -34,6 +34,13 @@ class WebServices:
 	def __init__(self, cfg, model):
 		self.cfg = cfg
 		self.model = model
+		# .url_from_path() is such a hot path that it is worth
+		# pre-computing the rooturl rather than doing it every
+		# time.
+		ru = self.cfg.get('publicurl', self.cfg['rooturl'])
+		if ru[-1] != '/':
+			ru = ru + '/'
+		self.rooturl = ru
 
 	def prefDirView(self, page):
 		return self.model.pref_view_and_dir(page, pub_dir_views())[0]
@@ -51,20 +58,14 @@ class WebServices:
 		if page.type == "dir" and path:
 			path = path + '/'
 		url = urllib.quote(path)
-		if not viewparams:
-			viewparams = {}
 		if view:
+			if not viewparams:
+				viewparams = {}
 			t = ["?%s" % urllib.quote(view)]
 			for k, v in viewparams.items():
 				t.append("%s=%s" % (k, urllib.quote_plus(v)))
 			url = url + "&".join(t)
-		if 'publicurl' in self.cfg:
-			ru = self.cfg['publicurl']
-		else:
-			ru = self.cfg['rooturl']
-		if ru[-1] != '/':
-			ru = ru + '/'
-		return ru + url
+		return self.rooturl + url
 
 	# uri_from_path() returns something that is usable in a
 	# redirection.

@@ -1,4 +1,5 @@
 #
+import re
 
 # The less helpful version of os.path.join, for two arguments only, and
 # if the second argument is an absolute path we do not discard the first.
@@ -33,6 +34,7 @@ def name_path(path):
 	return path.split('/')[-1]
 
 # Like os.walk, but on pages and does not return directories.
+# TODO: unused and worth removing?
 def walk(page):
 	res = []
 	for child in page.children():
@@ -67,22 +69,35 @@ def canonpath(dirn, path):
 
 # Is a path a good path?
 # This is called SO OFTEN that it is worth some micro optimizations.
+# Note: good_path_elem() beats an RE-based matcher.
 badElem = dict.fromkeys(('.', '..', '', 'RCS'))
 def good_path_elem(pelem):
 	return not (pelem in badElem or \
 		    pelem[0] == '.' or \
 		    pelem[-1] == '~' or \
 		    pelem[-2:] == ",v")
-def goodpath(path):
+def goodpath_old(path):
 	if path == '':
 		return True
 	pelems = [x for x in path.split('/') if not good_path_elem(x)]
 	return not bool(pelems)
 
+# note that the '.'-at-start pattern takes out '..' as well.
+# a path that starts with a / is not good, but this is tricky
+# in the re; it matches '^<empty>/'.
+# This beats goodpath_old().
+badpath_re = re.compile(r"(^|/)(\.[^/]*|RCS||[^/]*~|[^/]*,v)(/|$)")
+def goodpath(path):
+	if badpath_re.search(path) and path != "":
+		return False
+	else:
+		return True
+
 # A bogus path is one that has directory motion elements in it that
 # make us grind our teeth.
 # Note that split's behavior means that disallowing '' as a path
 # element also disallows paths starting with '/'.
+# As surprising as it might be, this implementation beats a regexp.
 def boguspath(path):
 	if path == '':
 		return False
