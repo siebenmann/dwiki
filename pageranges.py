@@ -188,7 +188,16 @@ def filter_files(context, flist):
 		rl = []
 		just_before = None
 		just_later = None
-		r1, r2 = crange_to_limits(rargs)
+		# FIXME
+		# The day, month, or year may be invalid, in which case
+		# the datetime.date conversion in crange_to_limits()
+		# will throw a ValueError. Catching it here is a crude
+		# hack.
+		try:
+			r1, r2 = crange_to_limits(rargs)
+		except ValueError:
+			context.setvar(rest_hitstore, (None, None))
+			return rl
 		for e in flist:
 			r = calendar_cmp(r1, r2, e[0])
 			if r > 0:
