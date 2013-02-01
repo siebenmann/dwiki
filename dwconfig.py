@@ -25,6 +25,8 @@ timeFmts = ('%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M',
 class SimpleDWConf(config.Configuration):
 	wordlist_items = ( "bad-robots", "banned-robots", "bfc-skip-robots",
 			   "literal-words", )
+	list_items = ('atomfeed-virt-only-in', 'atomfeed-virt-only-adv',
+		      'canon-hosts', )
 	ip_ranges = ('banned-ips', 'banned-comment-ips',
 		     'feed-max-size-ips', )
 	
@@ -104,13 +106,6 @@ class SimpleDWConf(config.Configuration):
 			self.hasvalue('imc-cache-ttl')
 			self.setDefault('imc-resp-max-size', 256*1024)
 		
-		# Bonus hack.
-		if 'canon-hosts' in self:
-			self.hasvalue('canon-hosts')
-			v = self['canon-hosts']
-			if not isinstance(v, list):
-				self['canon-hosts'] = v.split()
-
 		if 'feed-start-time' in self and \
 		   not isinstance(self['feed-start-time'], int):
 			self.isIntOrTimestr('feed-start-time')
@@ -127,6 +122,15 @@ class SimpleDWConf(config.Configuration):
 			v = self[lst]
 			if not isinstance(v, list):
 				self[lst] = [x.strip() for x in v.split(" | ")]
+
+		# ditto for the simpler list_items:
+		for lst in self.list_items:
+			if lst not in self:
+				continue
+			self.hasvalue(lst)
+			v = self[lst]
+			if not isinstance(v, list):
+				self[lst] = v.split()
 
 	def loadAuthSeed(self):
 		fname = self['global-authseed-file']

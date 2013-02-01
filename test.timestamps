@@ -259,6 +259,7 @@
 @1323382253 test/pages/Tests/.flag.noview:blogdir
 @1323456218 test/pages/dwiki/NewFeatures/DisallowDirViews
 @1339683377 test/pages/Tests/PreWrapTest
-@1359140622 test/pages/dwiki/ConfigurationFile
 @1359671470 test/passwd
 @1359671914 test/pages/dwiki/Caching
+@1359747440 test/pages/dwiki/ConfigurationFile
+@1359758779 test/pages/dwiki/NewFeatures/AtomFeedsAndVirtualDirs

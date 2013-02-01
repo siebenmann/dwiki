@@ -1,0 +1,40 @@
+DWiki can now restrict what sorts of VirtualDirs advertise
+AtomFeeds (both in SyndicationDiscovery and in the Atom toolbar)
+and/or provide them if they're requested by URL.
+
+It turns out that when you have a fair amount of content in a DWiki
+your VirtualDirs and thus your AtomFeeds proliferate like over-active
+rabbits. Then SyndicationDiscovery kicks in so that anyone who looks at
+a virtual directory can discover its Atom feed and either start polling
+it or just crawl it. Once your DWiki gets big enough this becomes not
+really a good thing, as Chris has found out with his techblog.
+{{CutShort}}
+
+This is implemented with the new _atomfeed-virt-only-adv_ and
+_atomfeed-virt-only-in_ configuration file directives, documented in
+[[../ConfigurationFile]]. This affects only the Atom page feed; the Atom
+comment feed handling is unchanged.
+
+Virtual dirs that have advertisement disabled actually advertise
+the feed URL of the real directory instead (instead of omitting it
+entirely). This seems to be sensible behavior and is probably what
+real blog engines do.
+
+A disallowed Atom request for a *range* or *latest* virtual dir returns
+a redirection to the real directory's Atom feed. Partly this is because
+it's justifiable and sensible behavior (the real feed is pretty close to
+those things) and partly because there appear to be real people pulling
+such feeds from ChrisSiebenmann's main DWiki instance. Other disallowed
+Atom feeds are treated as if they didn't exist, generating 404 'no such
+page' errors. This too makes sense since the real directory's feed is
+not really anything like the feed for, say, last year.
+
+You should not normally disable Atom feeds for the *latest* virtual
+dir, since they have a sensible use in pulling a smaller than normal
+feed from DWiki. For example, using '_dir/latest/10/?atom_' instead of
+'_dir/?atom_' will get you a feed with only ten items in it. Atom feeds
+of other virtual dirs make somewhat less sense, especially feeds from
+things that are unlikely to change (such as past years or past months).
+
+(In the future DWiki may allow feeds of current calendar things but not
+past calendar things.)

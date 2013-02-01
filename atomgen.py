@@ -430,13 +430,44 @@ def hasatomfeed(context):
 	return context.page.type == "dir" or \
 	       context.page.path == context.wiki_root()
 
+# Return the true page for an atom feed on a virtual directory. This
+# is only different from the vdir if atomfeed-virt-only-* stuff is
+# set; if it's set and the vdir restriction type is not one of the
+# listed allowed ones, we return the true directory instead of the
+# virtual directory.
+# only_in is true if we should only take restrictions from
+# atomfeed-virt-only-in, instead of starting with a-f-only-adv.
+# This is used for enforcing actual restrictions on what feeds exist
+# instead of just which ones are advertised.
+def true_atom_page(context, only_in = False):
+	if not context.page.virtual() or \
+	   not pageranges.is_restriction(context) or \
+	   not ('atomfeed-virt-only-in' in context or \
+		'atomfeed-virt-only-adv' in context):
+		# We must use .curdir() here because hasatomfeed() is
+		# true for the root page as well as directories.
+		return context.page.curdir()
+	# tricky: .curdir() is not necessary now since virtual pages are
+	# always directories.
+	rt = pageranges.restriction(context)
+	# If we are called with only_in True, a-v-only-in is known to exist.
+	if only_in:
+		atypes = context['atomfeed-virt-only-in']
+	else:
+		atypes = context.get('atomfeed-virt-only-adv',
+				     context.get('atomfeed-virt-only-in', None))
+	if rt in atypes or \
+	   (rt in ('year', 'month', 'day') and 'calendar' in atypes):
+		return context.page
+	return context.page.me()
+
 # Atom view of a directory or a page.
 def atomfeed(context):
 	"""Generate a link to the Atom feed for the current page if
 	the current page is a directory or the wiki root."""
 	if not hasatomfeed(context):
 		return ''
-	curl = context.url(context.page.curdir(), "atom")
+	curl = context.url(true_atom_page(context), "atom")
 	return htmlrends.makelink("Recent Pages", curl, True, atomCType)
 htmlrends.register("atom::dirfeed", atomfeed)
 
@@ -482,7 +513,7 @@ def atomdisc(context):
 	suitable for inclusion in the _<head>_ section. Generates nothing
 	if there is no Atom recent changes feed."""
 	if hasatomfeed(context):
-		return gendisclink(context.url(context.page.curdir(), "atom"))
+		return gendisclink(context.url(true_atom_page(context), "atom"))
 	# For a page in a blogdir view, we generate an autodiscovery link
 	# for the blog's top level feed. I think this is probably the
 	# most useful thing to do in general, since it lets people who just
@@ -503,7 +534,43 @@ htmlrends.register("atom::autodisc", atomdisc)
 class AtomView(views.AltType):
 	content_type = atomCType
 
+#
+# If the atomfeed-virt-only-in directive is set, we treat requests for
+# disallowed atom feeds as some sort of problem. To be friendly, a
+# disallowed request for a 'latest/' or 'range/' virtual directory is
+# redirected to the base page's feed. Other requests produce 404's.
+# This requires hooking into both page_ok() (for the 404's) and
+# redirect_page() (for the redirections).
+class RestrictedAtomView(AtomView):
+	def _restrictable(self, optlist):
+		if 'atomfeed-virt-only-in' not in self.context or \
+		   not self.page.virtual() or \
+		   not pageranges.is_restriction(self.context) or \
+		   pageranges.restriction(self.context) in optlist:
+			return False
+		return True
+
+	def page_ok(self):
+		r = super(AtomView, self).page_ok()
+		if not r or not self._restrictable(('latest', 'range')):
+			return r
+		tp = true_atom_page(self.context, True)
+		if tp != self.page:
+			self.error("nopage")
+			return False
+		return True
+
+	def redirect_page(self):
+		r = super(AtomView, self).redirect_page()
+		if r or not self._restrictable(()):
+			return r
+		tp = true_atom_page(self.context, True)
+		if tp == self.page:
+			return False
+		self.response.redirect(self.context.uri(tp, self.view))
+		return True
+
 # An atom view cannot be applied to a file, only a directory.
 # Atom comments can be applied to anything.
-views.register('atom', AtomView, onDir = True, onFile = False)
+views.register('atom', RestrictedAtomView, onDir = True, onFile = False)
 views.register('atomcomments', AtomView, onDir = True)

@@ -163,7 +163,7 @@ up response time. See [[Caching]] for a longer discussion.
 - _render-cache_: Enable caching the results of selected renderers and
   renderer components. (Requires _cachedir_ to be set.)
 - _render-heuristic-ttl_: The TTL of renderer cache entries with
-  heuristic validators.
+  heuristic validators. The default value is an hour.
 - _render-anonymous-only_: Use the render cache only for the guest
   user or for connections that are not authenticated.
 - _bfc-cache-ttl_: Enable a brute force page cache of complete pages
@@ -198,7 +198,7 @@ up response time. See [[Caching]] for a longer discussion.
 
 - _atomfeed-display-howmany_: How many items at most an Atom feed
   should display. If set, it must be a positive integer; if not set,
-  _atom::pages_ and _atom::comments_ use a default.
+  _atom::pages_ and _atom::comments_ use a default of 100 items.
 - _feed-max-size_: How many kilobytes _atom::pages_ or
   _atom::comments_ should try to limit their output to. If set, either
   stops adding new entries (regardless of how many entries have been
@@ -233,6 +233,32 @@ up response time. See [[Caching]] for a longer discussion.
   tag-based Atom <id>s for an existing DWiki (and then, with
   _feed-start-time_, to graceful move it). This has the same time
   format as _feed-start-time_.
+
+- _atomfeed-virt-only-adv_: If set, restrict what Atom page feeds are
+  advertised for 'virtual directories', which are used to implement
+  various sorts of ranges (calendar-based, latest N, oldest N, or a range
+  of recent pages from X to Y). If we are displaying a vdir and it is
+  not a listed type, we advertise the Atom feed for the real directory
+  instead. Eg, for 'blog/2007/10/' the Atom feed advertised would be for
+  'blog/'. This is a space-separated list of vdir types; the allowed types
+  are _latest_, _oldest_, _range_, _year_, _month_, _day_, and _calendar_
+  (which is the same as listing all of _year_, _month_, and _day_).
+- _atomfeed-virt-only-in_: If set, restrict what virtual directories
+  allow Atom page feed requests. A disallowed _latest_ or _range_ feed
+  request is (permanently) redirected to the real directory's feed;
+  other disallowed feeds get 404 responses. The format and list of vdir
+  types is the same as for _atomfeed-virt-only-adv_. If this is set,
+  it becomes _atomfeed-virt-only-in_'s default value. If both are set,
+  this should be a superset of _atomfeed-virt-only-adv_'s value; otherwise
+  DWiki will advertise feeds that it will refuse requests for.
+
+  You should normally allow feeds for _latest_ because this gives
+  people a way of controlling how large a feed they pull from you;
+  they can use, eg, 'blog/latest/10/?atom' to pull only a ten-entry
+  feed instead of your full-sized feed.
+
+  These two directives don't change or affect what Atom comment feeds are
+  advertised or allowed; they affect only Atom feeds for pages.
 
 === Other features:
 - _alias-path_: This sets the DWiki path for the third place to try to
