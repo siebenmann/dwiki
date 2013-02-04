@@ -544,6 +544,15 @@ def datecrumbs(context):
 	return ' '.join(r)
 htmlrends.register("blog::datecrumbs", datecrumbs)
 
+# Given a context.page (which had better be a directory), generate a
+# properly-named link to a specific year and month, ala the month link
+# in datecrumbs.
+# This is here because it reuses the month array.
+def gen_monthlink(context, year, month):
+	vp = context.model.get_virtual_page(context.page.me(),
+					    "%d/%02d" % (year, month))
+	return htmlrends.makelink(months[month-1], context.url(vp))
+
 # At this point, this is here mostly because datecrumbs() is too.
 # (Initially it generated /range/N-N/ virtual directories and so
 # played with the internals of the range handling, but this is no
@@ -701,3 +710,12 @@ def prevnextcrumbs(context):
 		return ''
 	return '(%s)' % r
 htmlrends.register("blog::prevnext", prevnextcrumbs)
+
+def invirtual(context):
+	"""Succeed (by generating a space) if we are in a VirtualDirectory
+	(either directly or during rendering of a subpage). Fails otherwise."""
+	if is_restriction(context):
+		return ' '
+	else:
+		return ''
+htmlrends.register("cond::invirtual", invirtual)

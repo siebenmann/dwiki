@@ -265,8 +265,10 @@ def link_to_tm(context, tm, plain = None):
 	return htmlrends.makelink(plain, context.url(page))
 
 def cutoff(context):
-	"""With blog::blog, generates a 'see more' set of links if the
-	display of pages has been truncated."""
+	"""With blog::blog, generates a 'see more' link to the date of
+	the next entry if the display of pages has been	truncated; the
+	text of the link is the target date. This renderer is somewhat
+	misnamed."""
 	if ":blog:clippedrange" not in context:
 		return ''
 	rv = context[":blog:clippedrange"]
@@ -274,6 +276,20 @@ def cutoff(context):
 	# We could really use anchors here.
 	return link_to_tm(context, t)
 htmlrends.register("blog::seemore", cutoff)
+
+def month_cutoff(context):
+	"""With blog::blog, generate a 'see more' set of links for the
+	month and the year of the next entry if the display of pages has
+	been truncated."""
+	if ":blog:clippedrange" not in context:
+		return ''
+	rv = context[":blog:clippedrange"]
+	t = time.localtime(rv[0])
+	l1 = pageranges.gen_monthlink(context, t.tm_year, t.tm_mon)
+	pg = context.model.get_virtual_page(context.page.me(), "%d" % t.tm_year)
+	l2 = htmlrends.makelink("%d" % t.tm_year, context.url(pg))
+	return "%s %s" % (l1, l2)
+htmlrends.register("blog::seemonthyear", month_cutoff)
 
 # This plays around with the innards of here, and as such is not
 # in conditions.py.
