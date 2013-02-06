@@ -462,7 +462,7 @@ class CommentStoragePool(StoragePool):
 # Cache storage is also a read/write pool. Like comments, the interface
 # is deliberately restricted.
 #
-# The cache is addressed by a zone / path / key triple. Zone and key
+# The cache is addressed by a zone / host / path / key quad. Zone and key
 # are single path elements; path is a valid regular path. To make sure
 # we can never collide with valid sub-paths, the keys always have a
 # '~' appended to the end internally.
@@ -565,3 +565,21 @@ class CacheStoragePool(StoragePool):
 			return None
 		except EnvironmentError, e:
 			return "error while %s for %s/%s/%s: %s" % (stage, zone, path, key, str(e))
+
+	# Return the timestamp of a cache entry or None if there is no such
+	# cache entry. This enables flag file based cache invalidation, or
+	# more exactly flag-quad based invalidation; store to the quad to
+	# update its time, then check the relatively time of the flag quad
+	# and your cache data.
+	def timeof(self, zone, host, path, key = "default"):
+		self.validate_quad(zone, host, path, key)
+		key = key + '~'
+		dname = os.path.sep.join([self.root, zone, host, path])
+		fname = join2(dname, key)
+		st = self.getStat(fname)
+		if not st:
+			return None
+		elif not stat.S_ISREG(st.st_mode):
+			raise derrors.IntErr, "not a regular file in cachestore: '%s' '%s' '%s' '%s'" % (zone, host, path, key)
+		else:
+			return st.st_mtime

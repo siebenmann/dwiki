@@ -53,9 +53,11 @@ minimal DWiki configuration file is:
 - _tmpldir_: The root directory of the template hierarchy. (Required;
   cannot be the same as _pagedir_.)
 - _usercs_: Support checking RCS files for things like page history,
-  page locker, and so on. (Whether or not _usercs_ is set, DWiki
+  page locker, and so on. Whether or not _usercs_ is set, DWiki
   refuses to serve files ending with _,v_ or in RCS directories; see
-  InvalidPageNames.)
+  InvalidPageNames. As a result, setting _usercs_ is only necessary
+  if you want page history et al to be visible to people visiting
+  the DWiki; you can use RCS yourself on page files without setting it.
 - _rcsroot_: The root directory of the separate RCS file storage
   hierarchy; used only if _usercs_ is on. \\
   Normally, RCS files are expected to be in _RCS_ directories under
@@ -115,13 +117,17 @@ ChrisSiebenmann knows is Apache with URL aliases and the DWiki CGI-BIN
 being run via suexec.
 
 === Authentication
+See [[Authentication]] for more information on the authentication
+system.
+
 - _authfile_: Where DWiki can find user / password / group information
   for the DWiki's users. If this is set, the DWiki has authentication.
 - _defaultuser_: If set, all otherwise not authenticated connections
   get to be this user, *if* the user is in _authfile_. This should be
   used carefully, as it makes *all* requests to the DWiki be
   authenticated (since they all have a user, if even only the default
-  user).
+  user). If this is set, the username it is set to is said to be
+  the 'guest user'.
 - _global-authseed_: This is a special magic token to make it harder
   to brute-force people's DWiki passwords in some situations. It can
   be any value and should be kept secret.
@@ -142,7 +148,7 @@ being run via suexec.
 
 === Comments
 - _commentsdir_: The root directory for storing comments in. The only
-  place DWiki writes to.
+  place DWiki writes permanent data to.
 - _comments-on_: Enable commenting in this DWiki. This requires that
   _commentsdir_ be defined and that authentication be enabled.
 - _comments-in-normal_: Your standard templates display comments on
@@ -152,20 +158,36 @@ being run via suexec.
   _comments-in-normal_ without you needing to change the standard
   templates.
 
+If you want to enable anonymous comments you should create a _guest_
+user in the DWiki _authfile_ and then set _guest_ as the _defaultuser_.
+(Well, you can use the username of your choice, but _guest_ is
+conventional.)
+
 === Caching
 
 DWiki can optionally cache the results of page generation to speed
 up response time. See [[Caching]] for a longer discussion.
 
-- _cachedir_: The root directory for storing the caches.
+- _cachedir_: The root directory for storing the caches. It should
+  not be used for anything else (ie, not it should not also be
+  _pagedir_, _tmpldir_, or _commentsdir_). DWiki will write scratch
+  files to here.
 - _cache-warn-errors_: Log warnings about cache store errors. (These
   are non-fatal but indicate that your cache isn't caching.)
 - _render-cache_: Enable caching the results of selected renderers and
   renderer components. (Requires _cachedir_ to be set.)
 - _render-heuristic-ttl_: The TTL of renderer cache entries with
-  heuristic validators. The default value is an hour.
-- _render-anonymous-only_: Use the render cache only for the guest
+  heuristic validators, in seconds. The default value is an hour.
+- _render-anonymous-only_: Use the renderer cache only for the guest
   user or for connections that are not authenticated.
+- _render-heuristic-flagged-ttl_: The TTL of renderer cache entries that
+  have explicit invalidation (aka 'flagged' cache entries), in seconds.
+  The default value is 48 hours, as explicit invalidation is considered
+  safer than heuristic invalidation.
+- _render-heuristic-flagged-delta_: In order to lessen the chance of
+  races between renderer cache invalidation and renderer cache regeneration, 
+  flagged cache entries must be at least this many seconds more recent
+  than the invalidation marker (if it exists). Defaults to 30 seconds.
 - _bfc-cache-ttl_: Enable a brute force page cache of complete pages
   with a TTL of this many seconds. (Requires _cachedir_ to be set.)
 - _bfc-time-min_: A complete page will be cached if it took at least
@@ -191,8 +213,15 @@ up response time. See [[Caching]] for a longer discussion.
   must be provided if _imc-cache-entries_ is.
 - _imc-resp-max-size_: The maximum size (in kilobytes) of pages that will
   be cached in the in-memory cache. The default value is 256 KB.
+
 - _slow-requests-by_: Delay all requests by this much,
   in fractional seconds. Normally used only for testing BFC.
+
+In practice some degree of caching is mandatory for decent performance
+once your DWiki gets big enough and so it's recommended that you turn
+on _render-cache_ and _bfc-cache-ttl_ unless you have a good reason to
+do otherwise. Turn on _imc-cache-entries_ and _imc-cache-ttl_ if you're
+using SCGI.
 
 === Syndication feed controls
 
@@ -207,8 +236,8 @@ up response time. See [[Caching]] for a longer discussion.
   for a safety margin. If unset, syndication feeds are not
   size-limited.
 - _feed-max-size-ips_: If set, this is a whitespace separated list of
-  IP addresses, tcpwrappers style IP address prefixes (eg
-  '_66.150.15._'), or IP CIDRs (eg '_66.150.15.0/25_') that
+  IPv4 addresses, tcpwrappers style IPv4 address prefixes (eg
+  '_66.150.15._'), or IPv4 CIDRs (eg '_66.150.15.0/25_') that
   _feed-max-size_ applies to. Syndication requests from any other
   addresses are not size-limited. If unset, _feed-max-size_ applies to all
   syndication requests, regardless of what IP address makes the request.
@@ -217,7 +246,8 @@ up response time. See [[Caching]] for a longer discussion.
 - _feed-start-time_: If set, pages older than this time will not
   appear in Atom feeds, which is handy if you want to move a
   DWiki, redirect the old URLs, and not flood people's Atom feeds
-  (because the Atom <id> for pages is the page's full URL).
+  (because the Atom <id> for pages is the page's full URL unless
+  you've set _atomfeed-tag_).
   The value can be specified either as an integer Unix timestamp,
   as 'YEAR-MO-DA [HH:MM[:SS]]', 'YEAR/MO/DA', or an Atom format time
   string, and is always in *local* time (even when specified as an
@@ -225,7 +255,7 @@ up response time. See [[Caching]] for a longer discussion.
 - _atomfeed-tag_: If set, the _atom::pagetag_ renderer will use it
   to  generate Atom <id>s for pages in the format <tag>:/<page path>.
   This should normally be set to a _tag:_-based URI; see
-  [[here http://diveintomark.org/archives/2004/05/28/howto-atom-id]]
+  [[here http://web.archive.org/web/20110902122124/http://diveintomark.org/archives/2004/05/28/howto-atom-id]]
   for a discussion.
 - _atomfeed-tag-time_: If set, the _atom::pagetag_ renderer will only
   generate tag-formatted Atom <id>s for pages more recent than this
@@ -235,14 +265,12 @@ up response time. See [[Caching]] for a longer discussion.
   format as _feed-start-time_.
 
 - _atomfeed-virt-only-adv_: If set, restrict what Atom page feeds are
-  advertised for 'virtual directories', which are used to implement
-  various sorts of ranges (calendar-based, latest N, oldest N, or a range
-  of recent pages from X to Y). If we are displaying a vdir and it is
-  not a listed type, we advertise the Atom feed for the real directory
-  instead. Eg, for 'blog/2007/10/' the Atom feed advertised would be for
-  'blog/'. This is a space-separated list of vdir types; the allowed types
-  are _latest_, _oldest_, _range_, _year_, _month_, _day_, and _calendar_
-  (which is the same as listing all of _year_, _month_, and _day_).
+  advertised for [[virtual directories VirtualDirectory]].  If we are
+  displaying a vdir and it is not a listed type, we advertise the Atom
+  feed for the real directory instead (eg, for 'blog/2007/10/' the Atom
+  feed advertised would be for 'blog/'). This is a space-separated list
+  of vdir types; the allowed types are _latest_, _oldest_, _range_,
+  _calendar_, and the _calendar_ subtypes _year_, _month_, and _day_.
 - _atomfeed-virt-only-in_: If set, restrict what virtual directories
   allow Atom page feed requests. A disallowed _latest_ or _range_ feed
   request is (permanently) redirected to the real directory's feed;
@@ -268,7 +296,8 @@ up response time. See [[Caching]] for a longer discussion.
   This is a *DWiki* path, not a filesystem path (and is implicitly
   always an absolute DWiki path). The conventional value is _Aliases_.
 - _search-on_: enables searching. If it has the value 'authenticated',
-   only authenticated users can search.
+   only authenticated users can search. Note that if you have a guest
+  user set, all users are authenticated.
 - _blog-display-howmany_: How many items the _blog::blog_ renderer
   should try to restrict most pages it displays to. If set, it must be
   a positive integer; if not set, _blog::blog_ uses a default.
@@ -295,9 +324,15 @@ up response time. See [[Caching]] for a longer discussion.
 - _banned-robots_: If set, this is a list of User-Agent substrings
   (formatted as for _bad-robots_) for robots that should get permission
   denied responses on *all* requests.
-- _banned-ips_: If set, this is a list of IP addresses, tcpwrapper
+- _banned-ips_: If set, this is a list of IPv4 addresses, tcpwrapper
   style IP prefixes, or CIDRs (as for _feed-max-size-ips_) for addresses
   that will get access denied responses for all requests. It can be
   specified multiple times.
 - _banned-comment-ips_: If set, this is like _banned-ips_ but only applies
   to attempts to write comments.
+
+Under normal circumstances it's more efficient to use your web server's
+access controls to totally ban IP addresses and bad user-agents; your
+web server usually has faster code for this and you don't have to get
+DWiki involved in the process. _banned-robots_ and _banned-ips_ exist
+because this is not always possible.

@@ -293,7 +293,8 @@ def _fillcomments(context):
 		return r
 	cutpoint = get_cutpoint(context)
 
-	dl = context.model.comments_children(context.page.me())
+	#dl = context.model.comments_children(context.page.me())
+	dl = comments.cached_comments_children(context, context.page.me())
 	# Force the generator to be expanded to a full list, so we can
 	# sort it.
 	dl = list(dl)

@@ -7,6 +7,7 @@ import hmac
 import httputil
 import htmlrends, wikirend, template
 import views
+import rendcache
 
 # The characters that are not legal in comments.
 import re
@@ -53,6 +54,48 @@ def bannedcontent(txt):
 	       '[url=http://' in txt or \
 	       '[url="http://' in txt or \
 		txt.startswith("Hello my dear friend! I'm a pure student... ")
+
+# ----
+# (Disk) cached retrieval of comments_children(), using rendcache's
+# infrastructure. This is a 'flagged heuristic generator', which we
+# invalidate any time a comment is posted.
+# We also set a context cache for this information in case someone
+# is evaluating it repeatedly (as might happen if you use multiple macros
+# on a page, for example; in fact the sample front page does this).
+def cached_comments_children(context, spage):
+	def _ck():
+		return ("commentkids", spage.path)
+	r = context.getcache(_ck())
+	if r is not None:
+		return r
+	# We avoid a proliferation of small cache entries by skipping
+	# the disk cache entirely for single-entry/page requests.
+	if not rendcache.cache_on(context.cfg) or spage.type == "file":
+		r = list(context.model.comments_children(spage))
+		context.setcache(_ck(), r)
+		return r
+
+	r = rendcache.get_flagged(context, "comments-kids", spage.path,
+				  "comments-updated")
+	if r:
+		context.setcache(_ck(), r)
+		return r
+	r = list(context.model.comments_children(spage))
+	v = rendcache.Validator()
+	# TODO: actual validator? What would it be?
+	rendcache.store_gen(context, "comments-kids", spage.path,
+			    r, v)
+	context.setcache(_ck(), r)
+	return r
+
+# Invalidation operation; called from comment posting (whether or not
+# the comment store succeeded).
+def comment_posted(context):
+	rendcache.invalidate_flagged(context, "comments-updated")
+# ----
+
+# TODO: this needs revision for IPv6, to say the least. At a minimum
+# it should recognize IPv6 IP addresses and turn itself off.
 
 #
 # Certain active spammers fetch the write comments page from one IP,
@@ -322,6 +365,7 @@ def post(context, resp):
 			context.setvar(":comment:post", "good")
 		else:
 			context.setvar(":comment:post", "bad")
+		comment_posted(context)
 
 	# :comment:post now holds what happened, so we let the top
 	# level template dispatch off it to figure out what to do.

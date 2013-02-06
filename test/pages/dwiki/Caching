@@ -4,9 +4,9 @@ DWiki has optional caching in order to speed up generating results
 repeatedly. DWiki uses a disk-based cache for this (although the
 interface is abstracted and alternate forms of caching may be introduced
 someday). There are three caches, which can be enabled separately: the
-renderer cache, a disk based brute force page cache, and an in-memory
-brute force page cache that is only used if DWiki is running as a
-preforking SCGI server.
+renderer cache, a brute force page cache, and an in-memory brute force
+page cache that is only used if DWiki is running as a preforking SCGI
+server.
 
 DWiki never removes the files of out of date cache entries from the
 disk cache; instead, it stops considering out of date ones to be
@@ -16,6 +16,12 @@ _unlink()_ makes him nervous.
 
 See ConfigurationFile for the options controlling the behavior of
 the caches.
+
+In theory DWiki's caching is optional. In practice a decent sized DWiki
+is simply too slow without caching for some of the more expensive
+operations and caching becomes more or less a necessity. ChrisSiebenmann
+now believes that you should configure all levels of caching in
+basically any DWiki unless you have some unusual need and are sure.
 
 == The brute force cache
 
@@ -100,21 +106,32 @@ environment.
 
 == The renderer cache
 
-The renderer cache caches the output of various renderers, and a few
-precursor generator routines. The output is cached with a validator, and
-the cached results are validated before they get used; this means that
-renderer cache entries do not normally use a TTL, and in theory could be
-valid for years.
+The renderer cache is actually two caches. The renderer cache proper
+caches the output of various renderers (cf TemplateSyntax). The output
+is cached with a validator and the cached results are fully validated
+before they get used; this means that renderer cache entries do not
+normally use a TTL and in theory could be valid for years.
 
-Some cache entries only have heuristic validators, where DWiki can be
-fooled if people try hard enough. These cache entries do have a TTL,
-so that if the heuristic is fooled DWiki will pick up the new result
-sooner or later.
+The (heuristic) generator cache caches the output of some expensive
+precursor generator routines. These cache entries only have heuristic
+validators, where DWiki can be fooled if people try hard enough.
+Generator cache entries do have a TTL, so that if the heuristic is
+fooled DWiki will pick up the new result sooner or later. Some cache
+entries can also explicitly invalidated by DWiki in a pretty reliable
+process; by default, these have a much longer TTL than plain heuristic
+cache entries. These are called 'flagged' (heuristic) generator entries
+and various ConfigurationFile settings controlling how they behave are
+_render-heuristic-flagged-..._.
 
-Currently cached are various wikitext to HTML renderers (most of the
-time), the expensive bit of _blog::prevnext_ (this must use a heuristic
-validator), and the general 'find all descendants of this directory'
-operation that underlies a lot of the blog engine.
+(Trivia: the 'flagged' name is because such entries are invalidated
+using a flag file, or more accurately a flag cache entry.)
+
+Currently the main renderer cache caches the output of various wikitext
+to HTML rendering routines while the generator cache caches the results
+of various filesystem 'find all descendents' walks that are used to
+build lists of comments (for Atom comments feeds and some wikitext
+macros; this uses explicit invalidation) and lists of pages (for Atom
+feeds and various blog renderers such as _blog::prevnext_).
 
 Unfortunately, a DWiki page that has comment or access restrictions
 must be cached separately for each DWiki user that views it. Under some
@@ -122,32 +139,43 @@ situations this can result in a number of identical copies being cached
 under different names. If you want to avoid this, DWiki lets you turn
 off renderer caching for non-anonymous users.
 
-=== Force-invalidating the _blog::prevnext_ cache
+=== Force-invalidating list of pages caches
 
-The general validator for the _blog::prevnext_ is the modification
-time for all of the directories involved that had files in them at the
-time (the latter condition is for technical reasons). The heuristical
-validator checks that some of the file timestamps are still the same,
-but it can't check all of them and still be a useful cache.
+The general validator for _blog::prevnext_ cache entries is the
+modification time for all of the directories involved that had files in
+them at the time (the latter condition is for technical reasons). The
+heuristical validator checks that some of the file timestamps are still
+the same, but it can't check all of them and still be a useful cache.
 
 So the easy way to invalidate this is to change the modification
 time of a directory involved, for example with _touch_.
 
-The 'find all descendants' cache is similarly invalidated by changing
-a directory modification time. Unlike the _blog::prevnext_ case, the
+The 'list of pages' cache is similarly invalidated by changing a
+directory modification time. Unlike the _blog::prevnext_ case, the
 directory times are the only thing that this cache checks. This is a bit
 of a pity but the performance improvements from caching this information
 are very visible.
 
-== Disk space usage
+== Disk space usage and directories
 
 Much like comments, each page that has something cached for it
 becomes a subdirectory, with the various cached things in files. The
 different sorts of caches use different top-level directories under the
-_cachedir_, so you have paths like _~~cachedir~~/bfc_ and
-_~~cachedir~~/renderers_.
+_cachedir_, so you have paths like _~~cachedir~~/bfc_,
+_~~cachedir~~/renderers_, and _~~cachedir~~/generators_.
 
-Because some results include absolute URLs that mention the current
-hostname, DWiki must maintain separate caches for each _Host:_ header it
-sees. These are handled as subdirectories in each cache directory,
-so _~~cachedir~~/bfc/localhost/..._ and so on.
+Because some results include absolute URLs that mention the
+current hostname, DWiki must maintain separate caches for each
+_Host:_ header it sees in the BFC and the general renderers cache.
+These are handled as subdirectories in each cache directory, so
+_~~cachedir~~/bfc/localhost/..._ and so on. Entries in the generator
+cache don't depend on the current _Host:_ header, so there is only one
+(sub)cache for all requests, _~~cachedir~~/generators/all/..._.
+
+Generally the general renderers cache uses the largest amount of disk
+space, followed by the BFC, and the generator cache is the smallest.
+
+If you're using caching (and as mentioned, you probably want to), you'll
+want to periodically trim the caches. ChrisSiebenmann just does this by
+hand every so often by removing the cache directories entirely; DWiki
+will then rebuild them as necessary.

@@ -464,7 +464,8 @@ def rec_comment_pages(rend, args):
 		startpath = ''
 
 	spage = rend.mod.get_page(startpath)
-	cl = rend.mod.comments_children(spage)
+	#cl = rend.mod.comments_children(spage)
+	cl = comments.cached_comments_children(rend.ctx, spage)
 	# There is no point checking cl, because it is always a generator.
 
 	# Now we get to condense it from a list of recent comments
@@ -510,7 +511,8 @@ def recentcomments(rend, args):
 		startpath = ''
 
 	spage = rend.mod.get_page(startpath)
-	cl = rend.mod.comments_children(spage)
+	#cl = rend.mod.comments_children(spage)
+	cl = comments.cached_comments_children(rend.ctx, spage)
 	# There is no point checking cl, because it is always a generator.
 
 	if len(args) > 1:

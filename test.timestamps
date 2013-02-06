@@ -260,6 +260,6 @@
 @1323456218 test/pages/dwiki/NewFeatures/DisallowDirViews
 @1339683377 test/pages/Tests/PreWrapTest
 @1359671470 test/passwd
-@1359671914 test/pages/dwiki/Caching
-@1359747440 test/pages/dwiki/ConfigurationFile
 @1359758779 test/pages/dwiki/NewFeatures/AtomFeedsAndVirtualDirs
+@1360167662 test/pages/dwiki/Caching
+@1360168607 test/pages/dwiki/ConfigurationFile
