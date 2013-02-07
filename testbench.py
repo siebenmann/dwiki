@@ -108,13 +108,16 @@ def setup_options():
 	parser.add_option('-B', '--no-bfc', dest="rmconfig",
 			  action="append_const", const="bfc-cache-ttl",
 			  help="disable the Brute Force Cache")
+	parser.add_option('-6', '--ipv6-origin', dest="ip6origin",
+			  action="store_true",
+			  help="make requests appear to come from the IPv6 localhost address instead of the IPv4 one")
 	parser.add_option('-P', '--profile', dest='operation',
 			  action="store_const", const=doProfile,
 			  help="profile, using the Python profiler")
 	parser.add_option('-S', '--statprof', dest="operation",
 			  action="store_const", const=doStatProf,
 			  help="profile, using the statistical profiler")
-	parser.set_defaults(operation = doTime)
+	parser.set_defaults(operation = doTime, ip6origin = False)
 	return parser
 
 def main(args):
@@ -142,6 +145,13 @@ def main(args):
 		die("dwiki error: "+str(e))
 
 	env = setup_env(url)
+	if options.ip6origin:
+		# This format matches what the Fedora 17 lighttpd
+		# puts into $REMOTE_ADDR. Your mileage may vary for
+		# other web servers, although it's probably right
+		# for Apache too.
+		env['REMOTE_ADDR'] = "::1"
+		
 	if rend:
 		httpcore.environSetup(env, cfg, ms, webserv, staticstore,
 				      cachestore)

@@ -94,8 +94,8 @@ def comment_posted(context):
 	rendcache.invalidate_flagged(context, "comments-updated")
 # ----
 
-# TODO: this needs revision for IPv6, to say the least. At a minimum
-# it should recognize IPv6 IP addresses and turn itself off.
+# TODO: this needs revision for IPv6. At least now bits recognize
+# IPv6 and turn themselves off.
 
 #
 # Certain active spammers fetch the write comments page from one IP,
@@ -103,8 +103,13 @@ def comment_posted(context):
 # harder, we keep track of the general area of the previous POST
 # (currently by sawing off the last IP address and matching on
 # that).
+# If the remote IP is an IPv6 address, we basically give up (and write
+# a previp with a marker of this).
 def make_ip_field(context):
-	ipf = "%s@%d" % (context['remote-ip'], time.time())
+	rip = context['remote-ip']
+	if httputil.is_ipv6_addr(rip):
+		rip = 'IPV6'
+	ipf = "%s@%d" % (rip, time.time())
 	return ipf
 
 # The ':vN' bit on the end is the version of the previp format. Bumping
@@ -129,7 +134,7 @@ def gen_hash(context, fieldval):
 # Validate the previp field. It must be in a valid format (so that we can
 # extract the signature and other bits), have a valid signature, be from
 # the /24 that this is being submitted from, and not be over 2 hours old.
-valid_ipf_re = re.compile("^([0-9.]+)@([0-9]+)\:([a-zA-Z0-9]+)$")
+valid_ipf_re = re.compile("^((?:[0-9.]+|IPV6))@([0-9]+)\:([a-zA-Z0-9]+)$")
 error_var = ":comment:previp:error"
 def verify_ip_prefix(context):
 	def set_err(msg):
@@ -152,6 +157,12 @@ def verify_ip_prefix(context):
 		return False
 	# Since the signature verifies, we know the other fields are good.
 	pip, when = mo.group(1), int(mo.group(2))
+
+	# If either the original address or the current one is an IPv6
+	# address, give up. (Hey, at least we know the signature is good.)
+	if pip == "IPV6" or httputil.is_ipv6_addr(context['remote-ip']):
+		return True
+	
 	# transmogrify the original IP address into a prefix.
 	pip = '.'.join(pip.split('.')[:3]) + '.'
 	# Is it from the right IP?

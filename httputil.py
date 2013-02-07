@@ -162,6 +162,13 @@ def hostFromEnv(env):
 		return None
 	schema, host, base, param, query, frag = urlparse.urlparse(rq)
 	return host
+
+# This is lame, partly because I have no real idea what format of IPv6
+# addresses web servers in the real world write into $REMOTE_ADDR.
+# Checking for '[' at the start is probably conservative.
+def is_ipv6_addr(sip):
+	return ':' in sip or sip.startswith('[')
+
 #
 # Match an IP address -- usually the request source -- against a (string)
 # list of IPs or tcpwrappers style IP prefixes. Returns True or False,
@@ -169,6 +176,10 @@ def hostFromEnv(env):
 # CHANGED: ipLst much actually be a netblock.IPRanges object; we match
 # with 'in'.
 def matchIP(sip, ipLst):
+	# Check for IPv6 first, because we don't work on IPv6 addresses.
+	# Maybe someday.
+	if is_ipv6_addr(sip):
+		return False
 	if not ipLst:
 		return False
 	return sip in ipLst
