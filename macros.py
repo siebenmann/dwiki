@@ -72,6 +72,7 @@ def enumerateall(rend, args):
 	if not args or args[0] not in ('renderers', 'macros', 'processnotes',
 				       'textmacros'):
 		return False
+	rend.markComplex()
 	if args[0] == 'macros':
 		rl = all_macros()
 	elif args[0] == 'processnotes':
