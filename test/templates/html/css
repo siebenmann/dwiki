@@ -1,1 +1,1 @@
-<link href="${staticurl}/dwiki.css" rel="stylesheet" type="text/css"> 
+<link href="${|cssurlprefix|staticurl}/dwiki.css" rel="stylesheet" type="text/css"> 

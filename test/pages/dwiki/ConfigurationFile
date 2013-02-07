@@ -92,6 +92,21 @@ minimal DWiki configuration file is:
   content it generates is in this character set in HTTP
   replies. Normally 'UTF-8' these days. If unset, DWiki does not label
   text/html and text/plain HTTP replies with character set information.
+  ~~You should set this to 'UTF-8'~~. Really. It shouldn't even be
+  optional.
+
+- _cssurlprefix_: This is technically not a DWiki configuration
+  directive as such because it isn't interpreted by the program.
+  Instead it's used by the standard _html/css_ template as one option
+  for where to find DWiki's standard CSS file, _dwiki.css_. If this is
+  set it's the URL of a directory (without a trailing slash). If this
+  is not set, the _html/css_ template assumes that _dwiki.css_ can be
+  found at _${staticurl}/dwiki.css_. It's more efficient to serve
+  _dwiki.css_ outside of DWiki itself, since it's a static file.
+
+Note that various parts of DWikiText rendering do not look right if
+the CSS is missing (in particular, all sorts of tables are likely to
+look bad).
 
 ==== DWiki URL to file mapping
 

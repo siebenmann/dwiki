@@ -109,7 +109,6 @@
 @1117940229 test/templates/comment/comment.tmpl
 @1117943328 test/templates/syndication/feeds.tmpl
 @1117947495 test/pages/dwiki/NewFeatures/AtomFeeds
-@1118073221 test/templates/html/css
 @1118077312 test/templates/struct/breadcrumbs
 @1118077336 test/templates/struct/header.tmpl
 @1118077648 test/templates/struct/loginbox.tmpl
@@ -261,5 +260,6 @@
 @1359671470 test/passwd
 @1359758779 test/pages/dwiki/NewFeatures/AtomFeedsAndVirtualDirs
 @1360167662 test/pages/dwiki/Caching
-@1360168607 test/pages/dwiki/ConfigurationFile
 @1360206832 test/statics/dwiki.css
+@1360254659 test/templates/html/css
+@1360255253 test/pages/dwiki/ConfigurationFile
