@@ -202,7 +202,8 @@ def recentchanges(rend, args):
 
 	# Walk root downards, yes this bites.
 	# It does give us the entire page list.
-	rl = rend.mod.get_page(startpath).descendants(rend.ctx)
+	#rl = rend.mod.get_page(startpath).descendants(rend.ctx)
+	rl = rend.ctx.cache_page_children(rend.mod.get_page(startpath))
 	if len(args) > 1:
 		rl = [x for x in rl if file_matches_args(x[1], args[1:])]
 	rl = list(rl)
@@ -243,7 +244,12 @@ def allpages(rend, args):
 	"""List all pages. Arguments are prefixes of page paths and page
 	names to restrict the list to."""
 	rend.markComplex()
-	rl = rend.mod.get_page("").descendants(rend.ctx)
+	#rl = rend.mod.get_page("").descendants(rend.ctx)
+	# The need to get the DWiki's entire page list is wince-inducing
+	# but is the best I can do with this interface. The real solution
+	# is a new macro, AllPagesUnder, which takes a single path and
+	# that's it.
+	rl = rend.ctx.cache_page_children(rend.mod.get_page(""))
 
 	# I am not obsessive enough to sort once to timestamp
 	# order to see the most recent time, then a second time
@@ -583,6 +589,43 @@ def showvars(rend, args):
 		rend.text(rend.ctx[args[0]], "none")
 	return True
 register("ShowCfgVar", showvars)
+
+# This looks like it could recurse, but it doesn't (unless you are
+# very perverse). The reason why not is that blog::titles specifically
+# fetches titles and title-fetching is not general rendering; we should
+# never reach the point in a page where we will re-render a {{TitleIndex}}
+# macro unless you perversely put it in the first two lines of a file.
+# Note that this problem is also shared by PTitles.
+# TODO: this (like several other things) should close any open paragraph
+# (killing font styles et al).
+# That needs a new rend.addHTMLBlock() method or something.
+def m_titleindex(rend, args):
+	"""Insert a table of dates and entry titles (or relative paths
+	for entries without titles), linking to entries and to the day
+	pages. The table is in reverse chronological order. The single
+	argument is the page hierarchy to do this for; if it is not
+	specified, it is done for the current directory. The actual
+	rendering is done by the blog::titleindex renderer."""
+	if len(args) > 1:
+		return False
+	elif len(args) == 1:
+		if args[0] and args[0][0] == '/':
+			dp = rend.mod.get_page(args[0][1:])
+		else:
+			dp = rend.mod.get_page(args[0])
+	else:
+		dp = rend.ctx.page.curdir()
+	if dp.type != "dir":
+		return False
+	rend.markComplex()
+	nc = rend.ctx.clone_to_page(dp)
+	rnd = htmlrends.get_renderer("blog::titles")
+	res = rnd(nc)
+	if not res:
+		return False
+	rend.addPiece(res)
+	return True
+register("TitleIndex", m_titleindex)
 
 ##
 # This is an ugly escape because we are out of pleasant formatting

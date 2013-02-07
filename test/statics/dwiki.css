@@ -13,10 +13,10 @@ div.right { float: right; }
 .clear { clear: both; }
 #documentbody { clear: both; }
 
-.wikitext table {
+table.wikitable {
 	border-collapse: collapse;
 }
-.wikitext td {
+.wikitable td {
 	border: 1px;
 	border-style: solid;
 	padding: .3em;

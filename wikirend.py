@@ -140,10 +140,10 @@ del x
 # Also http://www.w3.org/TR/1998/REC-CSS2-19980512/tables.html
 # We style with CSS these days, but supply explicit table styling to
 # cope with CSS-less browsers so the result does not look like ass.
-start_entity['table'] = '<table border="1" cellpadding="4">'
+start_entity['table'] = '<table class="wikitable" border="1" cellpadding="4">'
 start_entity['td'] = '<td valign="top">'
 start_entity['ntd'] = '<td valign="top" align="right">'
-start_entity['horitable'] = '<table class="horizontal">'
+start_entity['horitable'] = '<table class="wikitable horizontal">'
 # This is researched from various places. 'word-wrap: break-word' is
 # apparently not necessary any more so I am leaving it out for now.
 start_entity['prewrap'] = '<pre style="white-space: pre-wrap;">'

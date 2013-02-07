@@ -227,7 +227,6 @@
 @1143861898 test/templates/blog/blog-show.tmpl
 @1143862198 test/templates/views/blog.tmpl
 @1143870752 test/templates/blog/blog-index.tmpl
-@1143878316 test/statics/dwiki.css
 @1144534911 test/templates/views/index.tmpl
 @1144534938 test/templates/dir/index.tmpl
 @1144535712 test/pages/Tests/IndexDir/.flag.prefview:index
@@ -263,3 +262,4 @@
 @1359758779 test/pages/dwiki/NewFeatures/AtomFeedsAndVirtualDirs
 @1360167662 test/pages/dwiki/Caching
 @1360168607 test/pages/dwiki/ConfigurationFile
+@1360206832 test/statics/dwiki.css
