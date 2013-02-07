@@ -45,6 +45,8 @@ def register_acount(name, callable, acount):
 	register(name, callable)
 def text_macro(name):
 	return name in text_macros
+def all_text_macros():
+	return text_macros[:]
 def arg_count(name):
 	return macros_acount.get(name, 0)
 
@@ -64,15 +66,18 @@ def pnote_args(name):
 # So I can keep them straight, here's a way of dumping all of the
 # available wikitext macros and/or renderers.
 def enumerateall(rend, args):
-	"""Enumerate all of the first argument, which must be 'macros' or
-	'renderers', as a comma-separated list. The short form version of
-	DocAll."""
-	if not args or args[0] not in ('renderers', 'macros', 'processnotes'):
+	"""Enumerate all of the first argument, which must be
+	'macros', 'processnotes' 'renderers', or 'textmacros' as a
+	comma-separated list. The short form version of DocAll."""
+	if not args or args[0] not in ('renderers', 'macros', 'processnotes',
+				       'textmacros'):
 		return False
 	if args[0] == 'macros':
 		rl = all_macros()
 	elif args[0] == 'processnotes':
 		rl = all_pnotes()
+	elif args[0] == 'textmacros':
+		rl = all_text_macros()
 	else:
 		rl = htmlrends.all_renderers()
 	if rl:
@@ -83,15 +88,20 @@ def enumerateall(rend, args):
 register("EnumerateAll", enumerateall)
 
 def doc_all(rend, args):
-	"""Enumerate all of the first argument (must be 'macros' or
-	'renderers') with their documentation, if any, as a real HTML list.
-	(In other words, you're reading its output.)"""
-	if not args or args[0] not in ('renderers', 'macros', 'processnotes'):
+	"""Enumerate all of the first argument (must be 'macros',
+	'processnotes', 'renderers', or 'textmacros') with their
+	documentation, if any, as a real HTML list.  (In other words,
+	you're reading its output.)"""
+	if not args or args[0] not in ('renderers', 'macros', 'processnotes',
+				       'textmacros'):
 		return False
+	rend.markComplex()
 	if args[0] == 'macros':
 		lfunc, gfunc = all_macros, get_macro
 	elif args[0] == 'processnotes':
 		lfunc, gfunc = all_pnotes, get_pnote
+	elif args[0] == 'textmacros':
+		lfunc, gfunc = all_text_macros, get_macro
 	else:
 		lfunc, gfunc = htmlrends.all_renderers, htmlrends.get_renderer
 	flist = lfunc()
@@ -124,6 +134,18 @@ def pagelist_names(rend, plist, view = None):
 def pagelist_paths(rend, plist, view = None):
 	genpagelist(rend, zip(plist, plist), view)
 
+# Note that this assumes that 'base' actually *is* the base.
+def pagelist_paths_rel(rend, plist, base, view = None):
+	if base[-1] != '/':
+		base = base + '/'
+	def _relpath(plist):
+		l = len(base)
+		for path in plist:
+			if path.startswith(base):
+				path = path[l:]
+			if path:
+				yield path
+	genpagelist(rend, zip(plist, _relpath(plist)), view)
 
 # Usage: reduce(common_pref_reduce, file-list, None)
 # Results in either None or the common prefix (possibly '') of everything
@@ -171,6 +193,16 @@ def recentArgsFixer(rend, args):
 		elif args[i][0] == '/':
 			args[i] = args[i][1:]
 	return cutoff
+
+def page_from_arg(rend, arg):
+	if not arg:
+		return rend.mod.get_page("")
+	if arg == '.':
+		return rend.ctx.page.curdir()
+	elif arg[0] == '/':
+		return rend.mod.get_page(arg[1:])
+	else:
+		return rend.mod.get_page(arg)
 
 # First argument is the cutoff.
 # Further arguments are currently ignored.
@@ -242,13 +274,14 @@ register("RecentChanges", recentchanges)
 # path or the page name.
 def allpages(rend, args):
 	"""List all pages. Arguments are prefixes of page paths and page
-	names to restrict the list to."""
+	names to restrict the list to. If you simply want to list all
+	pages under a particular directory, you should use _AllPagesUnder_
+	instead; it is more efficient (and more aesthetic)."""
 	rend.markComplex()
 	#rl = rend.mod.get_page("").descendants(rend.ctx)
 	# The need to get the DWiki's entire page list is wince-inducing
-	# but is the best I can do with this interface. The real solution
-	# is a new macro, AllPagesUnder, which takes a single path and
-	# that's it.
+	# but is the best I can do with this interface. Use AllPagesUnder
+	# instead if you just want all pages under something.
 	rl = rend.ctx.cache_page_children(rend.mod.get_page(""))
 
 	# I am not obsessive enough to sort once to timestamp
@@ -278,10 +311,42 @@ def allpages(rend, args):
 	return True
 register("AllPages", allpages)
 
+def allpagesunder(rend, args):
+	"""List all pages under a particular directory, in alphabetical
+	order.  Page names are shown relative to this directory (eg 'fred'
+	instead of 'blog/fred' if blog is the directory). If there is no
+	argument, the directory is the current directory of this page; if
+	there is a single argument, it is the directory."""
+	if len(args) > 1:
+		return False
+	elif len(args) == 0:
+		dp = rend.ctx.page.curdir()
+	else:
+		dp = page_from_arg(rend, args[0])
+	if dp.type != "dir":
+		return False
+	
+	rend.markComplex()
+	# I am not obsessive enough to sort once to timestamp
+	# order to see the most recent time, then a second time
+	# in alpha order.
+	rend.ctx.unrel_time()
+
+	# This always returns a list.
+	rl = rend.ctx.cache_page_children(dp)
+	rp = [z[1] for z in rl]
+	if rp:
+		rp.sort()
+		pagelist_paths_rel(rend, rp, dp.path)
+	return True
+register("AllPagesUnder", allpagesunder)
+
 # Search for references to thing(s)
 def listrefs(rend, args):
 	"""List pages with references to one of the arguments, or where
-	one of the arguments is a word in the page name."""
+	one of the arguments is a word in the page name. This is an
+	expensive operation in a DWiki of any decent size, since it must
+	search through all pages."""
 	# We clearly have to be looking for something(s)
 	if not args:
 		return False
@@ -577,9 +642,13 @@ register("RecentComments", recentcomments)
 # Show some context variables. Context variables are text-only.
 safe_vars = ('wikiname', 'wikititle', 'server-name', 'pagedir',
 	     'charset', )
+# TODO: there should be a better way to generate the docstring
+# here.
 def showvars(rend, args):
-	"""Insert the value of a DWiki configuration variable.
-	The argument is which variable to insert."""
+	"""Insert the value of a DWiki configuration variable.  The
+	argument is which variable to insert. Only a few variables may
+	be displayed, currently _wikiname_, _wikititle_,
+	_server-name_, _pagedir_, and _charset_."""
 	if not args or len(args) != 1 or \
 	   args[0] not in safe_vars:
 		return False
@@ -609,10 +678,7 @@ def m_titleindex(rend, args):
 	if len(args) > 1:
 		return False
 	elif len(args) == 1:
-		if args[0] and args[0][0] == '/':
-			dp = rend.mod.get_page(args[0][1:])
-		else:
-			dp = rend.mod.get_page(args[0])
+		dp = page_from_arg(rend, args[0])
 	else:
 		dp = rend.ctx.page.curdir()
 	if dp.type != "dir":
