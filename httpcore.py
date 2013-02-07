@@ -204,15 +204,15 @@ def doPOSTMangling(reqdata, qdict, webserv):
 # at once.
 # FIXME: we should have a timeout, but that's much more complicated
 # and involves select() to do it right and so on.
-def readUpTo(fp, bytes):
-	"""Read as much as possible from FP, up to BYTES bytes."""
+def readUpTo(fp, count):
+	"""Read as much as possible from FP, up to COUNT bytes."""
 	td = []
-	while bytes > 0:
-		l = fp.read(bytes)
+	while count > 0:
+		l = fp.read(count)
 		if not l:
 			break
 		td.append(l)
-		bytes -= len(l)
+		count -= len(l)
 	return ''.join(td)
 
 # We are paranoid about the whole business of getting the POST body.

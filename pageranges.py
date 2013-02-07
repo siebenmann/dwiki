@@ -260,10 +260,10 @@ def oldest_rel(context):
 	start = end - curv + 1
 	if start <= 1:
 		start = 1
-	next = htmlrends.makelink(next_msg % (end-start+1),
-				  gen_range_url(context, start, end),
-				  True)
-	return (next, '')
+	nxt = htmlrends.makelink(next_msg % (end-start+1),
+				 gen_range_url(context, start, end),
+				 True)
+	return (nxt, '')
 	
 
 def gen_range_url(context, start, end):
@@ -285,12 +285,12 @@ def range_rel(context):
 		start = start - gap
 		if start <= 0:
 			start = 1
-		next = htmlrends.makelink(next_msg % (end-start+1),
-					  gen_range_url(context, start, end),
-					  True)
+		nxt = htmlrends.makelink(next_msg % (end-start+1),
+					 gen_range_url(context, start, end),
+					 True)
 	else:
-		next = ''
-	return (prev, next)
+		nxt = ''
+	return (prev, nxt)
 
 # This only produces any results if we have already processed the
 # restriction, because frankly I am not going to write that much
