@@ -91,7 +91,8 @@ def cached_comments_children(context, spage):
 # Invalidation operation; called from comment posting (whether or not
 # the comment store succeeded).
 def comment_posted(context):
-	rendcache.invalidate_flagged(context, "comments-updated")
+	if rendcache.cache_on(context.cfg):
+		rendcache.invalidate_flagged(context, "comments-updated")
 # ----
 
 # TODO: this needs revision for IPv6. At least now bits recognize
