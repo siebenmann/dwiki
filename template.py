@@ -199,6 +199,10 @@ class Template:
 			piece = path_elems.pop(0)
 			if piece.startswith('...'):
 				vpaths = piece[3:].split('/')
+				# It is possible for the piece to start
+				# with a / after variable expansion, which
+				# will give us an empty vpaths[0]. If so,
+				# remove it.
 				if vpaths[0] == '':
 					vpaths = vpaths[1:]
 				# given '...a/b/c', vpaths winds up being
