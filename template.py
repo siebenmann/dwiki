@@ -182,61 +182,76 @@ class Template:
 			raise derrors.RendErr, "Bad variable name in template name: '%s'" % varname
 		return self.context[varname]
 
-	# Expand a single pathname piece. pre is everything to date (a
-	# string), post is everything forward (a list), piece is us.
-	# This is recursive for all the obvious reasons.
-	def _exp_piece(self, pre, piece, post):
-		# End recursion when we have nothing to work on, ie
-		# piece is empty. Because of how we construct pre,
-		# this means that it starts with a spurious '/' that
-		# we want to get rid of.
-		if not piece:
-			# Our return is always a list.
-			return [pre[1:]]
+	# The whole purpose of this complex routine is to expand '...'
+	# operators.
+	# pre is an array of the pathname prefixes we have generated so
+	# far. It starts out as ['']; because of how we add paths to it,
+	# this means that the final paths will all start with a '/' that
+	# will have to be stripped off at the end.
+	# We walk along the list of path elements. If the path element
+	# is a plain one, we add it to the end of all of the prefixes
+	# that exist. If it is a '...' expansion, we generate a list
+	# of all of the possible expansions and add each one in turn
+	# on to the end of all existing prefixes.
+	# When we run out of path elements, we're done.
+	def _exp_piece(self, pre, path_elems):
+		while path_elems:
+			piece = path_elems.pop(0)
+			if piece.startswith('...'):
+				vpaths = piece[3:].split('/')
+				if vpaths[0] == '':
+					vpaths = vpaths[1:]
+				# given '...a/b/c', vpaths winds up being
+				# ['a', 'b', 'c']. We create in t a list
+				# of ['a/b/c', 'a/b', 'a', ''].
+				t = ['/'.join(vpaths[:i]) \
+				     for i in range(len(vpaths), -1, -1)]
 
-		# Generate the next step in the downwards recursion.
-		# (This is the same regardless of how we expand *this*
-		# piece.)
-		if post:
-			npiece = post[0]
-			post = post[1:]
-		else:
-			npiece = None
+				# Because t[-1] is '' we use a funny
+				# condition so that we don't generate
+				# 'Something//foo' when the dust settles.
+				pre = ["%s/%s" % (x, y) if y else x \
+				       for x in pre for y in t]
 
-		# Step the first: run the piece through variable
-		# substitution. ._exp_var() does the work.
-		piece = exp_varpat.sub(self._exp_var, piece)
+				# We could do all of this in a single [...]
+				# but the speed gains turn out to be tiny
+				# while the code gets even less clear. So,
+				# no.
+			else:
+				pre = ["%s/%s" % (x, piece) for x in pre]
 
-		# Look for '...' path explosion case.
-		# If we are path-exploding, we loop generating every
-		# possible expansion of the current piece, recursing
-		# for each.
-		if piece.startswith("..."):
-			vpaths = piece[3:].split('/')
-			# If the piece starts with '/' (possible
-			# after variable expansion but not before),
-			# trim it out.
-			if vpaths[0] == '':
-				vpaths = vpaths[1:]
-			r = []
-			# We go to -1 because that means we generate a real
-			# 0 in the range, and that causes us to generate the
-			# null expansion too.
-			for i in range(len(vpaths), -1, -1):
-				pt = '/'.join([pre] + vpaths[:i])
-				r.extend(self._exp_piece(pt, npiece, post))
-			return r
-		else:
-			# Non-exploding, append piece to pre and recurse.
-			pre = pre + '/' + piece
-			return self._exp_piece(pre, npiece, post)
+		# Strip leading / from all entries
+		pre = [x[1:] for x in pre]
+		return pre
 
-	# Expand one template name alternative.
+	# Expand a single template name string, which may contain both
+	# variable expansions and '...' operators. Note that we tokenize
+	# into pathname components, then expand variables, then expand
+	# ... operators. Somewhat peculiar things probably happen if you
+	# expand a variable to something which includes a /.
+	#
+	# This order of expansion is necessary so that
+	# 'foo/...$(page)/fred.tmpl' works right; we need
+	# '...a/page/path' to be seen as a single token.
+	#
+	# If there is no ... in the name string, we cheat and skip a lot
+	# of stuff. The result is indistinguishable.
 	def expand_tname(self, namestr):
 		ns = namestr.split('/')
+		# We cannot use utils.goodpath() because '...' is not a good
+		# path.
 		if not namestr or '' in ns:
 			raise derrors.RendErr, "badly formed template name '%s'" % namestr
-		return self._exp_piece('', ns[0], ns[1:])
+
+		# If there is no '...' operator, all we have to do is expand
+		# variables (once; there is no nested variable expansion).
+		if '...' not in namestr:
+			return [exp_varpat.sub(self._exp_var, namestr)]
+
+		# There's a '...'. We must expand variables in components,
+		# then actually do expansion.
+		ns2 = [exp_varpat.sub(self._exp_var, x) for x in ns]
+		return self._exp_piece([''], ns2)
 
 	# Split template alternatives string on '|', then run each
 	# through .expand_tname(), then figure out which ones actually
