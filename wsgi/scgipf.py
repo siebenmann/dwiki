@@ -14,6 +14,8 @@ import time
 # my preforking server framework.
 import prefork
 
+import gensock
+
 # Netstring utility functions.
 # Note that because Python annoyingly has different interfaces between
 # sockets and regular files, we must explicitly use .recv() instead of
@@ -173,24 +175,15 @@ class SCGIWSGIServer(object):
 		self.wsgi_app = app
 		self.ccount = 0
 		self.stopfunc = stopfunc
-		if len(addr) == 2:
-			s = socket.socket()
-			perms = None
-		else:
-			s = socket.socket(socket.AF_UNIX,
-					  socket.SOCK_STREAM)
-			perms = options.perms
-		s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		s.bind(addr)
-		s.listen(40)
-		if perms:
-			os.chmod(addr, perms)
+		s = gensock.gen_sock(addr, options)
 		self.pool = prefork.ServerPool(s, self.do_request,
 					       options.minconn,
 					       options.maxconn,
 					       options.perconn)
 		self.pool.stall_on_overload(not options.dropoverload)
 		self.pool.set_min_idle(options.minidle)
+		self.pool.set_idle_timeout(options.idletimeout)
+		self.pool.set_worker_timeout(options.workertimeout)
 
 	def serve_forever(self):
 		self.pool.serve()

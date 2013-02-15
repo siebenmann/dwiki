@@ -17,8 +17,11 @@ Bits:
 
 - dwiki-cgi.py: run DWiki as a CGI.
 - dwiki-scgi.py: SCGI-based frontend for DWiki. Its usage is complex,
-  see -h/--help. It communicates with your web server (or SCGI client)
-  over a Unix domain socket.
+  see -h/--help. It normally communicates with your web server (or
+  SCGI client) over a Unix domain socket.
+- supervise-sock.py: Supervise something, like dwiki-scgi.py, that
+  supports being passed its server socket through systemd's socket
+  activation protocol.
 
 - dwiki-cat.py: a relatively raw rendering interface for DWiki.
   Mostly suitable for examining the internals and dumping raw pages.

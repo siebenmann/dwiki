@@ -78,13 +78,17 @@ class PipeSPair(object):
 			except EnvironmentError:
 				pass
 
-def get_pair():
-	"""Half-assedly emulate socketpair() with pipes."""
-	(cin, sout) = os.pipe()
-	(sin, cout) = os.pipe()
-	srv = PipeSPair(sout, sin)
-	clnt = PipeSPair(cout, cin)
-	return (srv, clnt)
+# Issue: maybe I should remove this compatibility shim entirely.
+try:
+	get_pair = socket.socketpair
+except AttributeError:
+	def get_pair():
+		"""Half-assedly emulate socketpair() with pipes."""
+		(cin, sout) = os.pipe()
+		(sin, cout) = os.pipe()
+		srv = PipeSPair(sout, sin)
+		clnt = PipeSPair(cout, cin)
+		return (srv, clnt)
 
 class ServerShutdown(Exception):
 	"""Raised by the connection processing function to signal that
@@ -151,6 +155,8 @@ class ServerPool(object):
 		self.prfunc = proc_func
 		self.ovstall = False
 		self.min_idle = 1
+		self.idle_timeout = None
+		self.worker_timeout = None
 		self.running = True
 		self.downing = False
 		# kids maps (server) channel ends to PIDs.
@@ -174,6 +180,11 @@ class ServerPool(object):
 		if num < 0:
 			num = 0
 		self.min_idle = num
+
+	def set_idle_timeout(self, num):
+		self.idle_timeout = num
+	def set_worker_timeout(self, num):
+		self.worker_timeout = num
 		
 	def _accept(self):
 		"""accept() on the server socket, returning either a new
@@ -193,7 +204,18 @@ class ServerPool(object):
 			handled = 0
 			stop = None
 			cmdchan.send(IDLE)
+			tmo = None
+			wto = self.worker_timeout
 			while 1:
+				seltup = select.select([cmdchan], [], [], tmo)
+				# if the select failed it is because the
+				# timeout fired, which means we should idle
+				# out.
+				if not seltup[0]:
+					cmdchan.send(DYING)
+					return
+				# Since select succeeded, this should always
+				# work.
 				r = cmdchan.recv(1)
 				if r != ACCEPT:
 					cmdchan.send(DYING)
@@ -218,6 +240,13 @@ class ServerPool(object):
 					return
 				else:
 					cmdchan.send(IDLE)
+				# We deliberately do not set an idle timeout
+				# until we have handled one request. The idea
+				# is to keep inactive workers around if they
+				# are part of the minimum worker pool, which
+				# will generally mean that they have never
+				# served a request.
+				tmo = wto
 		except (EnvironmentError, socket.error, select.error):
 			return
 
@@ -440,6 +469,7 @@ class ServerPool(object):
 		# make us sleep forever.
 		if not sockl:
 			return Timeout
+
 		try:
 			seltup = select.select(sockl, [], [], timeout)
 		except select.error:
@@ -541,6 +571,9 @@ class ServerPool(object):
 			self.start_worker()
 		self.ssock.setblocking(0)
 		accept_on = True
+		base_tmo = None
+		if self.idle_timeout:
+			base_tmo = self.idle_timeout
 		while self.running:
 			self.reap_kids()
 
@@ -552,9 +585,17 @@ class ServerPool(object):
 			    len(self.kids) < self.wmax):
 				accept_on = True
 
-			res = self.cycle(accept_on, None)
+			res = self.cycle(accept_on, base_tmo)
 			if res == Overload:
 				accept_on = False
+			elif res == Timeout:
+				# The only time we have a timeout here is if
+				# we have an idle timeout and it just went
+				# off.
+				self.downing = True
+				self.shutdown_accept()
+				self.shutdown()
+				return
 
 #
 # -----

@@ -11,6 +11,8 @@
 import sys, os, socket
 import time
 
+import gensock
+
 # Netstring utility functions.
 # Note that because Python annoyingly has different interfaces between
 # sockets and regular files, we must explicitly use .recv() instead of
@@ -169,23 +171,17 @@ class SCGIWSGIServer(object):
 		self.stopfunc = stopfunc
 		self.stopfile = options.stopfile
 		self.maxconn = options.maxconn
-		if len(addr) == 2:
-			s = socket.socket()
-			perms = None
-		else:
-			s = socket.socket(socket.AF_UNIX,
-					  socket.SOCK_STREAM)
-			perms = options.perms
-		s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		s.bind(addr)
-		s.listen(40)
-		self.sock = s
-		if perms:
-			os.chmod(addr, perms)
+		self.sock = gensock.gen_sock(addr, options)
+		self.idletimeout = options.idletimeout
 
 	def serve_forever(self):
+		if self.idletimeout:
+			self.sock.settimeout(self.idletimeout)
 		while 1:
-			conn, addr = self.sock.accept()
+			try:
+				conn, addr = self.sock.accept()
+			except socket.timeout:
+				break
 			self.delegate_request(conn)
 			conn = None
 			if self.stopfunc and self.stopfunc():
