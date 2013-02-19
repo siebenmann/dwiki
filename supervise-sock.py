@@ -64,6 +64,12 @@ def setup_options():
 	parser.add_option('-E', '--error-delay', dest='edelay', type="float",
 			  metavar="DELAY",
 			  help="wait DELAY seconds (may be fractional) after CMD exits badly before potentially restarting it. Default %default.")
+	parser.add_option('', '--start-now', dest='startimmed',
+			  action="store_true",
+			  help="Run the daemon immediately on startup without waiting for the first socket connection (we will continue to wait on the socket for subsequent startups).")
+	parser.add_option('', '--immediate-restart', dest='restartimmed',
+			  action="store_true",
+			  help="Immediately restart the daemon after it exits without waiting for a new socket connection.")
 	parser.add_option('-s', '--socket', dest="sockfile", type='string',
 			  metavar='SOCK',
 			  help="use SOCK as the (Unix) socket path.")
@@ -82,6 +88,7 @@ def setup_options():
 			  help="be more verbose")
 	parser.set_defaults(sockfile = None, port = None, addr = '',
 			    systemd = False,
+			    startimmed = False, restartimmed = False,
 			    rdelay = 0, edelay = 30, verbose = False,)
 	return parser
 
@@ -117,10 +124,14 @@ def wait_str(res):
 		return "unknown wait() result %d" % res
 	
 def process(s, options, args):
+	first = True
 	while True:
-		r = select.select([s], [], [])
-		if not r:
-			continue
+		if not ((first and options.startimmed) or \
+			(not first and options.restartimmed)):
+			r = select.select([s], [], [])
+			if not r:
+				continue
+		first = False
 		res = start_server(s, args)
 		if os.WIFEXITED(res) and os.WEXITSTATUS(res) == 0:
 			if options.rdelay:
