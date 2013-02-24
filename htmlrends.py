@@ -287,3 +287,9 @@ def lastctime(context):
 	else:
 		return ''
 register("lastchangetime", lastctime)
+
+def readmore(context):
+	"""Generate a 'Read more' link to this page."""
+	return '<a href="%s">Read more &raquo;</a>' % \
+	       context.url(context.page.me())
+register("readmore", readmore)
