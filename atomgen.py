@@ -280,8 +280,13 @@ def pageterse(context):
 	"""Generate wikitext:terse run through a HTML entity quoter,
 	thus suitable for use in Atom feeds."""
 	return httputil.quotehtml(wikirend.terserend(context))
-#htmlrends.register("atom::pageterse", pageterse)
-wikirend.registerCached("atom::pageterse", pageterse)
+htmlrends.register("atom::pageterse", pageterse)
+
+def pagetersenotitle(context):
+	"""Generate wikitext:terse:notitle run through a HTML entity quoter,
+	thus suitable for use in Atom feeds."""
+	return httputil.quotehtml(wikirend.tersenotitle(context))
+htmlrends.register("atom::pageterse:notitle", pagetersenotitle)
 
 #
 # Generate and cache the list of comments that we are going to

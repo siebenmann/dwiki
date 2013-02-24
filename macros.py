@@ -19,6 +19,7 @@ class ReturnNothing(Exception):
 	pass
 
 # This exception is raised to cut rendering short at this point.
+# TODO: remove, it's no longer used.
 class CutShort(Exception):
 	pass
 
@@ -501,28 +502,27 @@ def cancomment(rend, args):
 register("CanComment", cancomment)
 
 
-# Cut rendering short (but don't *kill* it) in all or certain
-# contexts. This must be explicitly enabled.
-# If given arguments, cuts us off only in (those) contexts.
+#
+# This is basically a backwards compatibility hack. CutShort is not
+# actually a macro any more; instead it is a block level entity that
+# vaguely acts like a macro in some contexts. The actual macro
+# implementation is here a) for the help text and b) so that it can
+# show up as a clear error if people use it in the wrong context.
 def cutshort(rend, args):
-	"""Cut off rendering a page right at that point in some contexts.
-	Optional arguments restrict this effect to the specified view(s).
-	Rendering as a full page can never be cut off."""
-	view = rend.ctx.view
-	do_cut = not bool(args)
-	for a in args:
-		if a == view:
-			do_cut = True
-	if not do_cut:
-		return True
-
-	# Right, time to go.
-	rend.closeRendering()
-	rend.addPiece('<p class="teaser"> [More available: ')
-	rend.makelink(rend.ctx.nurl(rend.ctx.page), rend.ctx.page.name)
-	rend.addPiece("] </p>")
-	raise CutShort, "asked to cut things here"
+	"""Cut off rendering a page right at that point in some
+	contexts.  Optional arguments restrict this effect to the
+	specified view(s); it's generally not useful to do this, but
+	if you want to some values are _blog_, _blogdir_, or
+	_atom_. Rendering as a full page can never be cut off.  An
+	important note: _CutShort_ is not really a macro. You must put
+	it at the start of a non-indented, non-nested line; it doesn't
+	work anywhere else in text."""
+	return False
 register("CutShort", cutshort)
+# Old text generated:
+#	rend.addPiece('<p class="teaser"> [More available: ')
+#	rend.makelink(rend.ctx.nurl(rend.ctx.page), rend.ctx.page.name)
+#	rend.addPiece("] </p>")
 
 # Pages with recent comments for them.
 def rec_comment_pages(rend, args):

@@ -21,6 +21,8 @@ ABSLINKS = (1<<1)
 NOFOLLOW = (1<<2)
 TITLEONLY = (1<<3)
 # internal use only
+# these can only be set when we are doing a relatively full rendering,
+# one that makes the specific type of additional result valid.
 set_features_option = (1<<8)
 set_title_option = (1<<9)
 rendering_flags = (set_features_option | set_title_option)
@@ -65,7 +67,9 @@ check_flags = (SOMEMACROS | ALLOW_RESTRICTED | ALLOW_CANCOMMENT |
 # anchor.
 
 lineClassRegexps = (
-	(re.compile(r'([^\s=*>|#\d+.-].*)'),'p'), # common case - other p's below
+	# The following pattern must *not* include any character that starts
+	# another element.
+	(re.compile(r'([^\s=*>{|#\d+.-].*)'),'p'), # common case - other p's below
 	(re.compile(r'\s*$'),'blank'),
 	(re.compile(r'(\s(\s*))(\S.*)'),'indented'), # either pre or continuation
 	(re.compile(r'(=+)\s(.+)?'),'header'),
@@ -92,6 +96,7 @@ lineClassRegexps = (
 	# this also affects the basic case at the start, which must
 	# include . as a stop character.
 	(re.compile(r'\.pn\s+(.+)'), 'procnote'),
+	(re.compile(r'{{CutShort(|:[^}]+)}}\s*$'), 'cutshort'),
 	# THIS MUST BE THE LAST CASE
 	# cks keeps forgetting this.
 	(re.compile(r'(\S.*)'),'p'),
@@ -512,11 +517,175 @@ def list_para_start(tok):
 	else:
 		return "ptext"
 
+#
+# Generate a dictionary of all versions of the title given the actual
+# HTML of the title plus the start and HTML elements around it (always <hN>
+# and </hN>). This title information dictionary will be saved as a single
+# cacheable object that all title rendering functions draw from.
+#
+# We can reliably strip HTML and just links because we know that our
+# input is well formed, in fact formed in a specific way.
+stripa_re = re.compile("<(a|/a)[^>]*>")
+striphtml_re = re.compile("<[^>]+>")
+def gen_title_dict(start, title, end):
+	res = {}
+	res['title'] = title
+	res['html'] = "%s%s%s" % (start, title, end)
+	res['nohtml'] = striphtml_re.sub("", title)
+	res['nolinks'] = stripa_re.sub("", title)
+	return res
+def set_ctx_titleinfo(ctx, titleinfo):
+	if not titleinfo:
+		return
+	ctx.setvar(":wikitext:title", titleinfo['title'], True)
+	ctx.setvar(":wikitext:title:nohtml", titleinfo['nohtml'], True)
+	ctx.setvar(":wikitext:titleinfo", titleinfo, True)
+
+# This class collects all of the results from rendering a wikitext page
+# and is what is returned from WikiRend.render(). After you've gotten
+# it, it is normally your responsibility to call .add_to(ctx) to add
+# the rendering results to the context.
+# HTML is extracted by calling .html(ctx), possibly with additional
+# options. Note that you can't render a result without a context
+# because the context is what allows us to apply CutShort restrictions
+# (if any).
+#
+# The core rendering result is a list of 'blocks', which are basically
+# chunks of HTML. Blocks have a type, some additional information
+# attached to the type, and the generated HTML. Chunking the HTML
+# and attaching types allows us to do things like 'skip the title'
+# or 'stop after the first <p> block'. The type is usually the type
+# of the HTML block element that the block contains, but this can
+# break down at some point (the short version is that wikitext HTML
+# generation is not completely structured); at that point you start
+# getting only generic chunks that contain who knows what (and which
+# likely have multiple HTML block elements in them).
+#
+# Blocks are also used to handle the CutShort macro. Regardless of
+# CutShort, WikiRend always processes the entire page and chunks up
+# the result. CutShort macros introduce special 'cutshort' chunks;
+# during HTML generation we spot these and potentially stop
+# processing. Handling CutShort in postprocessing means that the
+# results of wikitext rendering can be cached and used generally,
+# instead of needing separate caches for normal versus CutShort
+# (actually each separate CutShort context possible).
+# 
+# Mechanically a block is a two-element tuple, (WHAT, RESULTS).
+# RESULTS is a list of strings of the actual HTML output that will
+# normally be used (although once it's passed to RendResults in
+# .add_block() it is immediately crushed down to a single
+# string). WHAT is at least a one-element tuple; the first element is
+# a string that describes its type and any subsequent elements are
+# additional data. So far only cutshort has additional data; the
+# cutshort chunk is:
+#	('cutshort', (viewlist,), 'read more HTML')
+#
+# (viewlist is the list of views to cut in, or 'all'. The 'read more
+# HTML' is the HTML that will be added if the cut is active.)
+#
+class RendResults(object):
+	def __init__(self):
+		self.blocks = []
+		self.empty = False
+		self.titleInfo = None
+		self.options = 0
+		self.features = None
+		self.spath = None
+		self.cacheable = True
+
+	# Add all elements of our results to the context et al.
+	# NOTE that this must be called with ctx.page as the page we were
+	# rendered for. Other use is invalid.
+	def add_to(self, ctx):
+		if self.options & set_features_option:
+			for f in self.features:
+				ctx.addfeature(f)
+			set_cache_features(self.features, ctx.page, ctx)
+		if not self.cacheable:
+			ctx.addfeature('indirect-macros')
+		if self.options & set_title_option and self.titleInfo:
+			set_ctx_titleinfo(ctx, self.titleInfo)
+		if self.spath:
+			ctx.setvar(":wikitext:search", self.spath, True)
+		if (self.options & rendering_flags) == rendering_flags:
+			ctx.setvar(":wikitext:render", self, True)
+
+	# As an engineering decision we immediately compact the list of
+	# HTML to a single string. One reason for this is that it makes
+	# the pickled version held in the disk cache simpler and smaller.
+	def add_block(self, what, data):
+		self.blocks.append((what, ''.join(data)))
+
+	# returns whether or not there is even a block of a given type
+	# in the blocks.
+	def hasa(self, what):
+		l = filter(lambda x: x[0][0] == what, self.blocks)
+		return bool(len(l))
+
+	# Skip initial blocks of type skip, plus 'blank'
+	# if stopafter is given, stop after the first block of that type.
+	# cutshort is true if cutshort blocks can do anything.
+	def _filter(self, view, skip=None, stopafter=None, cutshort=False):
+		r = []
+		for what, data in self.blocks:
+			if skip and what[0] in (skip, 'blank'):
+				continue
+			skip = None
+
+			# The data payload of a cutshort block is empty,
+			# because it's what's rendered when we *aren't*
+			# cutting short.
+			# what[1] is the views we cut short in or ('all',),
+			# what[2] is the teaser text.
+			if cutshort and what[0] == 'cutshort' and \
+			   view != "normal" and \
+			   (view in what[1] or 'all' in what[1]):
+				r.append(what[2])
+				break
+
+			if data:
+				r.append(data)
+
+			if stopafter and what[0] == stopafter:
+				break
+		return r
+
+	# Actually generate HTML, or generate absolutely nothing if
+	# we are marked as explicitly empty. Explicit empty RendResults
+	# are the result of rendering access-restricted pages that don't
+	# allow you access.
+	# The generated HTML has the wikitext <div> around it.
+	def html(self, ctx, skip = None, stopafter = None,
+		 cutshort = False):
+		if self.empty:
+			return ''
+		return ''.join([wikitext_start] + \
+			       self._filter(ctx.view, skip, stopafter,
+					    cutshort) + \
+			       [wikitext_end])
+
+	# Debugging interfaces:
+	def _render(self):
+		return ''.join(self._filter('normal'))
+	def _dump(self):
+		for btype, data in self.blocks:
+			print "==", btype, "=="
+			print ''.join(data)
+
 # used inside makelinkstart to detect urls that need absolutin'
 absurlre = re.compile('[a-zA-Z0-9]+:')
 
+# Quote the link URL properly.
+def quote_link_url(tgt):
+	tgt = tgt.replace('&', '&amp;').replace('"', '%22')
+	tgt = tgt.replace('>', '%3E').replace(' ', '%20')
+	return tgt
+
 # We use a class to contain rendering because it simplifies the job of
 # holding related data all accessible.
+# We render some particular data in the context of a page. Often the
+# data is the contents of the page, but not always (eg comments render
+# through this).
 class WikiRend:
 	def __init__(self, data, context, options = None):
 		self.data = data
@@ -534,7 +703,7 @@ class WikiRend:
 		self.abbrCache = {}
 		self.imgCache = {}
 		self.blockedStyles = []
-		self.textTitle = None
+		self.titleInfo = None
 		self.useLists = True   # macros refer to this
 		self.usePageTitles = False
 		self.hasComplex = False
@@ -560,17 +729,30 @@ class WikiRend:
 			for w in context.cfg['literal-words']:
 				self.add_stopword(w, True)
 
+		# ...
+		self.spos = None
+		self.lpos = 1
+		self.pushing = True
+		self.rres = RendResults()
+
 	def render(self, options = None):
 		if options:
 			self.options = options
 		try:
+			# TODO: pass two is fixing result so that we do it
+			# better
 			self.result.append(wikitext_start)
 			self.run()
+			self.force_block('end')
+			#if self.rres._render() != ''.join(self.result[1:]):
+			#	print "RESULT MISMATCH", self.ctx.page.path
 			self.result.append(wikitext_end)
 		except macros.ReturnNothing:
 			self.result = []
+			self.rres.blocks = []
+			self.rres.empty = True
 			self.ctx.unrel_time()
-			self.textTitle = None
+			self.titleInfo = None
 			# This one is complicated.
 			# Consider: a readable file, in a directory
 			# with an __access that has {{Restricted:user}}
@@ -583,16 +765,60 @@ class WikiRend:
 			# the CanComment. (Which must be before the
 			# Restricted, whee.)
 			self.features.append('restricted')
-		if self.options & set_features_option:
-			for f in self.features:
-				self.ctx.addfeature(f)
-		if self.hasComplex:
-			self.ctx.addfeature('indirect-macros')
-		if self.options & set_title_option and self.textTitle:
-			self.ctx.setvar(":wikitext:title", self.textTitle)
-		if self.searchPath:
-			self.ctx.setvar(":wikitext:search", self.searchPath)
-		return ''.join(self.result)
+
+		self.rres.options = self.options
+		self.rres.features = self.features
+		self.rres.cacheable = not self.hasComplex
+		self.rres.titleInfo = self.titleInfo
+		self.rres.spath = self.searchPath
+		#self.rres._dump()
+		return self.rres
+
+	#
+	# Move chunks of the accumulated HTML text into the RendResult
+	# object.
+	# We try to push top level block elements in as they are
+	# generated. However not all block elements push themselves
+	# so we take care not to mis-label what we push into the
+	# result.
+	# CutShort also explicitly pushes blocks in.
+
+	# Push a block if it is safe. self.lpos is the last point we
+	# pushed up to (well, where we expect the next push to start
+	# from if there are no surprise elements); self.spos is where
+	# this block element starts from.
+	def push_block(self, btype):
+		if not self.pushing:
+			return
+		if self.spos != self.lpos:
+			self.pushing = False
+			return
+		self.rres.add_block((btype,), self.result[self.spos:])
+		self.lpos = len(self.result)
+
+	# Push a blank line in.
+	def push_blank(self):
+		if not self.pushing:
+			return
+		if len(self.result) != self.lpos+1:
+			self.pushing = False
+			return
+		self.force_block('blank')
+
+	# Flush a block by force. btype should never be a normal block
+	# element type.
+	# As an engineering decision we do not resume regular block
+	# element pushing after a force even though we could. Pushing
+	# block elements separately is only useful when it reliably
+	# tracks the actual HTML structure. Once pushing is false, that
+	# structure is off. Resychonizing still doesn't fix that gap in
+	# the middle.
+	def force_block(self, btype):
+		if self.lpos >= len(self.result):
+			return
+		self.rres.add_block((btype,), self.result[self.lpos:])
+		self.lpos = len(self.result)
+	# ----
 
 	def pull(self):
 		if self.tokqueue:
@@ -614,6 +840,11 @@ class WikiRend:
 			self.tokqueue.insert(0, tok)
 
 	def run(self):
+		# BUG: you should not be able to use pragmas except for
+		# real page rendering. Results in comments will be what
+		# they call 'interesting'. This probably needs a specific
+		# flag for 'not rendering page contents', or maybe 'respect
+		# pragmas'.
 		if is_plaintext(self.data):
 			tl = self.data.split('\n', 1)
 			if len(tl) > 1 and tl[1]:
@@ -639,6 +870,7 @@ class WikiRend:
 					# Time to get out.
 					break
 		except macros.CutShort:
+			# TODO: remove this, we no longer raise CutShort.
 			pass
 		self.result.extend(self.inlineEndStack)
 		self.result.extend(self.blockEndStack)
@@ -652,6 +884,7 @@ class WikiRend:
 		# Generating newlines in the output for blank lines in
 		# the source makes the generated HTML look much nicer.
 		self.result.append("\n")
+		self.push_blank()
 	filter_routines['blank'] = blank_handler
 
 	def starsep_handler(self, tok):
@@ -664,20 +897,25 @@ class WikiRend:
 		self.result.append('<hr>\n')
 	filter_routines['hr'] = hr_handler
 
-	def header_handler(self, tok):
+	def header_handler(self, tok, special=None):
 		hlevel = min(len(tok[3].group(1)), 6)
 		htext = tok[3].group(2)
 		hdtag = 'h%d' % hlevel
 		self.handle_begin('begin', hdtag)
 		self.handle_text('text', htext)
-		self.handle_end('end', hdtag)
+		self.handle_end('end', hdtag, special=special)
 	filter_routines['header'] = header_handler
 
 	# header on the first line
+	# this is special magic because it is used to generate the
+	# title.
 	def header1_handler(self, tok):
 		spos = len(self.result) + 1
-		self.header_handler(tok)
-		self.textTitle = ''.join(self.result[spos:-1])
+		self.header_handler(tok, special="title")
+		textTitle = ''.join(self.result[spos:-1])
+		self.titleInfo = gen_title_dict(self.result[spos-1],
+						textTitle,
+						self.result[-1])
 	filter_routines['header1'] = header1_handler
 
 	def table_handler_inner(self, tok, type):
@@ -1015,15 +1253,62 @@ class WikiRend:
 			n = n[ac:]
 	filter_routines['procnote'] = procnote_handler
 
+	# Insert a 'cutshort' block into the rendering result.
+	# This has to be a block-level entity because we have no clean
+	# way to close a block from inside inline text processing (the
+	# context where normal macros are evaluated). {{CutShort}}
+	# must *always* close the entire current block stack because
+	# the HTML may stop abruptly at it when final HTML generation
+	# is done.
+	#
+	# ISSUE: not quite true. We could embed what's necessary to
+	# close the inline and block stacks in the cutshort 'read
+	# more' HTML. The previous chunk would still abruptly end
+	# partway through a block entity, but that's not really *that*
+	# bad I suppose. However I think I like the current setup
+	# better. Among other things it doesn't require us to play
+	# special games to always run {{CutShort}} macros even if
+	# ALLOW_CUTSHORT is not set.
+	#
+	# The current implementation requires CutShort to be a top
+	# level block entity, not indented or anything.
+	# 
+	def cutshort_handler(self, tok):
+		# Check that CutShort is allowed and that we are not
+		# indented in any way. If this fails we pretend that
+		# the {{CutShort}} is paragraph text, where it will
+		# probably error out.
+		if self.options & NOMACROS or \
+		   len(self.blockEndStack) > 0:
+			self.pushBack(('para', tok[1], tok[2]))
+			return
+
+		# Flush out anything that's hanging around into a
+		# predecessor block.
+		self.force_block('chunk')
+
+		# Generate the cutshort block.
+		targs = tok[3].group(1)
+		if not targs:
+			args = ('all',)
+		else:
+			args = tuple(x for x in targs[1:].split(":") if x)
+		purl = quote_link_url(self.canon_url(self.ctx.nurl(self.ctx.page)))
+		lhtml = '<p class="teaser"><a href="%s">Read more &raquo;</a></p>\n' % purl
+		self.rres.add_block(('cutshort', args, lhtml), (''))
+	filter_routines['cutshort'] = cutshort_handler
+
 	# When modifying these, remember that header1 handler depends
 	# on the fact that the start tag is the first thing and that
 	# the end tag is the last appended
 	def handle_begin(self, ignore, btype):
 		__pychecker__ = "no-argsused"
+		if len(self.blockEndStack) == 0:
+			self.spos = len(self.result)
 		self.result.append(start_entity[btype])
 		self.blockEndStack.insert(0, end_entity[btype])
 
-	def handle_end(self, ignore, btype):
+	def handle_end(self, ignore, btype, special=None):
 		__pychecker__ = "no-argsused"
 		if self.inlineEndStack:
 			self.result.extend(self.inlineEndStack)
@@ -1039,6 +1324,8 @@ class WikiRend:
 			self.result.pop()
 		else:
 			self.result.append(sofftag + "\n")
+			if len(self.blockEndStack) == 0:
+				self.push_block(special if special else btype)
 
 	def begin_handler(self, tok):
 		self.handle_begin( *tok )
@@ -1576,12 +1863,7 @@ class WikiRend:
 			self.result.append('</a>')
 	def addFeature(self, feature):
 		self.features.append(feature)
-	def closeRendering(self):
-		"Only for CutShort"
-		self.result.extend(self.inlineEndStack)
-		self.result.extend(self.blockEndStack)
-		self.inlineEndStack = []
-		self.blockEndStack = []
+
 	def markComplex(self):
 		self.hasComplex = True
 
@@ -1623,6 +1905,7 @@ class WikiRend:
 
 		# Getting the renderer this way gets us the version with
 		# caching built in.
+		# TODO: not necessary any more.
 		rfunc = htmlrends.get_renderer("wikitext:title:nolinks")
 		np = self.ctx.model.get_page(path)
 		# We don't exclude np.is_util() pages from getting titles
@@ -1645,203 +1928,7 @@ class WikiRend:
 		if linkend:
 			self.result.append("</a>")
 
-#
-# ----
-# Caching support.
-#
-# This must go here, because we use it when we register stuff.
-def cacheWrap(func, name):
-	def _cachewrapped(ctx):
-		# Are we running caching at all?
-		if not rendcache.cache_on(ctx.cfg):
-			return func(ctx)
-		
-		# Fetch automatically validates.
-		res = rendcache.fetch(ctx, name)
-
-		# Cache hit; crack the results and generate.
-		if res:
-			(rend, ftrs, auth, title) = res
-			for f in ftrs:
-				ctx.addfeature(f)
-			if auth is not None:
-				set_cache_features(auth, ctx.page, ctx)
-			if title is not None:
-				ctx.setvar(":wikitext:title", title)
-			ctx.newtime(ctx.page.modstamp)
-			return rend
-
-		# The rendering of a page may be non-cacheable because
-		# of complex macros.
-		rend = func(ctx)
-		if ctx.hasfeature('indirect-macros'):
-			return rend
-		ftrs = ctx.getfeatures()
-		auth = get_cache_features(ctx.page, ctx)
-		title = ctx.get(":wikitext:title", None)
-		stuple = (rend, ftrs, auth, title)
-
-		# Now we need the validator. For a non-fancy page, all
-		# outside things that can affect it are WikiWords, which
-		# only change if the current directory, the root directory,
-		# or the aliases directory change.
-		v = rendcache.Validator()
-		v.add_ctime(ctx.page)
-		v.add_mtime(ctx.page.curdir())
-		v.add_mtime(ctx.model.get_page(''))
-		# Add the search path directories, if any, to the validator.
-		for sd in ctx.get(':wikitext:search', []):
-			# It is possible to typo a search directory, so
-			# that it doesn't exist. Adding these pages to the
-			# cache validator explodes.
-			spg = ctx.model.get_page(sd)
-			if spg and spg.exists():
-				v.add_mtime(spg)
-		if 'alias-path' in ctx.cfg:
-			v.add_mtime(ctx.model.get_page(ctx.cfg['alias-path']))
-		# tricky case: we must make this user-dependant if there is
-		# an access restriction anywhere up the tree (.access_on()),
-		# not just if this page has a direct access restriction.
-		if ftrs is not None and \
-		   not ('hascomments' in ftrs or 'hasrestricted' in ftrs) and \
-		   not ctx.page.access_on(ctx):
-			perUser = False
-		else:
-			perUser = True
-		rendcache.store(ctx, name, stuple, v, perUser = perUser)
-		return rend
-
-	# We must copy __doc__ to have the renderer documentation come
-	# out right.
-	_cachewrapped.__doc__ = func.__doc__
-	return _cachewrapped
-
-def registerCached(name, func):
-	htmlrends.register(name, cacheWrap(func, name))
-#
-# ------------
-
-#
-# This is the public rendering interface for rendering generic content.
-def wikirend(data, ctx, options = None):
-	r = WikiRend(data, ctx, options)
-	return r.render()
-
-# Internal invocation with magic cache and options support.
-# This is the real backend of various wikitext renderers.
-def _render(ctx, options):
-	if ctx.page.type != "file":
-		raise derrors.RendErr, "wikitext asked to render non-file."
-	if not ctx.page.displayable():
-		raise derrors.RendErr, "wikitext asked to render undisplayable page"
-
-	# *NOTE*: our callers never block Restricted/CanComment.
-	ftrable = (options & set_features_option)
-	
-	ctx.newtime(ctx.page.modstamp)
-	# A page with no access restrictions of its own might be under
-	# access restrictions from a parent directory; if we rendered
-	# it without checking, we would return good results when we
-	# shouldn't.
-	# It is worth optimizing this check, because checking permissions
-	# requires some sort of page rendering; we do not want to render
-	# twice.
-	data = ctx.page.contents()
-	res = None
-	if not no_restricted(data):
-		res = wikirend(data, ctx, options)
-		ftrs = ctx.getfeatures()
-		# If we did not actually declare a restriction,
-		# and we are restricted by our parents, null the
-		# rendering.
-		if 'hasrestricted' not in ftrs and \
-		   not ctx.page.render_ok(ctx):
-			res = ''
-	elif ctx.page.render_ok(ctx):
-		res = wikirend(data, ctx, options)
-		ftrs = ctx.getfeatures()
-	else:
-		res = ''
-		ftrable = False
-
-	if ftrable:
-		set_cache_features(ftrs, ctx.page, ctx)
-	return res
-
-# This is the renderer interface; it renders the contents of the current
-# page (file), and as a bonus sets the context timestamp correctly so
-# you don't have to.
-def render(ctx):
-	"""Convert wikitext into HTML."""
-	return _render(ctx, rendering_flags)
-# Some people call .render directly, so we wrap the function itself
-# and then register normally.
-render = cacheWrap(render, 'wikitext')
-htmlrends.register('wikitext', render)
-
-# Authentication in the face of cutting things short is one of those
-# thorny issues that we decide to declare a feature. With cut-short
-# rendering, only authentication up to that point is checked. This
-# means you can have a short teaser and then a larger authenticated
-# payload.
-def shortrend(ctx):
-	"""Convert wikitext into HTML, honoring the !{{CutShort}} macro."""
-	return _render(ctx, ALLOW_CUTSHORT | set_title_option | set_features_option)
-#htmlrends.register("wikitext:short", shortrend)
-registerCached("wikitext:short", shortrend)
-
-def terserend(ctx):
-	"""Convert wikitext into terse 'absolute' HTML, with all links
-	fully qualified and no macros having any effect except CutShort,
-	CanComment, IMG, and Restricted."""
-	return _render(ctx, terse_flags | ABSLINKS | set_title_option)
-#htmlrends.register("wikitext:terse", terserend)
-registerCached("wikitext:terse", terserend)
-
-# This one is a bit peculiar, since we don't actually want the
-# rendering output, just one of the side effects. (Note that
-# it is actually faster to always render than to check for
-# alternate forms that might already be cached. Doing just one
-# line of wikitext is fast.)
-# We must also check access permissions explicitly; because we
-# chop rendering short, we may not activate embedded restrictions.
-def gen_title(ctx, eflags = 0):
-	if ctx.page.type != "file" or not ctx.page.access_ok(ctx):
-		return ''
-	_render(ctx, set_title_option | TITLEONLY | eflags)
-	return ctx.get(':wikitext:title', '')
-	
-def titlerend(ctx):
-	"""Generate and return the title of a wikitext page."""
-	return gen_title(ctx, 0)
-registerCached("wikitext:title", titlerend)
-
-# This uses the simple cache registration, because without links it's
-# not dependant on what links resolve to, so it is not dependant on
-# anything except the page itself.
-def nolinkstitlerend(ctx):
-	"""Generate and return the title of a wikitext page without links."""
-	return gen_title(ctx, NOLINKS)
-rendcache.registerSimpleCached("wikitext:title:nolinks", nolinkstitlerend)
-
-# Return the title with all HTML stripped off. This is easier than it
-# looks because we know we are well formed so we can just remove all
-# elements with a simple regexp. (We render NOLINKS as well to remove
-# the amount of work we need to do; better to not generate at all than
-# generate and remove.)
-#
-# The tradeoff between generating titles separately and rendering the
-# full page is perhaps obscure. In the usual contexts for this (eg,
-# HTML page titles) we are almost certainly going to go ahead and
-# render the full page later. For now I am opting to keep this simple
-# and straightforward.
-striphtml_re = re.compile("<[^>]+>")
-def nohtmltitlerend(ctx):
-	"""Generate and return the title of a wikitext page without HTML
-	markup."""
-	return striphtml_re.sub("", gen_title(ctx, NOLINKS))
-rendcache.registerSimpleCached("wikitext:title:nohtml", nohtmltitlerend)
-
+# ---
 #
 # Checks to see if we definitely cannot have restrictions or feature
 # settings in the data. Even if these return false we may still not,
@@ -1881,8 +1968,331 @@ def gen_page_features(page, ctx):
 			# We must make a new context so that our features
 			# don't mingle with the normal page's features.
 			ctx2 = ctx2.clone_to_page(page)
-		wikirend(data, ctx2, check_flags)
+		# Since we are rendering for the features, we don't care
+		# about generating HTML.
+		_wikirend(data, ctx2, check_flags)
 		res = ctx2.getfeatures()
 
 	set_cache_features(res, page, ctx)
 	return res
+# ---
+
+#
+# ----
+# Caching support.
+#
+
+# Generate a validator for ctx.page.
+# The validator is page mtime & ctime, directory mtime, root
+# directory mtime, alias directory mtime, and search path directory
+# mtimes.
+# (For a non-fancy page, all outside things that can affect it are
+# WikiWords, which only change if the current directory, the root
+# directory, a search directory, or the aliases directory change).
+def genValidator(ctx):
+	v = rendcache.Validator()
+	v.add_ctime(ctx.page)
+	v.add_mtime(ctx.page.curdir())
+	v.add_mtime(ctx.model.get_page(''))
+	spaths = ctx.get(':wikitext:search', [])
+	if 'alias-path' in ctx.cfg:
+		spaths = spaths[:]
+		spaths.append(ctx.cfg['alias-path'])
+	for sd in spaths:
+		# It is possible to typo a search directory, so that
+		# it doesn't exist. Adding these pages to the cache
+		# validator explodes.
+		spg = ctx.model.get_page(sd)
+		if spg and spg.exists():
+			v.add_mtime(spg)
+	return v
+
+# Store a general wikirend result under the specific name *if* it's
+# non-empty.
+# We generate the validator with genValidator() and carefully store
+# things under a per-user name if it has special permissions.
+def store_gen_wikirend(ctx, name, val):
+	if not val or not rendcache.cache_on(ctx.cfg) or \
+	   ctx.hasfeature('indirect-macros'):
+		return
+	v = genValidator(ctx)
+	ftrs = ctx.getfeatures()
+	# tricky case: we must make this user-dependant if there is
+	# an access restriction anywhere up the tree (.access_on()),
+	# not just if this page has a direct access restriction.
+	if ftrs is not None and \
+	   not ('hascomments' in ftrs or 'hasrestricted' in ftrs) and \
+	   not ctx.page.access_on(ctx):
+		perUser = False
+	else:
+		perUser = True
+	rendcache.store(ctx, name, val, v, perUser = perUser)
+# ---
+
+# ---
+# Core support for obtaining titles, including caching.
+#
+# This one is a bit peculiar, since we don't actually want the
+# rendering output, just one of the side effects. (Note that
+# it is actually faster to always render than to check for
+# alternate forms that might already be cached. Doing just one
+# line of wikitext is fast.)
+# Note that we *must* render with TITLEONLY, because otherwise
+# we can cause recursion issues if we are rendering the title of
+# a page that using a page-title-generating macro.
+#
+# We must check access permissions explicitly; because we chop
+# rendering short, we may not activate embedded restrictions.
+def _gen_titleinfo(ctx):
+	if ctx.page.type != "file" or not ctx.page.access_ok(ctx):
+		return {}
+	_render(ctx, set_title_option | TITLEONLY)
+	return ctx.get(":wikitext:titleinfo", {})
+
+TITLESKEY = "wikitext.titleinfo"
+def store_titleinfo(ctx):
+	store_gen_wikirend(ctx, TITLESKEY, ctx.get(':wikitext:titleinfo', None))
+def gen_titleinfo(ctx):
+	ti = ctx.get(':wikitext:titleinfo', None)
+	if ti:
+		return ti
+	if not rendcache.cache_on(ctx.cfg):
+		return _gen_titleinfo(ctx)
+
+	# this runs the stored validator for us and returns a failure if
+	# necessary.
+	ti = rendcache.fetch(ctx, TITLESKEY)
+	if ti:
+		set_ctx_titleinfo(ctx, ti)
+		ctx.newtime(ctx.page.modstamp)
+		return ti
+
+	ti = _gen_titleinfo(ctx)
+	store_titleinfo(ctx)
+	return ti
+
+# ------------
+#
+# Actual wikitext rendering.
+
+# Turn data in context ctx into a RendResult object.
+# We load rendering results into ctx as a side effect.
+def _wikirend(data, ctx, options = None):
+	r = WikiRend(data, ctx, options).render()
+	r.add_to(ctx)
+	return r
+
+# Render ctx.page to a RendResult object, possibly annulling the
+# rendering and possibly returning None if you have no permissions.
+# This updates the context time as a side effect.
+# This is the real backend of various wikitext renderers.
+def _render(ctx, options):
+	if ctx.page.type != "file":
+		raise derrors.RendErr, "wikitext asked to render non-file."
+	if not ctx.page.displayable():
+		raise derrors.RendErr, "wikitext asked to render undisplayable page"
+
+	ctx.newtime(ctx.page.modstamp)
+	# A page with no access restrictions of its own might be under
+	# access restrictions from a parent directory; if we rendered
+	# it without checking, we would return good results when we
+	# shouldn't.
+	# It is worth optimizing this check, because checking permissions
+	# requires some sort of page rendering; we do not want to render
+	# twice.
+	data = ctx.page.contents()
+	res = None
+	if not no_restricted(data):
+		# no_restricted() is a heuristic check and may have been
+		# fooled. If it has been fooled, 'hasrestricted' will not
+		# be in the page features after generation.
+		res = _wikirend(data, ctx, options)
+		ftrs = ctx.getfeatures()
+		# If we did not actually declare a restriction,
+		# and we are restricted by our parents, null the
+		# rendering.
+		if 'hasrestricted' not in ftrs and \
+		   not ctx.page.render_ok(ctx):
+			# This is different from 'res = None' in that
+			# it deliberately destroys the in-context-cache
+			# version; future HTML renderings from the retrieved
+			# cached version will be empty.
+			res.empty = True
+			res.blocks = []
+	elif ctx.page.render_ok(ctx):
+		res = _wikirend(data, ctx, options)
+	else:
+		# Blocked by parent restrictions.
+		res = None
+
+	return res
+
+# A cached version of _render. We have two caches: the
+# :wikitext:render context cache of an earlier render pass for this
+# page and the rendcache.* disk cache. .add_to() automatically sets
+# up the former for us.
+# We are called in two difference modes: normal and 'terse', used by
+# Atom page generation. Because they produce significantly different
+# rendering results we must cache them separately.
+def _render_cached(ctx, options):
+	if options & ABSLINKS or options & SOMEMACROS:
+		keyname = "wikitext.terse"
+	else:
+		r = ctx.get(":wikitext:render")
+		if r:
+			return r
+		keyname = "wikitext.render"
+
+	if not rendcache.cache_on(ctx.cfg):
+		return _render(ctx, options)
+
+	# BUG: a cached entry is not blocked by permission changes
+	# higher up the tree, which may withdraw permissions. This
+	# shows that our entire permission scheme is busted.
+	# TODO: get a simpler, better one.
+	# .fetch() runs the stored validator for us and handles failures
+	# for us.
+	res = rendcache.fetch(ctx, keyname)
+	if res:
+		ctx.newtime(ctx.page.modstamp)
+		res.add_to(ctx)
+		return res
+
+	res = _render(ctx, options)
+	if not res:
+		# We get a None res back from _render if rendering the
+		# page was blocked by a parent. In that case we do not
+		# cache it.
+		return res
+
+	if res.cacheable:
+		store_gen_wikirend(ctx, keyname, res)
+	# We assume that titles are always cacheable because only crazy
+	# people put complex macros into their titles and they deserve
+	# what they get.
+	if res.titleInfo:
+		store_titleinfo(ctx)
+	return res
+
+# Many people really only want rendered HTML, not the underlying
+# RendResult.
+# We could try to support all of RendResult.html()'s options, but
+# no; the few people who care can call it themselves.
+def _render_html(ctx, options, cutshort=False):
+	r = _render_cached(ctx, options)
+	if r:
+		return r.html(ctx, cutshort=cutshort)
+	else:
+		return ''
+
+#---
+# Actual DWiki level template renderers, which are really short by now.
+#
+
+# This is the public rendering interface for rendering generic content.
+# The only current outside-us user is comments.
+def wikirend(data, ctx, options = None):
+	return _wikirend(data, ctx, options).html(ctx)
+
+# This is the official public interface for rendering the wikitext of a
+# page (file). It sets the timestamp as a side effect.
+def render(ctx):
+	"""Convert wikitext into HTML."""
+	return _render_html(ctx, rendering_flags)
+htmlrends.register('wikitext', render)
+
+def notitlerend(ctx):
+	"""Convert wikitext into HTML but without the title."""
+	r = _render(ctx, rendering_flags)
+	if not r:
+		return ''
+	return r.html(ctx, skip='title')
+htmlrends.register("wikitext:notitle", notitlerend)
+
+def shortrend(ctx):
+	"""Convert wikitext into HTML, honoring the !{{CutShort}} macro."""
+	return _render_html(ctx, rendering_flags, cutshort=True)
+htmlrends.register("wikitext:short", shortrend)
+
+def wikipara(ctx):
+	"""Convert wikitext into HTML, showing only the first
+	paragraph (and the title) if this is possible. This renderer
+	fails if there is no findable first paragraph. It honors the
+	!{{CutShort}} macro."""
+	r = _render(ctx, rendering_flags)
+	if not r or not r.hasa('p'):
+		return ''
+	return r.html(ctx, stopafter='p', cutshort=True)
+htmlrends.register("wikitext:firstpara", wikipara)
+
+# This function is used by atomgen.py, but the renderer version is not
+# used by any standard template.
+# Its results will be cached under a non-default cache key.
+def terserend(ctx):
+	"""Convert wikitext into terse 'absolute' HTML, with all links
+	fully qualified and no macros having any effect except CutShort,
+	CanComment, IMG, and Restricted."""
+	return _render_html(ctx, terse_flags | ABSLINKS | set_title_option,
+			    cutshort=True)
+htmlrends.register("wikitext:terse", terserend)
+
+def tersenotitle(ctx):
+	"""Convert wikitext into terse 'absolute' HTML with all links
+	fully qualified et al (as with _wikitext:terse_) but omit the
+	title of the page, as with _wikitext:notitle_."""
+	r = _render(ctx, terse_flags | ABSLINKS | set_title_option)
+	if not r:
+		return ''
+	return r.html(ctx, skip="title", cutshort=True)
+htmlrends.register("wikitext:terse:notitle", tersenotitle)
+
+def wikicache(ctx):
+	"""Convert wikitext into HTML but do not display the result;
+	instead it is just cached for later (re)use. This has three
+	effects. First, it makes variables like ${:wikitext:title}
+	available (as do all other wikitext renderers). Second, it's
+	somewhat more efficient if you intend to use a sequence of
+	wikitext renderers, such as a title one followed by a text
+	one. Third, it can be used as a conditional renderer to check
+	permissions; this renderer succeeds (by generating a space)
+	if permissions allow the wikitext to be displayed, and fails
+	(generating nothing) if they don't."""
+	r = _render(ctx, rendering_flags)
+	if not r or r.empty:
+		return ''
+	return ' '
+htmlrends.register("wikitext:cache", wikicache)
+
+# ----
+# Titles, using gen_titleinfo() and thus caching for the title information
+# blob if it's available.
+# All variants of wikitext titles are generated from the fundamental title
+# blob; they do not do separate rendering for their specific title any more.
+def gen_title(ctx, ttype):
+	ti = gen_titleinfo(ctx)
+	if not ti:
+		return ''
+	return ti.get(ttype, "")
+	
+def titlerend(ctx):
+	"""Generate and return the title of a wikitext page."""
+	return gen_title(ctx, "title")
+htmlrends.register("wikitext:title", titlerend)
+
+def nolinkstitlerend(ctx):
+	"""Generate and return the title of a wikitext page without links."""
+	return gen_title(ctx, "nolinks")
+htmlrends.register("wikitext:title:nolinks", nolinkstitlerend)
+
+def nohtmltitlerend(ctx):
+	"""Generate and return the title of a wikitext page without HTML
+	markup."""
+	return gen_title(ctx, "nohtml")
+htmlrends.register("wikitext:title:nohtml", nohtmltitlerend)
+
+def htmltitlerend(ctx):
+	"""Generate and return the title of a wikitext page complete
+	with its surrounding '<hN>' and '</hN>' tags."""
+	return gen_title(ctx, "html")
+htmlrends.register("wikitext:title:html", htmltitlerend)
+# ---
