@@ -544,6 +544,24 @@ def datecrumbs(context):
 	return ' '.join(r)
 htmlrends.register("blog::datecrumbs", datecrumbs)
 
+def pageinblog(context):
+	"""Succeeds (by rendering a space) if the current page is in a
+	blog directory but is not being displayed inside a virtual
+	directory (ie the page itself is being displayed). This also
+	excludes 'utility' pages."""
+	if context.page.type != "file":
+		return ''
+	if is_virtualized(context):
+		return ''
+	if context.page.is_util():
+		return ''
+	dirp = context.page.curdir()
+	(pv, vdir) = context.pref_view_and_dir(dirp)
+	if pv != "blog":
+		return ''
+	return ' '
+htmlrends.register("cond::pageinblog", pageinblog)
+
 # Given a context.page (which had better be a directory), generate a
 # properly-named link to a specific year and month, ala the month link
 # in datecrumbs.
