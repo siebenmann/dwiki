@@ -20,6 +20,7 @@ class Context(object):
 		self.time_reliable = True
 		self._vars = {}
 		self._vars.update(self.cfg)
+		self._perpage = set()
 		self.features = []
 		self._cache = {}
 		self.model = model
@@ -66,8 +67,13 @@ class Context(object):
 				return self._vars[k]
 		return None
 
-	def setvar(self, key, value):
+	# perpage is True if this is a page-specific variable that should
+	# be cleared in set_page().
+	def setvar(self, key, value, perpage=False):
 		self._vars[key] = value
+		if perpage:
+			self._perpage.add(key)
+		
 	def delvar(self, key):
 		if key in self._vars:
 			del self._vars[key]
@@ -156,7 +162,16 @@ class Context(object):
 		self.authcache[type][what] = val
 
 	def set_page(self, page):
+		# Clear page-specific variables for the old page.
+		for v in self._perpage:
+			del self._vars[v]
+		self._perpage = set()
+
 		self.page = page
+		# We don't setvar() these as per-page variables because
+		# we reset them here anyways. Per-page variables are really
+		# for outside code that sets per-page information, like the
+		# wikitext rendering.
 		self.setvar("page", page.path)
 		self.setvar("pagename", page.name)
 		self.setvar("pagetype", page.type)
