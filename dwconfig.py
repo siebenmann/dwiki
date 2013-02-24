@@ -199,7 +199,10 @@ def genR(root):
 	return {'dirroot': root}
 def materialize(cfgfile, options, stype = 'unset'):
 	cfg = config.load(cfgfile, SimpleDWConf())
-	handle_options(cfg, options)
+	# allow callers to skip generating options if they want.
+	# this is convenient for pure WSGI applications
+	if options:
+		handle_options(cfg, options)
 
 	# Record WSGI server type in the configuration for later use
 	# in some circumstances.
