@@ -27,6 +27,15 @@ def blogdate(context):
 		return ''
 htmlrends.register("blog::date", blogdate)
 
+def blognamedate(context):
+	"""Generate a DD Month YYYY timestamp of the current page."""
+	ts = context.page.timestamp
+	if ts:
+		return time.strftime("%B %e, %Y", time.localtime(ts))
+	else:
+		return ''
+htmlrends.register("blog::namedate", blognamedate)
+
 def blogtod(context):
 	"""Generates a HH:MM:SS timestamp of the current page."""
 	ts = context.page.timestamp
