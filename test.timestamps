@@ -147,7 +147,6 @@
 @1118433568 test/templates/Overrides/Tests/BlogTestDir/all.tmpl
 @1118434184 test/pages/Tests/BlogTestDir/VeryWideTest
 @1118434870 test/templates/Overrides/Tests/BlogTestDir/all-css.tmpl
-@1118436462 test/templates/dwiki/overrides.tmpl
 @1118436507 test/templates/comment/posting.tmpl
 @1118436518 test/templates/dwiki/standard.tmpl
 @1118436576 test/templates/dwiki.tmpl
@@ -263,3 +262,4 @@
 @1360206832 test/statics/dwiki.css
 @1360254659 test/templates/html/css
 @1360255253 test/pages/dwiki/ConfigurationFile
+@1361598515 test/templates/dwiki/overrides.tmpl
