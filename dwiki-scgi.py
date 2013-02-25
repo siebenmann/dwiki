@@ -67,7 +67,7 @@ def usage():
 	sys.stderr.write("usage: dwiki-scgi.py [options] CONF-FILE\nUse -h for options help.\n")
 	sys.exit(1)
 def setup_options():
-	defMaxconn = 30
+	defMaxconn = 10
 	defMinconn = 4
 	defPerconn = 100
 	defMinidle = 1
