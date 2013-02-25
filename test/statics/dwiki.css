@@ -23,6 +23,14 @@ table.wikitable {
 	vertical-align: top;
 }
 
+.wikitext > h1, .wikitext > h2, .wikitext > h3, .wikitext > h4 {
+	margin-top: 0.5em;
+}
+
+.titlehack h1, .titlehack h2, .titlehack h3, .titlehack h4 {
+	margin-bottom: 0.1em;
+}
+
 /*
  * horizontal tables in wikitext are funny because they also get the
  * normal wikitext <td> CSS as well, so we have to override bits of

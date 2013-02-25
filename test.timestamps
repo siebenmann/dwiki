@@ -51,7 +51,6 @@
 @1117174690 test/pages/Tests/CutShortArgs
 @1117221543 test/pages/dwiki/NewFeatures/ViewSourceFix
 @1117230477 test/comments/Tests/CommentPage/01620dd5ff121fe241853281d28bed2fbe458e18
-@1117234290 test/templates/wikiauth-nc.tmpl
 @1117234568 test/comments/Tests/CommentPage/d7ec1f3af93cff819a320d30c1ef57d4b67d4580
 @1117234738 test/pages/Tests/CommentPage
 @1117234884 test/templates/comment/user
@@ -86,7 +85,6 @@
 @1117566817 test/pages/dwiki/RCS/Formatting,v
 @1117570420 test/templates/blog/blogentry-std.tmpl
 @1117571145 test/pages/dwiki/NewFeatures/DocStringDocs
-@1117589039 test/templates/wikiauth.tmpl
 @1117591467 test/pages/dwiki/NewFeatures/ShortRecentChanges
 @1117593027 test/pages/dwiki/NewFeatures/TemplateNewlines
 @1117604270 test/pages/Tests/RecChangeTest
@@ -248,7 +246,6 @@
 @1197566376 test/templates/comment/writebody.tmpl
 @1197566572 test/templates/comment/writebody-anon.tmpl
 @1197584790 test/pages/drafts/FoobarTest
-@1237310858 test/templates/syndication/atomentry.tmpl
 @1237418066 test/pages/Tests/LiteralTest
 @1306936630 test/pages/help/DWikiText
 @1306937173 test/pages/dwiki/NewFeatures/ProcessingNotes
@@ -259,7 +256,14 @@
 @1359671470 test/passwd
 @1359758779 test/pages/dwiki/NewFeatures/AtomFeedsAndVirtualDirs
 @1360167662 test/pages/dwiki/Caching
-@1360206832 test/statics/dwiki.css
 @1360254659 test/templates/html/css
 @1360255253 test/pages/dwiki/ConfigurationFile
+@1361596235 test/statics/dwiki.css
+@1361597049 test/templates/blog/entrydate.tmpl
+@1361597129 test/templates/blog/entry-title.tmpl
 @1361598515 test/templates/dwiki/overrides.tmpl
+@1361607332 test/templates/syndication/atomentry.tmpl
+@1361692550 test/templates/blog/inblog-file.tmpl
+@1361692553 test/templates/wikitext.tmpl
+@1361692748 test/templates/wikiauth-nc.tmpl
+@1361692754 test/templates/wikiauth.tmpl
