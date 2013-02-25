@@ -156,11 +156,14 @@ def setup_options(usage, version):
 			  help="remove OPT from the configuration.")
 	parser.add_option('', '--no-cache', dest='noCache',
 			  action="store_true", help="disable any caches.")
+	parser.add_option('', '--no-brute', dest="noBruteCache",
+			  action="store_true", help="disable the BFC and the IMC.")
 	parser.add_option('', '--stamp', dest='stampMsgs',
 			  action="store_true",
 			  help="add timestamp and originator IP address to messages from -T and -A.")
 	parser.set_defaults(dumptime=False, dumpatom=False, extraconfig = [],
-			    rmconfig = [], noCache = False, stampMsgs = False)
+			    rmconfig = [], noCache = False,
+			    noBruteCache = False, stampMsgs = False)
 	return parser
 
 def handle_options(cfg, options):
@@ -187,8 +190,12 @@ def handle_options(cfg, options):
 	# Forcefully disable caching.
 	if options.noCache:
 		cfg.rm("cachedir")
-		cfg.rm("bfc-cache-ttl")
 		cfg.rm("render-cache")
+		cfg.rm("bfc-cache-ttl")
+		cfg.rm("imc-cache-entries")
+	if options.noBruteCache:
+		cfg.rm("bfc-cache-ttl")
+		cfg.rm("imc-cache-entries")		
 	# We rely on being able to rerun checkGoodConfig(), which may
 	# take some work in the underlying system.
 	cfg.checkGoodConfig()
