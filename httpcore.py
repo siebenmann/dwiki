@@ -667,7 +667,8 @@ def InMemStore(hst, pth, ky, res):
 
 def InMemCache(next, logger, reqdata, environ):
 	cfg = get_cfg(environ)
-	if cfg['wsgi-server-type'] != 'scgi-prefork' or \
+	if (cfg['wsgi-server-type'] != 'scgi-prefork' and \
+	    'imc-force-on' not in cfg) or \
 	   not is_cacheable_request(cfg, reqdata, environ):
 		return next(logger, reqdata, environ)
 
