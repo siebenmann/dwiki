@@ -51,6 +51,18 @@ You need to do the former before starting to do stuff with DWiki.
 You want to do the latter before commiting any new or changed files
 in test/*.
 
+In addition to using the commands above, you can also potentially
+run DWiki as a WSGI application with a normal (general) WSGI server
+such as uWSGI, Apache's mod_wsgi, or gUnicorn. To do so you will
+need to create a WSGI 'application' callable thing, which is built
+as follows:
+
+	import dwconfig
+	application, _ = dwconfig.materialize("/path/to/dwiki.conf", None)
+
+(The second argument to dwconfig.materialize is somewhat complicated, but
+passing None is the simple version.)
+
 More information:
 
 	http://utcc.utoronto.ca/~cks/space/dwiki/DWiki
