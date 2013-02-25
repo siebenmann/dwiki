@@ -186,7 +186,6 @@
 @1127534443 test/pages/dwiki/NewFeatures/HttpsUrls
 @1127854761 test/pages/dwiki/TemplateSyntax
 @1128200531 test/templates/comment/posted-badchars.tmpl
-@1128225034 test/pages/dwiki/GlobalVariables
 @1130170711 test/statics/w3-icons/valid-html401.png
 @1130187199 test/pages/help/GettingAround
 @1134895045 test/pages/dwiki/NewFeatures/GoogleSitemaps
@@ -257,7 +256,6 @@
 @1359758779 test/pages/dwiki/NewFeatures/AtomFeedsAndVirtualDirs
 @1360167662 test/pages/dwiki/Caching
 @1360254659 test/templates/html/css
-@1360255253 test/pages/dwiki/ConfigurationFile
 @1361596235 test/statics/dwiki.css
 @1361597049 test/templates/blog/entrydate.tmpl
 @1361597129 test/templates/blog/entry-title.tmpl
@@ -267,3 +265,5 @@
 @1361692553 test/templates/wikitext.tmpl
 @1361692748 test/templates/wikiauth-nc.tmpl
 @1361692754 test/templates/wikiauth.tmpl
+@1361809163 test/pages/dwiki/ConfigurationFile
+@1361809226 test/pages/dwiki/GlobalVariables

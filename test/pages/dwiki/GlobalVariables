@@ -10,7 +10,7 @@ variables.
 Then, during request processing DWiki internally defines a number of
 additional global variables:
 
-| _page_		| The current page's full path, in DWiki form.
+|_. _page_		| The current page's full path, in DWiki form.
 | _abspage_		| The current page's full path, including a '_/_' at
 			  the start.
 | _pagename_		| The page's name; its last path component.
@@ -23,11 +23,19 @@ additional global variables:
 | _basepage_		| In a VirtualDirectory context, the full path
 			  of the non-virtual directory. Otherwise the
 			  same as _page_.
-| _:wikitext:title_	| After a piece of wikitext has been rendered,
+| _:wikitext:title_	| After a piece of wikitext has been rendered
+			  (more exactly after any wikitext template
+			  renderer has been used, including _wikitext:cache_),
 			  this is its title if any exists. The 'title'
 			  of a piece of wikitext is the text of the
 			  header that is at the start of the text, if
-			  there is one.
+			  there is one. This is the same as the
+			  _wikitext:title_ template renderer but may
+			  be more convenient to use.
+| _:wikitext:title:nohtml_	| This is the title but without any
+			  HTML markup, making it useful for
+			  eg a <title>. It's the same as the
+			  _:wikitext:title:nohtml_ template renderer.
 | _login_		| The currently authenticated user.
 | _comment-ip_		| IP address that posted the current comment.
 | _comment-user_	| User that posted the current comment.

@@ -222,8 +222,13 @@ up response time. See [[Caching]] for a longer discussion.
   (formatted as for _bad-robots_, see later) for robots that should
   not cause entries to be put into the BFC.
 - _imc-cache-entries_: Enable an in-memory cache of complete pages with
-  this many entries. Only meaningful when DWiki is running as a preforking
-  SCGI server. The IMC skips all pages that the BFC skips.
+  this many entries. The IMC skips all pages that the BFC skips.  The IMC
+  is only meaningful if the same process handles more than one request,
+  so by default it is only enabled if DWiki knows that it is running
+  using _dwiki-scgi.py_ as a preforking SCGI server.
+- _imc-force-on_: Force the IMC on even if DWiki would not enable it.
+  You probably only want to use this if you are running DWiki as a WSGI
+  application inside a preforking WSGI server such as uWSGI.
 - _imc-cache-ttl_: The TTL, in seconds, of entries in the in-memory cache;
   must be provided if _imc-cache-entries_ is.
 - _imc-resp-max-size_: The maximum size (in kilobytes) of pages that will
@@ -325,6 +330,20 @@ using SCGI.
   '_ | _' (space, |, space), that will be rendered literally and not
   considered to contain markup, as if each of them had been specified
   in '_.pn lit <whatever>_' processing note directives.
+
+=== Special oddities
+
+- _dump-req-times_: Report the amount of time that requests took to standard
+  error. This is set by the standard _-T_ option.
+- _dump-atom-reqs_: Report on Atom requests to standard error. This is set
+  by the standard _-A_ option.
+- _stamp-messages_: Add timestamp and client IP address to messages
+  reported by the above two options. This is set by the standard _--stamp_
+  option.
+
+These are documented because you might want to set them directly if
+you're running DWiki as a WSGI application inside some standard WSGI
+server (such as uWSGI, Apache's ``mod_wsgi'', or gUnicorn).
 
 === Dealing with bad clients:
 - _bad-robots_: If set, this is a list of User-Agent substrings,
