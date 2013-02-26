@@ -19,7 +19,6 @@
 @1116757552 test/pages/People/Chris
 @1116783317 test/pages/DWiki
 @1116783379 test/pages/Tests/ListPages
-@1116807104 test/statics/foo.txt
 @1116824579 test/pages/Tests/SearchTest
 @1116876859 test/templates/dir/dirconts.tmpl
 @1116876937 test/templates/dir/dirempty.tmpl
@@ -171,7 +170,6 @@
 @1119156357 test/pages/dwiki/Authentication
 @1119301293 test/templates/comment/page.tmpl
 @1120890194 test/templates/comment/tools.tmpl
-@1120890737 test/templates/comment/writebody.tmpl-old
 @1125722454 test/pages/dwiki/NewFeatures/BetterLastModHandling
 @1125724264 test/pages/dwiki/VirtualDirectory
 @1125724780 test/pages/dwiki/NewFeatures/OldestVirtDirs
@@ -201,13 +199,11 @@
 @1139428352 test/pages/Tests/FontTorture
 @1139464919 test/pages/Tests/LinkTorture
 @1139810008 test/templates/Overrides/Tests/BlogTestDir/all-css-block.tmpl
-@1139811235 test/statics/dwiki.css-faketables
 @1140042774 test/pages/Tests/ControlTest
 @1140851826 test/pages/dwiki/CharacterEntities
 @1141014237 test/pages/Tests/NestedStyleTorture
 @1141018491 test/pages/Tests/ImageTest
 @1141030086 test/pages/dwiki/NewFeatures/MacroTextFormatting
-@1141184824 test/statics/dwiki.css-orig
 @1141530205 test/templates/dwiki/view-atom.tmpl
 @1141530211 test/templates/dwiki/view-atomcomments.tmpl
 @1141540244 test/templates/syndication/category
