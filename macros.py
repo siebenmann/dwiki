@@ -18,11 +18,6 @@ import htmlrends, comments
 class ReturnNothing(Exception):
 	pass
 
-# This exception is raised to cut rendering short at this point.
-# TODO: remove, it's no longer used.
-class CutShort(Exception):
-	pass
-
 # Macros are registered. This code is officially too simple to bother
 # making generic.
 reg_macros = {}

@@ -692,7 +692,13 @@ class WikiRend:
 		self.ctx = context
 		self.mod = context.model
 		self.web = context.web
+
+		# Used to push HTML fragments into a RendResults() object.
+		self.rres = RendResults()
 		self.result = []
+		self.spos = None
+		self.pushing = True
+
 		self.blockEndStack = []
 		self.inlineEndStack = []
 		self.tokqueue = []
@@ -729,24 +735,12 @@ class WikiRend:
 			for w in context.cfg['literal-words']:
 				self.add_stopword(w, True)
 
-		# ...
-		self.spos = None
-		self.lpos = 1
-		self.pushing = True
-		self.rres = RendResults()
-
 	def render(self, options = None):
 		if options:
 			self.options = options
 		try:
-			# TODO: pass two is fixing result so that we do it
-			# better
-			self.result.append(wikitext_start)
 			self.run()
 			self.force_block('end')
-			#if self.rres._render() != ''.join(self.result[1:]):
-			#	print "RESULT MISMATCH", self.ctx.page.path
-			self.result.append(wikitext_end)
 		except macros.ReturnNothing:
 			self.result = []
 			self.rres.blocks = []
@@ -790,17 +784,17 @@ class WikiRend:
 	def push_block(self, btype):
 		if not self.pushing:
 			return
-		if self.spos != self.lpos:
+		if self.spos != 0:
 			self.pushing = False
 			return
-		self.rres.add_block((btype,), self.result[self.spos:])
-		self.lpos = len(self.result)
+		self.rres.add_block((btype,), self.result)
+		self.result = []
 
 	# Push a blank line in.
 	def push_blank(self):
 		if not self.pushing:
 			return
-		if len(self.result) != self.lpos+1:
+		if len(self.result) != 1:
 			self.pushing = False
 			return
 		self.force_block('blank')
@@ -814,10 +808,10 @@ class WikiRend:
 	# structure is off. Resychonizing still doesn't fix that gap in
 	# the middle.
 	def force_block(self, btype):
-		if self.lpos >= len(self.result):
+		if not len(self.result):
 			return
-		self.rres.add_block((btype,), self.result[self.lpos:])
-		self.lpos = len(self.result)
+		self.rres.add_block((btype,), self.result)
+		self.result = []
 	# ----
 
 	def pull(self):
@@ -860,18 +854,14 @@ class WikiRend:
 			_, self.data = self.data.split("\n", 1)
 		self.currentLineNumber = 0
 		filters = WikiRend.filter_routines
-		try:
+		x = self.pull()
+		while x:
+			filters[x[0]](self, x)
 			x = self.pull()
-			while x:
-				filters[x[0]](self, x)
-				x = self.pull()
-				if self.options & TITLEONLY and \
-				   self.currentLineNumber >= 2:
-					# Time to get out.
-					break
-		except macros.CutShort:
-			# TODO: remove this, we no longer raise CutShort.
-			pass
+			if self.options & TITLEONLY and \
+			   self.currentLineNumber >= 2:
+				# Time to get out.
+				break
 		self.result.extend(self.inlineEndStack)
 		self.result.extend(self.blockEndStack)
 		self.inlineEndStack = []
@@ -903,19 +893,17 @@ class WikiRend:
 		hdtag = 'h%d' % hlevel
 		self.handle_begin('begin', hdtag)
 		self.handle_text('text', htext)
-		self.handle_end('end', hdtag, special=special)
+		return self.handle_end('end', hdtag, special=special)
 	filter_routines['header'] = header_handler
 
 	# header on the first line
 	# this is special magic because it is used to generate the
 	# title.
 	def header1_handler(self, tok):
-		spos = len(self.result) + 1
-		self.header_handler(tok, special="title")
-		textTitle = ''.join(self.result[spos:-1])
-		self.titleInfo = gen_title_dict(self.result[spos-1],
-						textTitle,
-						self.result[-1])
+		assert(len(self.result) == 0)
+		r = self.header_handler(tok, special="title")
+		textTitle = ''.join(r[1:-1])
+		self.titleInfo = gen_title_dict(r[0], textTitle, r[-1])
 	filter_routines['header1'] = header1_handler
 
 	def table_handler_inner(self, tok, type):
@@ -1317,6 +1305,7 @@ class WikiRend:
 		if sofftag != end_entity[btype]:
 			raise derrors.IntErr, "Programming error; expected %s got %s" % (sofftag, end_entity[btype])
 
+		r = None
 		# Optimization hack: remove certain empty elements.
 		# (Other empty elements, like <td>, have semantic meaning.)
 		if (self.result[-1] == start_entity[btype]) and \
@@ -1325,7 +1314,9 @@ class WikiRend:
 		else:
 			self.result.append(sofftag + "\n")
 			if len(self.blockEndStack) == 0:
+				r = self.result
 				self.push_block(special if special else btype)
+		return r
 
 	def begin_handler(self, tok):
 		self.handle_begin( *tok )
