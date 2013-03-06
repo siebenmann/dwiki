@@ -668,9 +668,21 @@ def InMemStore(hst, pth, ky, res):
 def InMemCache(next, logger, reqdata, environ):
 	cfg = get_cfg(environ)
 	if (cfg['wsgi-server-type'] != 'scgi-prefork' and \
-	    'imc-force-on' not in cfg) or \
-	   not is_cacheable_request(cfg, reqdata, environ):
+	    'imc-force-on' not in cfg):
 		return next(logger, reqdata, environ)
+	if not is_cacheable_request(cfg, reqdata, environ):
+		r = next(logger, reqdata, environ)
+		# This can only be a heuristic, since we cannot
+		# reach into the IMCs of other processes, but one
+		# does what one can.
+		if r.cookie.items():
+			# It would be slightly better to have an
+			# explicit signal to flush the cache, but it's
+			# difficult for the low-level code to touch
+			# reqdata right now. So we go with 'flush cache
+			# if this request tries to set cookies'.
+			inMemCache.clear()
+		return r
 
 	# Generate the components of the cache key.
 	ky = reqdata['view']

@@ -250,7 +250,6 @@
 @1339683377 test/pages/Tests/PreWrapTest
 @1359671470 test/passwd
 @1359758779 test/pages/dwiki/NewFeatures/AtomFeedsAndVirtualDirs
-@1360167662 test/pages/dwiki/Caching
 @1360254659 test/templates/html/css
 @1361596235 test/statics/dwiki.css
 @1361597049 test/templates/blog/entrydate.tmpl
@@ -263,3 +262,4 @@
 @1361692754 test/templates/wikiauth.tmpl
 @1361809163 test/pages/dwiki/ConfigurationFile
 @1361809226 test/pages/dwiki/GlobalVariables
+@1362595595 test/pages/dwiki/Caching

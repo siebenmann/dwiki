@@ -537,6 +537,28 @@ def comtrim(comdata):
 	else:
 		return comdata + "\n"
 
+#
+# We want people who write comments to be able to immediately see their
+# comment even in the face of the BFC or especially of the IMC (because
+# the IMC will basically always be triggering in some environments). To
+# do this we exploit the fact that the IMC (and BFC) skip requests that
+# have a cookie set. The cookie and its value are arbitrary, but it
+# should expire more slowly than the IMC and BFC TTLs.
+# (If neither the IMC nor the BFC are set then we skip setting the
+# cookie entirely.)
+def setCommentCookie(context, resp):
+	exp = max(context.cfg.get('imc-cache-ttl', 0),
+		  context.cfg.get('bfc-cache-ttl', 0))
+	if exp == 0:
+		return
+	cn = "%s-commented" % context.cfg['wikiname']
+	exp = exp + 5*60
+	# The value is arbitrary and we don't care about it.
+	resp.cookie[cn] = "C"
+	resp.cookie[cn]["expires"] = exp
+	resp.cookie[cn]["max-age"] = exp
+	return
+
 # View registration.
 
 # A digression on telling what button got pressed:
@@ -582,6 +604,9 @@ class WriteCommentView(views.TemplateView):
 		   self.context.page.comment_ok(self.context):
 			if not post(self.context, self.response):
 				self.error("badrequest")
+			else:
+				setCommentCookie(self.context,
+						 self.response)
 		else:
 			# We actually want 100% generic handling here,
 			# surprisingly enough.

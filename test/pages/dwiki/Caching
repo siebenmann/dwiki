@@ -104,6 +104,30 @@ To keep IMC memory usage under control, the IMC has a settable maximum
 page size that it will cache. Tune this as appropriate for your
 environment.
 
+The IMC can be deliberately forced on with _imc-force-on_, in case
+you're running DWiki in some other preforking environment (for example
+as a WSGI application under a preforking WSGI server such as uWSGI).
+
+=== Considerations for the IMC TTL
+
+Under some setups, DWiki will only be running as a (preforking) SCGI
+server when it's under heavy load; in others DWiki is running this
+way all of the time, even when the load is light. Because the IMC
+unconditionally caches pages the latter situation can be annoying; it
+means that someone who, say, writes and posts a new comment may not see
+that comment until the IMC TTL expires. DWiki makes some attempt to
+bypass the IMC (and the BFC) in the common case of someone leaving a
+comment. However this is not perfect (in part because it requires the
+web browser to accept cookies from DWiki).
+
+(This also applies if you're running DWiki in some other preforking
+environment and have forced the IMC on.)
+
+If you're running DWiki full time in an IMC-on environment, you likely
+want to set a quite low IMC TTL, such as 15 to 30 seconds. If you're
+running DWiki with the IMC on only under heavy load you can set a higher
+IMC TTL, such as two minutes (120 seconds).
+
 == The renderer cache
 
 The renderer cache is actually two caches. The renderer cache proper
