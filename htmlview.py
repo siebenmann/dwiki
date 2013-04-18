@@ -74,9 +74,9 @@ class WebServices:
 	# the web browser sort of plugs it in itself. Me, I think this
 	# is spectacularly braindead, but no one asked my opinion.
 	def uri_from_path(self, path, context, view = None, viewparams = None):
-		return "http://%s%s" % (context["server-name"],
-					self.url_from_path(path, view,
-							   viewparams))
+		return "%s%s" % (context["server-url"],
+				 self.url_from_path(path, view,
+						    viewparams))
 	def uri_from_url(self, url, context):
 		#if 'server-port' in context and \
 		#   context['server-port'] != '80':
@@ -89,7 +89,7 @@ class WebServices:
 		# I don't understand how this is supposed to work in
 		# general, but it appears that losing is bound to
 		# happen.
-		return "http://%s%s" % (context['server-name'], url)
+		return "%s%s" % (context['server-url'], url)
 
 	# Given a context, return the view for that context.
 	# This is out of line due to size and genericness.

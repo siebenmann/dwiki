@@ -50,7 +50,7 @@ def genError(what, ecode = 404):
 def redirToSlashedDir(what, reqdata):
 	resp = htmlresp.Response()
 	what = what + '/'
-	resp.redirect("http://%s%s" % (reqdata['server-name'], what))
+	resp.redirect("%s%s" % (reqdata['server-url'], what))
 	return resp
 
 # If path is a child of directory root, return the relative portion of

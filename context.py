@@ -201,6 +201,7 @@ class HTMLContext(Context):
 		# necessary to generate a redirect, namely the full
 		# host URI/etc.
 		self.setvar('server-name', reqdata['server-name'])
+		self.setvar('server-url', reqdata['server-url'])
 
 		# Set us up the current page. This is url-decoded
 		# and stripped of the rooturl plus a leading slash.

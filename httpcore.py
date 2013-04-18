@@ -65,6 +65,10 @@ def gather_reqdata(environ):
 
 	reqdata = {}
 	reqdata['server-name'] = getHost(environ)
+	if environ.get('HTTPS') == "on":
+		reqdata['server-url'] = "https://%s" % reqdata['server-name']
+	else:
+		reqdata['server-url'] = "http://%s" % reqdata['server-name']
 
 	# Break the request URI apart, and decode anything in the
 	# query string.
