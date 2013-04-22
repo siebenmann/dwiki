@@ -8,6 +8,7 @@ import time, calendar, datetime
 import derrors, utils
 import htmlrends
 import rendcache
+import wikirend
 
 virt_path_var = ":virtual:suffix"
 
@@ -728,6 +729,56 @@ def prevnextcrumbs(context):
 		return ''
 	return '(%s)' % r
 htmlrends.register("blog::prevnext", prevnextcrumbs)
+
+# idx '0' is previous page, '1' is next page, it's a hack.
+def prevnexttitle(context, idx):
+	if context.page.type != "file" or \
+	   is_virtualized(context) or context.page.is_util():
+		return ''
+	(pv, vdir) = context.pref_view_and_dir(context.page.curdir())
+	if pv != "blog":
+		return ''
+	r = gen_pnpages(context, vdir)
+	if not r:
+		return ''
+	pg = r[idx]
+	if not pg:
+		return ''
+	rpath = vdir.path
+	nc = context.clone_to_page(pg)
+	title = wikirend.nolinkstitlerend(nc)
+	if not title:
+		title = pg.path[len(rpath)+1:]
+	return '<a href="%s">%s</a>' % (context.nurl(pg), title)
+def prevtitle(context):
+	"""Create a link to the previous page (if one exists) for the
+	current page if the current page is in a blog directory but is
+	not being displayed inside a virtual directory; the title of the
+	link is the page's title if available. The 'blog directory' is
+	the directory that made the blog view the default view."""
+	return prevnexttitle(context, 0)
+def nexttitle(context):
+	"""Create a link to the next page (if one exists) for the
+	current page if the current page is in a blog directory but is
+	not being displayed inside a virtual directory; the title of the
+	link is the page's title if available. The 'blog directory' is
+	the directory that made the blog view the default view."""
+	return prevnexttitle(context, 1)
+htmlrends.register("blog::prev:title", prevtitle)
+htmlrends.register("blog::next:title", nexttitle)
+
+def inblogctx(context):
+	"""Succeeds (by generating a space) if the current page is in a
+	blog directory but is not being displayed inside a virtual
+	directory."""
+	if context.page.type != "file" or \
+	   is_virtualized(context) or context.page.is_util():
+		return ''
+	(pv, vdir) = context.pref_view_and_dir(context.page.curdir())
+	if pv != "blog":
+		return ''
+	return ' '
+htmlrends.register("cond::isblogpage", inblogctx)
 
 def invirtual(context):
 	"""Succeed (by generating a space) if we are in a VirtualDirectory
