@@ -20,6 +20,7 @@ import time
 import os
 import Cookie
 import urllib
+import re
 
 import derrors, context
 import htmlauth
@@ -849,6 +850,26 @@ def HostFixer(next, logger, reqdata, environ):
 	if uh:
 		environ['HTTP_HOST'] = uh
 		reqdata['server-name'] = uh
+		if environ.get('HTTPS') == "on":
+			reqdata['server-url'] = "https://%s" % uh
+		else:
+			reqdata['server-url'] = "http://%s" % uh
+	return next(logger, reqdata, environ)
+
+# Check for people playing stupid games with Host: header values.
+# See http://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html
+host_re = re.compile("^[-_a-z0-9A-Z.]+(:[0-9]+)?$")
+def valid_host(hn):
+	return bool(host_re.match(hn))
+def HostKiller(next, logger, reqdata, environ):
+	uh = httputil.hostFromEnv(environ)
+	if uh and not valid_host(uh):
+		environ['dwiki.logger'].warn("rejected invalid Host: value from request URI: %s" % repr(uh))
+		return httputil.genError("sec-error", 403)
+	gh = getHost(environ)
+	if not valid_host(gh):
+		environ['dwiki.logger'].warn("rejected invalid Host: value from Host: header: %s" % repr(gh))
+		return httputil.genError("sec-error", 403)
 	return next(logger, reqdata, environ)
 
 # This is about as lame as you can get, but it's very nicely
@@ -1023,6 +1044,7 @@ dwikiStack = (
 	(InsaneKiller, ''),
 	(ReqKiller, ''),
 	(HostFixer, ''),
+	(HostKiller, ''),
 	(DumpAtom, 'dump-atom-reqs'),
 	(DumpTime, 'dump-req-times'),
 	)
