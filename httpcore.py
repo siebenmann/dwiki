@@ -46,7 +46,9 @@ def clean_utm(qdict):
 	utm_seen = False
 	ks = qdict.keys()
 	for k in ks:
-		if k.startswith("utm_"):
+		# Not clear what 'buffer_share' is but legit clients
+		# seem to use it. Hate is strong.
+		if k.startswith("utm_") or k == "buffer_share":
 			del qdict[k]
 			utm_seen = True
 	return utm_seen
