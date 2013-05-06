@@ -49,7 +49,10 @@ def clean_utm(qdict):
 	for k in ks:
 		# Not clear what 'buffer_share' is but legit clients
 		# seem to use it. Hate is strong.
-		if k.startswith("utm_") or k == "buffer_share":
+		# NewsBlur uses a query parameter of '_=<NNNN>' (a random
+		# number) as a (HTTP) cache buster; apparently this makes
+		# it work better. So we reluctantly accept it too.
+		if k.startswith("utm_") or k == "buffer_share" or k == "_":
 			del qdict[k]
 			utm_seen = True
 	return utm_seen
