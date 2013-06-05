@@ -550,14 +550,10 @@ def pageinblog(context):
 	blog directory but is not being displayed inside a virtual
 	directory (ie the page itself is being displayed). This also
 	excludes 'utility' pages."""
-	if context.page.type != "file":
+	if context.page.type != "file" or \
+	   is_virtualized(context) or context.page.is_util():
 		return ''
-	if is_virtualized(context):
-		return ''
-	if context.page.is_util():
-		return ''
-	dirp = context.page.curdir()
-	(pv, vdir) = context.pref_view_and_dir(dirp)
+	(pv, vdir) = context.pref_view_and_dir(context.page.curdir())
 	if pv != "blog":
 		return ''
 	return ' '
@@ -766,19 +762,6 @@ def nexttitle(context):
 	return prevnexttitle(context, 1)
 htmlrends.register("blog::prev:title", prevtitle)
 htmlrends.register("blog::next:title", nexttitle)
-
-def inblogctx(context):
-	"""Succeeds (by generating a space) if the current page is in a
-	blog directory but is not being displayed inside a virtual
-	directory."""
-	if context.page.type != "file" or \
-	   is_virtualized(context) or context.page.is_util():
-		return ''
-	(pv, vdir) = context.pref_view_and_dir(context.page.curdir())
-	if pv != "blog":
-		return ''
-	return ' '
-htmlrends.register("cond::isblogpage", inblogctx)
 
 def invirtual(context):
 	"""Succeed (by generating a space) if we are in a VirtualDirectory
