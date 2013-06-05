@@ -146,7 +146,6 @@
 @1118434870 test/templates/Overrides/Tests/BlogTestDir/all-css.tmpl
 @1118436507 test/templates/comment/posting.tmpl
 @1118436518 test/templates/dwiki/standard.tmpl
-@1118436576 test/templates/dwiki.tmpl
 @1118441350 test/templates/searchyes.tmpl
 @1118441583 test/comments/Tests/CommentPage/d32c23e774d2bd2ff7da66253857651f0e35d141
 @1118442396 test/templates/error.tmpl
@@ -263,3 +262,4 @@
 @1361809163 test/pages/dwiki/ConfigurationFile
 @1361809226 test/pages/dwiki/GlobalVariables
 @1362595595 test/pages/dwiki/Caching
+@1366649545 test/templates/dwiki.tmpl
