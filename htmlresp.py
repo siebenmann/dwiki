@@ -47,14 +47,14 @@ class Response:
 
 	# You can supply a fully formatted thing here, or you can just
 	# blort in some basic text and we'll do the rest.
-	def error(self, msg):
-		self.code = 404
+	def error(self, msg, code = 404):
+		self.code = code
 		self.headers.clear()
 		self.headers["Content-Type"] = self.typestring("text/html")
 		if msg[0] == '<':
 			self.content = msg
 		else:
-			self.content = "<html><head><title>404 - access denied</title></head>\n<body><p>%s</p></body></html>" % msg
+			self.content = "<html><head><title>%d - access denied</title></head>\n<body><p>%s</p></body></html>" % (code, msg)
 
 	def html(self, content):
 		self.code = 200

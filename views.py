@@ -92,8 +92,8 @@ class GenericView(object):
 		self.web = self.context.web
 		self.view = self.context['view-format']
 
-	def error(self, what):
-		htmlerr.error(what, self.context, self.response)
+	def error(self, what, code = 404):
+		htmlerr.error(what, self.context, self.response, code)
 
 	# Check to see if a page is okay. Pages may be non-okay in
 	# several ways:
@@ -110,6 +110,7 @@ class GenericView(object):
 	# As a side effect of returning False, we set the response
 	# up.
 	def page_ok(self):
+		code = 404
 		if utils.boguspath(self.page.path):
 			error = "badrequest"
 		elif not utils.goodpath(self.page.path):
@@ -117,13 +118,14 @@ class GenericView(object):
 		elif not self.page.exists():
 			error = "nopage"
 		elif not self.page.displayable():
+			code = 503
 			if self.page.inconsistent():
 				error = "inconsistpage"
 			else:
 				error = "badpage"
 		else:
 			return True
-		self.error(error)
+		self.error(error, code)
 		return False
 
 	# Handle all redictions that occur in normal flow.
@@ -256,7 +258,7 @@ class SourceView(GenericView):
 		# So we must ask a wikirend oracle if there are access
 		# restrictions on the text that we fail.
 		if not self.page.access_ok(self.context):
-			self.error("badaccess")
+			self.error("badaccess", 403)
 		else:
 			self.context.newtime(self.page.timestamp)
 			self.response.text(self.page.contents())
@@ -291,7 +293,7 @@ class PostView(GenericView):
 	
 	def respond(self):
 		if not hasallvars(self.context, self.post_vars):
-			self.error("badrequest")
+			self.error("badrequest", 403)
 		else:
 			self.post()
 		return self.response

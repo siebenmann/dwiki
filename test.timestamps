@@ -260,9 +260,9 @@
 @1361692748 test/templates/wikiauth-nc.tmpl
 @1361692754 test/templates/wikiauth.tmpl
 @1361809163 test/pages/dwiki/ConfigurationFile
-@1361809226 test/pages/dwiki/GlobalVariables
 @1362595595 test/pages/dwiki/Caching
 @1366649545 test/templates/dwiki.tmpl
 @1366649809 test/templates/struct/prev-full.tmpl
 @1366649817 test/templates/struct/next-full.tmpl
 @1375484574 test/templates/struct/datecrumbs-full.tmpl
+@1375995049 test/pages/dwiki/GlobalVariables

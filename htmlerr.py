@@ -15,11 +15,11 @@
 #
 import htmlrends, template
 
-default_title = "404 - Page Cannot Be Show"
+default_title = "%s - Page Cannot Be Shown"
 title_map = {
-	'nopage': "404 - Page Not Found",
-	'badrequest': "404 - Request Not Understood",
-	'badaccess': "404 - Permission Denied",
+	'nopage': "%s - Page Not Found",
+	'badrequest': "%s - Request Not Understood",
+	'badaccess': "%s - Permission Denied",
 	}
 body_map = {
 	'nopage': "Page not found.",
@@ -52,13 +52,13 @@ def errortitle(context):
 	if to:
 		return template.Template(to).render(context)
 	elif etype in title_map:
-		return title_map[etype]
+		return title_map[etype] % context[":error:code"]
 	else:
-		return default_title
+		return default_title % context[":error:code"]
 htmlrends.register("error::title", errortitle)
 
 # Render a body for the error.
-default_body = "<h1> 404 - Error Processing Request </h1> <p> %s </p>"
+default_body = "<h1> %s - Error Processing Request </h1> <p> %s </p>"
 def errorbody(context):
 	"""Generates the body for an error page from a template in
 	_errors/_, if the template exists; otherwise uses a default.
@@ -69,10 +69,11 @@ def errorbody(context):
 	if to:
 		return template.Template(to).render(context)
 	elif etype in body_map:
-		return default_body % body_map[etype]
+		return default_body % (context[":error:code"], body_map[etype])
 	else:
 		# Should we try to generate a better message?
-		return default_body % 'An internal error has occurred.'
+		return default_body % (context[":error:code"],
+				       'An internal error has occurred.')
 htmlrends.register("error::body", errorbody)
 
 # Generate an error for error in the context, using the response.
@@ -80,8 +81,9 @@ htmlrends.register("error::body", errorbody)
 # Errors all try to use the template "error.tmpl", but fall back to
 # an internal default if that is missing.
 default_error = "<html><head><title>%s</title></head> <body>%s</body></html>"
-def error(error, context, resp):
+def error(error, context, resp, code = 404):
 	context.setvar(":error:error", error)
+	context.setvar(":error:code", "%d" % code)
 	context.unrel_time()
 	to = context.model.get_template("error.tmpl", False)
 	if to:
@@ -92,5 +94,5 @@ def error(error, context, resp):
 		res = default_error % (etitle, ebody)
 	# helpful reminder to cks at 2am: we really must call error,
 	# not html.
-	resp.error(res)
+	resp.error(res, code)
 	return resp

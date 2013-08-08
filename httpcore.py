@@ -188,7 +188,7 @@ def doPOSTMangling(reqdata, qdict, webserv):
 	# Only a few views support POST. Reject invalid views
 	# immediately.
 	if not webserv.view_cmd_allowed(reqdata['view'], "POST"):
-		return httputil.genError("out-of-zone")
+		return httputil.genError("out-of-zone", 405)
 
 	# At this point we must load the request data with the
 	# view magic. (Am I starting to rethink the whole mess
@@ -334,7 +334,7 @@ def doDwikiRequest(logger, reqdata, environ):
 				logger.warn(e)
 	except derrors.WikiErr, e:
 		logger.error(e)
-		resp = httputil.genError("internal-error")
+		resp = httputil.genError("internal-error", 500)
 	modelserv.finish()
 	return resp
 
@@ -384,7 +384,10 @@ responseMap = {
 	# down in httpcore.py. Otherwise, that's it.
 	403: 'Forbidden',
 	404: 'Not Found',
+	405: 'Method Not Allowed',
+	500: 'Internal Server Error',
 	501: 'Not Implemented',
+	503: 'Service Unavailable',
 	}
 
 def cook_resp(resp):
@@ -1020,8 +1023,10 @@ class WSGIDwikiTrans:
 		cmd = environ['REQUEST_METHOD']
 		logger = environ['dwiki.logger']
 		if cmd not in ('GET', 'HEAD', 'POST'):
-			resp = httputil.genError('not-supported')
-			resp.code = 501
+			# 5xx series errors are theoretically things that
+			# can be retried later; that makes 501 the wrong
+			# code here. 405 implies 'permanent failure'.
+			resp = httputil.genError('not-supported', 405)
 			return [sendResponse(resp, start_response)]
 		else:
 			cfunc = getattr(self, "do_"+cmd)

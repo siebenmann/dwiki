@@ -46,6 +46,8 @@ additional global variables:
 			  posting.)
 | _:error:error_	| Error type. Only defined during error
 			  processing.
+| _:error:code_		| The numerical HTTP status code for an error.
+			  Only defined during error processing.
 | _http-command_	| The type of HTTP command being processed,
 			  either GET or POST.
 | _http-version_	| The (claimed) version of HTTP that the
