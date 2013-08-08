@@ -96,3 +96,31 @@ def error(error, context, resp, code = 404):
 	# not html.
 	resp.error(res, code)
 	return resp
+
+# Support for pages marking themselves as errors.
+# Under normal circumstances, aggregation views (blog, blogdir, atom
+# feeds...) do not even render pages that the request doesn't have
+# access to.
+# If someone invokes this in a general page template we should still
+# be safe because rendering sub-pages uses a cloned context so the
+# set error will never propagate to super-contexts.
+#
+# We do not mark it as a per-page variable; instead it will act as
+# an accumulator of sorts across multiple page renderings using the
+# same context. This is me waving my hands a lot.
+errorcode = ":error:numcode"
+def setpermerror(context):
+	"""If we are rendering the top level page of a request (ie, not
+	rendering a subpage for blog, blogdir, atom feed, etc context),
+	mark this page as having a permission error. This causes the
+	page to be reported as a HTTP 403 error."""
+	context.setvar(errorcode, 403)
+	return ""
+htmlrends.register("seterror:permissions", setpermerror)
+
+# retrieve the set error, if any.
+def geterror(context):
+	if errorcode not in context:
+		return 0
+	else:
+		return context[errorcode]

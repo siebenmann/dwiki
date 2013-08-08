@@ -206,6 +206,12 @@ class GenericView(object):
 			return self.response
 
 		self.render()
+
+		# If we are supposed to have a non-202 code as a result
+		# of normal rendering, set it.
+		e = htmlerr.geterror(self.context)
+		if e:
+			self.response.code = e
 		
 		# Set the last-modified time if it's available 
 		if self.context.modtime > 0:

@@ -149,13 +149,7 @@
 @1118441350 test/templates/searchyes.tmpl
 @1118441583 test/comments/Tests/CommentPage/d32c23e774d2bd2ff7da66253857651f0e35d141
 @1118442396 test/templates/error.tmpl
-@1118442404 test/templates/errors/badaccess.tmpl
-@1118442415 test/templates/errors/badpage.tmpl
-@1118442420 test/templates/errors/inconsistpage.tmpl
-@1118442423 test/templates/errors/nopage.tmpl
-@1118442432 test/templates/errors/badformat.tmpl
 @1118443099 test/pages/dwiki/NewFeatures/NewTemplateScheme
-@1118458713 test/templates/comment/needauth.tmpl
 @1118459037 test/templates/comment/commentdata.tmpl
 @1118468264 test/pages/Tests/PlainTextTest
 @1118470203 test/pages/dwiki/NewFeatures/PragmaPre
@@ -230,7 +224,6 @@
 @1146844180 test/pages/Tests/ParaListTest
 @1147029140 test/pages/Tests/RecentPageTitles
 @1162433989 test/templates/comment/preview.tmpl
-@1162439785 test/templates/needauth.tmpl
 @1163880673 test/pages/Tests/PreEndTest
 @1163924192 test/pages/Tests/NewListTests
 @1167879383 test/pages/Tests/NumberTables
@@ -266,3 +259,10 @@
 @1366649817 test/templates/struct/next-full.tmpl
 @1375484574 test/templates/struct/datecrumbs-full.tmpl
 @1375995049 test/pages/dwiki/GlobalVariables
+@1376004071 test/templates/comment/needauth.tmpl
+@1376004212 test/templates/needauth.tmpl
+@1376004245 test/templates/errors/badaccess.tmpl
+@1376004258 test/templates/errors/badformat.tmpl
+@1376004272 test/templates/errors/badpage.tmpl
+@1376004285 test/templates/errors/inconsistpage.tmpl
+@1376004292 test/templates/errors/nopage.tmpl
