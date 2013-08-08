@@ -207,7 +207,7 @@ class GenericView(object):
 
 		self.render()
 
-		# If we are supposed to have a non-202 code as a result
+		# If we are supposed to have a non-200 code as a result
 		# of normal rendering, set it.
 		e = htmlerr.geterror(self.context)
 		if e:
