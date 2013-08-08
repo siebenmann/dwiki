@@ -603,7 +603,8 @@ class WriteCommentView(views.TemplateView):
 		if self.context.getviewvar("post") and \
 		   self.context.page.comment_ok(self.context):
 			if not post(self.context, self.response):
-				self.error("badrequest")
+				# hand-crafted bad request
+				self.error("badrequest", 403)
 			else:
 				setCommentCookie(self.context,
 						 self.response)
