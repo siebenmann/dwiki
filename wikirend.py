@@ -2077,6 +2077,9 @@ def _wikirend(data, ctx, options = None):
 # rendering and possibly returning None if you have no permissions.
 # This updates the context time as a side effect.
 # This is the real backend of various wikitext renderers.
+# NOTE: YOU SHOULD NORMALLY NEVER CALL THIS.
+# You want to call _render_cached() instead, or the convenient frontend
+# _render_html(). This should really be called _render_uncached().
 def _render(ctx, options):
 	if ctx.page.type != "file":
 		raise derrors.RendErr, "wikitext asked to render non-file."
@@ -2126,8 +2129,21 @@ def _render(ctx, options):
 # Atom page generation. Because they produce significantly different
 # rendering results we must cache them separately.
 def _render_cached(ctx, options):
+	cacheTitle = True
 	if options & ABSLINKS or options & SOMEMACROS:
-		keyname = "wikitext.terse"
+		# This is a hack because the render caching waves its
+		# hands about hostnames.
+		# ABSLINKS produces results that depend on both the
+		# host, the port, and the URL schema (http vs https).
+		# However we don't want to put all of that in the main
+		# cache host key because a site available over both
+		# HTTP and HTTPS will wastefully duplicate almost all of
+		# the rendering cache contents. So we hack around it
+		# by adding the schema information to the key name
+		# (for https only, http is the default).
+		# TODO: handle this whole mess better.
+		keyname = "wikitext.terse"+ctx.get("server-schemakey")
+		cacheTitle = False
 	else:
 		r = ctx.get(":wikitext:render")
 		if r:
@@ -2158,10 +2174,14 @@ def _render_cached(ctx, options):
 
 	if res.cacheable:
 		store_gen_wikirend(ctx, keyname, res)
+
 	# We assume that titles are always cacheable because only crazy
 	# people put complex macros into their titles and they deserve
 	# what they get.
-	if res.titleInfo:
+	# Except that we can't cache the ABSLINKS version of titles,
+	# because titles may include links to other pages and those
+	# links vary between ABSLINKS and non-ABSLINKS versions.
+	if cacheTitle and res.titleInfo:
 		store_titleinfo(ctx)
 	return res
 
@@ -2194,7 +2214,7 @@ htmlrends.register('wikitext', render)
 
 def notitlerend(ctx):
 	"""Convert wikitext into HTML but without the title."""
-	r = _render(ctx, rendering_flags)
+	r = _render_cached(ctx, rendering_flags)
 	if not r:
 		return ''
 	return r.html(ctx, skip='title')
@@ -2210,7 +2230,7 @@ def wikipara(ctx):
 	paragraph (and the title) if this is possible. This renderer
 	fails if there is no findable first paragraph. It honors the
 	!{{CutShort}} macro."""
-	r = _render(ctx, rendering_flags)
+	r = _render_cached(ctx, rendering_flags)
 	if not r or not r.hasa('p'):
 		return ''
 	return r.html(ctx, stopafter='p', cutshort=True)
@@ -2231,7 +2251,7 @@ def tersenotitle(ctx):
 	"""Convert wikitext into terse 'absolute' HTML with all links
 	fully qualified et al (as with _wikitext:terse_) but omit the
 	title of the page, as with _wikitext:notitle_."""
-	r = _render(ctx, terse_flags | ABSLINKS | set_title_option)
+	r = _render_cached(ctx, terse_flags | ABSLINKS | set_title_option)
 	if not r:
 		return ''
 	return r.html(ctx, skip="title", cutshort=True)
@@ -2248,7 +2268,7 @@ def wikicache(ctx):
 	permissions; this renderer succeeds (by generating a space)
 	if permissions allow the wikitext to be displayed, and fails
 	(generating nothing) if they don't."""
-	r = _render(ctx, rendering_flags)
+	r = _render_cached(ctx, rendering_flags)
 	if not r or r.empty:
 		return ''
 	return ' '

@@ -41,6 +41,14 @@ def getHost(environ):
 		# a hostname and etc etc etc. But, you know? No.
 		return "YOU-LOSE"
 
+# Get the host+URL schema for cache keying purposes.
+# The host will already include the port, or should.
+def getHostSchemaKey(environ):
+	hst = getHost(environ)
+	if environ.get('HTTPS') == "on":
+		hst = "https:" + hst
+	return hst
+
 # Clean utm_* query parameters from a query dictionary. Returns
 # True if there were any.
 def clean_utm(qdict):
@@ -73,8 +81,10 @@ def gather_reqdata(environ):
 	reqdata['server-name'] = getHost(environ)
 	if environ.get('HTTPS') == "on":
 		reqdata['server-url'] = "https://%s" % reqdata['server-name']
+		reqdata['server-schemakey'] = ".https"
 	else:
 		reqdata['server-url'] = "http://%s" % reqdata['server-name']
+		reqdata['server-schemakey'] = ""
 
 	# Break the request URI apart, and decode anything in the
 	# query string.
@@ -484,6 +494,8 @@ def CanonRedir(next, logger, reqdata, environ):
 	# Since we are redirecting to a different host name,
 	# this is one of the rare cases when we actually have
 	# to put the server port into the redirection URL.
+	# (We assume that the target name uses the same port
+	# and the same choice of http or https.)
 	host = chl[0]
 	qs = environ.get('QUERY_STRING', None)
 	loc = reqdata['request-fullpath']
@@ -567,7 +579,7 @@ def BFCache(next, logger, reqdata, environ):
 	ky = reqdata['view']
 	# The query may have a (trailing) /.
 	pth = reqdata['query'].rstrip('/')
-	hst = getHost(environ)
+	hst = getHostSchemaKey(environ)
 	cache = environ['dwiki.cache']
 	#cfg = get_cfg(environ)
 	doCache = False
@@ -701,7 +713,7 @@ def InMemCache(next, logger, reqdata, environ):
 	ky = reqdata['view']
 	# The query may have a (trailing) /.
 	pth = reqdata['query'].rstrip('/')
-	hst = getHost(environ)
+	hst = getHostSchemaKey(environ)
 
 	# If our simple in-memory cache has the key and it's not
 	# expired, serve it.

@@ -202,6 +202,8 @@ class HTMLContext(Context):
 		# host URI/etc.
 		self.setvar('server-name', reqdata['server-name'])
 		self.setvar('server-url', reqdata['server-url'])
+		# Cache key suffix for http versus https. This is a hack.
+		self.setvar('server-schemakey', reqdata['server-schemakey'])
 
 		# Set us up the current page. This is url-decoded
 		# and stripped of the rooturl plus a leading slash.
