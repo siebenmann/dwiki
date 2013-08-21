@@ -106,7 +106,6 @@
 @1117940229 test/templates/comment/comment.tmpl
 @1117943328 test/templates/syndication/feeds.tmpl
 @1117947495 test/pages/dwiki/NewFeatures/AtomFeeds
-@1118077312 test/templates/struct/breadcrumbs
 @1118077336 test/templates/struct/header.tmpl
 @1118077648 test/templates/struct/loginbox.tmpl
 @1118077700 test/templates/login-error.tmpl
@@ -266,3 +265,4 @@
 @1376004285 test/templates/errors/inconsistpage.tmpl
 @1376004292 test/templates/errors/nopage.tmpl
 @1377098834 test/pages/dwiki/ConfigurationFile
+@1377108977 test/templates/struct/breadcrumbs
