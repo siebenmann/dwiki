@@ -321,11 +321,22 @@ using SCGI.
 - _blog-display-howmany_: How many items the _blog::blog_ renderer
   should try to restrict most pages it displays to. If set, it must be
   a positive integer; if not set, _blog::blog_ uses a default.
+
 - _canon-hosts_: If set, this is a space-separated list of canonical
   hostnames for this DWiki. If a request has a _Host:_ header that is
   not in this list, DWiki immediately serves up a redirection to the
-  first hostname in the list, which is assumed to be the preferred
-  hostname.
+  first hostname in the list (or _canon-host-url_, if that is set),
+  which is assumed to be the preferred hostname.
+- _canon-host-url_: If set, this is the canonical URL for the host
+  of this DWiki (*without* the ending _/_, but including http or
+  https and the port if necessary). DWiki will generate redirects
+  and absolute URLs that use this URL. If _canon-hosts_ is also
+  set, this should be the full version of the first entry in
+  _canon-hosts_.
+
+  (This is primarily useful in some hopefully unusual situations
+  involving HTTP-to-HTTPS transitions.)
+
 - _literal-words_: If set, this is a list of strings, separated by
   '_ | _' (space, |, space), that will be rendered literally and not
   considered to contain markup, as if each of them had been specified

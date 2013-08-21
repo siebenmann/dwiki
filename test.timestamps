@@ -252,7 +252,6 @@
 @1361692553 test/templates/wikitext.tmpl
 @1361692748 test/templates/wikiauth-nc.tmpl
 @1361692754 test/templates/wikiauth.tmpl
-@1361809163 test/pages/dwiki/ConfigurationFile
 @1362595595 test/pages/dwiki/Caching
 @1366649545 test/templates/dwiki.tmpl
 @1366649809 test/templates/struct/prev-full.tmpl
@@ -266,3 +265,4 @@
 @1376004272 test/templates/errors/badpage.tmpl
 @1376004285 test/templates/errors/inconsistpage.tmpl
 @1376004292 test/templates/errors/nopage.tmpl
+@1377098834 test/pages/dwiki/ConfigurationFile

@@ -79,6 +79,7 @@ def gather_reqdata(environ):
 
 	reqdata = {}
 	reqdata['server-name'] = getHost(environ)
+	reqdata['server-schemaname'] = getHostSchemaKey(environ)
 	if environ.get('HTTPS') == "on":
 		reqdata['server-url'] = "https://%s" % reqdata['server-name']
 		reqdata['server-schemakey'] = ".https"
@@ -499,18 +500,43 @@ def CanonRedir(next, logger, reqdata, environ):
 	host = chl[0]
 	qs = environ.get('QUERY_STRING', None)
 	loc = reqdata['request-fullpath']
-	us = environ['wsgi.url_scheme']
-	port = environ['SERVER_PORT']
-	url = '%s://%s' % (us, host)
-	if (us == 'http' and port != '80') or \
-	   (us == 'https' and port != '443'):
-		url += ':'+port
+	# if we have a canon-host-url setting, all redirections use it
+	# instead of the first canon-host.
+	if 'canon-host-url' in cfg:
+		url = cfg['canon-host-url']
+	else:
+		us = environ['wsgi.url_scheme']
+		port = environ['SERVER_PORT']
+		url = '%s://%s' % (us, host)
+		if (us == 'http' and port != '80') or \
+		   (us == 'https' and port != '443'):
+			url += ':'+port
 	url += loc
 	if qs:
 		url += '?'+qs
 	resp = htmlresp.Response()
 	resp.redirect(url)
 	return resp
+
+# Change reqdata['server-url'] so that various sorts of things will
+# generate full URLs using our canonical host url. We must also change
+# server-name so that caching works right. Note that this means that
+# we must be processed *after* CanonRedir but before all caches.
+#
+# TODO: that we have so many variants of this same basic information
+# is a code smell. It should be better.
+def CanonHost(next, logger, reqdata, environ):
+	cfg = get_cfg(environ)
+	n = cfg['canon-host-url'].split("//")
+	reqdata['server-name'] = n[1]
+	reqdata['server-url'] = cfg['canon-host-url']
+	if reqdata['server-url'].lower().startswith("https:"):
+		reqdata['server-schemakey'] = '.https'
+		reqdata['server-schemaname'] = 'https:'+reqdata['server-name']
+	else:
+		reqdata['server-schemakey'] = ''
+		reqdata['server-schemaname'] = reqdata['server-name']
+	return next(logger, reqdata, environ)
 
 #
 # This is about as simple a brute force cache as we can get. It just
@@ -579,7 +605,7 @@ def BFCache(next, logger, reqdata, environ):
 	ky = reqdata['view']
 	# The query may have a (trailing) /.
 	pth = reqdata['query'].rstrip('/')
-	hst = getHostSchemaKey(environ)
+	hst = reqdata['server-schemaname']
 	cache = environ['dwiki.cache']
 	#cfg = get_cfg(environ)
 	doCache = False
@@ -713,7 +739,7 @@ def InMemCache(next, logger, reqdata, environ):
 	ky = reqdata['view']
 	# The query may have a (trailing) /.
 	pth = reqdata['query'].rstrip('/')
-	hst = getHostSchemaKey(environ)
+	hst = reqdata['server-schemaname']
 
 	# If our simple in-memory cache has the key and it's not
 	# expired, serve it.
@@ -866,6 +892,7 @@ def InsaneKiller(next, logger, reqdata, environ):
 def HostFixer(next, logger, reqdata, environ):
 	uh = httputil.hostFromEnv(environ)
 	if uh:
+		# TODO: updating environ is the sign of a hack.
 		environ['HTTP_HOST'] = uh
 		reqdata['server-name'] = uh
 		if environ.get('HTTPS') == "on":
@@ -1054,6 +1081,7 @@ dwikiStack = (
 	(BFCache, 'bfc-cache-ttl'),
 	(StaticServ, 'staticurl'),
 	(InMemCache, 'imc-cache-entries'),
+	(CanonHost, 'canon-host-url'),
 	(CanonRedir, 'canon-hosts'),
 	(UtmRedirecter, ''),
 	(CacheCleaner, 'cachedir'),
