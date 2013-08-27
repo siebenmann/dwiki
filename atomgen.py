@@ -71,6 +71,8 @@ def get_cuttime(context):
 # Joy, yet another time string format.
 def atomtimestr(ts):
 	return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(ts))
+def rss2timestr(ts):
+	return time.strftime("%a, %d %b %Y %T %z", time.gmtime(ts))
 
 def feedtitle(context):
 	"""Generate an Atom feed title for the current page."""
@@ -148,6 +150,14 @@ def atomctime(context):
 	return atomtimestr(ts)
 htmlrends.register("atom::modstamp", atomctime)
 
+def rss2stamp(context):
+	"""Generate a RSS 2.0 timestamp for the current page."""
+	ts = context.page.timestamp
+	if ts <= 0:
+		ts = time.time()
+	return rss2timestr(ts)
+htmlrends.register("rss2::timestamp", rss2stamp)
+
 # We have this because the <update> entry is required to come
 # *before* the <entry> entries, and we only know the most recent
 # time after we generate all of the latter. And we are not
@@ -224,13 +234,8 @@ def _fillpages(context):
 	context.setcache(atom_cachekey, res)
 	return res
 
-def atompages(context):
-	"""Generate an Atom feed of the current directory and all its
-	descendants (showing only the most recent so many entries, newest
-	first). Each page is rendered through _syndication/atomentry.tmpl_,
-	which should result in a valid Atom feed entry. Supports
-	VirtualDirectory restrictions."""
-	to = context.model.get_template("syndication/atomentry.tmpl")
+def synd_gen(context, tmpl):
+	to = context.model.get_template(tmpl)
 	res = []
 	sz = 0
 	maxsz = get_feedmax(context)
@@ -259,7 +264,24 @@ def atompages(context):
 		if maxsz and sz >= maxsz:
 			break
 	return ''.join(res)
+
+def atompages(context):
+	"""Generate an Atom feed of the current directory and all its
+	descendants (showing only the most recent so many entries, newest
+	first). Each page is rendered through _syndication/atomentry.tmpl_,
+	which should result in a valid Atom feed entry. Supports
+	VirtualDirectory restrictions."""
+	return synd_gen(context, "syndication/atomentry.tmpl")
 htmlrends.register("atom::pages", atompages)
+
+def rss2pages(context):
+	"""Generate a RSS 2.0 feed of the current directory and all its
+	descendants (showing only the most recent so many entries, newest
+	first). Each page is rendered through _syndication/rss2entry.tmpl_,
+	which should result in a valid RSS 2.0 feed entry. Supports
+	VirtualDirectory restrictions."""
+	return synd_gen(context, "syndication/rss2entry.tmpl")
+htmlrends.register("rss2::pages", rss2pages)
 
 def atompagestamp(context):
 	"""Generate an Atom format timestamp for an Atom page feed for
@@ -275,6 +297,21 @@ def atompagestamp(context):
 		tl.append(pdir.modstamp)
 	return atomtimestr(max(tl))
 htmlrends.register("atom::recentpage", atompagestamp)
+
+def rss2pagestamp(context):
+	"""Generate an RSS 2.0 format timestamp for an RSS 2.0 page feed for
+	the current directory (and all its descendants)."""
+	rl = _fillpages(context)
+	if not rl:
+		return rss2timestr(time.time())
+	tl = []
+	for ts, path in rl:
+		np = context.model.get_page(path)
+		pdir = np.parent()
+		tl.append(np.modstamp)
+		tl.append(pdir.modstamp)
+	return rss2timestr(max(tl))
+htmlrends.register("rss2::recentpage", rss2pagestamp)
 
 def pageterse(context):
 	"""Generate wikitext:terse run through a HTML entity quoter,
@@ -576,7 +613,24 @@ class RestrictedAtomView(AtomView):
 		self.response.redirect(self.context.uri(tp, self.view))
 		return True
 
+# Generating an RSS 2.0 feed is a huge hack. We do not advertise it in
+# page tools or anything else; it exists only for a few RSS2-only
+# consumers that Chris (now) cares about and because existing feed
+# conversion services either don't do it right or are undependable (in
+# the long term) or both. It is deliberate that there is no RSS 2.0
+# comments feed. RSS 2.0 feeds are just like Atom feeds and obey all
+# of the same restrictions.
+#
+# All of the magic happens in renderers. We need a separate class here
+# only to change the content-type.
+class RestrictedRss2View(AtomView):
+	# This is allegedly the right content-type. RSS being RSS,
+	# there are apparently variations.
+	content_type = "application/rss+xml"
+
 # An atom view cannot be applied to a file, only a directory.
 # Atom comments can be applied to anything.
 views.register('atom', RestrictedAtomView, onDir = True, onFile = False)
 views.register('atomcomments', AtomView, onDir = True)
+
+views.register('rss2', RestrictedRss2View, onDir = True, onFile = False)

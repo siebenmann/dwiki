@@ -182,7 +182,6 @@
 @1134902894 test/comments/Tests/CommentPage/e8959215dc5621e5931464166e4908bd2e7578bb
 @1134903108 test/pages/Manage/RecentComments
 @1134935921 test/templates/blog/blogdirpage.tmpl
-@1135147831 test/pages/dwiki/TemplatesUsed
 @1139124182 test/pages/dwiki/NewFeatures/PrevNextLinks
 @1139127701 test/templates/struct/datecrumbs.tmpl
 @1139200495 test/templates/syndication/linkbr
@@ -266,3 +265,8 @@
 @1376004292 test/templates/errors/nopage.tmpl
 @1377098834 test/pages/dwiki/ConfigurationFile
 @1377108977 test/templates/struct/breadcrumbs
+@1377286548 test/templates/syndication/category-rss2
+@1377545080 test/templates/dwiki/view-rss2.tmpl
+@1377545233 test/templates/syndication/rss2entry.tmpl
+@1377613022 test/pages/dwiki/TemplatesUsed
+@1377613973 test/pages/dwiki/NewFeatures/RSS2Feeds

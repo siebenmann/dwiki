@@ -1,0 +1,10 @@
+<item>
+<link>@{atom::pageurl}</link>
+<guid isPermaLink="false">@{atom::pagetag}</guid>
+<description>%{atom::pageterse:notitle}
+#{syndication/linkbr}</description>
+<title>${|:wikitext:title:nohtml|abspage}</title>
+<dc:creator>@{blog::owner}</dc:creator>
+#{syndication/category-rss2}
+<pubDate>@{rss2::timestamp}</pubDate>
+</item>

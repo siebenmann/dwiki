@@ -34,6 +34,8 @@ The short list of such templates is:
   each page.
 * _syndication/atomcomment.tmpl_: used to render an Atom feed entry
   for each comment.
+* _syndication/rss2entry.tmpl_: used to render an RSS 2.0 feed entry for
+  each page.
 
 All paths are relative to the template directory.
 

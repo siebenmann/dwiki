@@ -1,0 +1,21 @@
+DWiki can now generate RSS 2.0 format syndication feeds for recently
+changed pages. This is a terrible hack that should not exist but
+ChrisSiebenmann has to deal with a few things that don't accept Atom
+format feeds, only RSS 2.0 feeds.
+RSS 2.0 page feeds are just like Atom page feeds and all Atom page feed
+restrictions and configuration options apply to them too. They are not
+advertised anywhere (either in page tools or in feed automdiscovery);
+to get access to them you must specify the feed URL directly, using the
+view name '_rss2_' (as in !http://you.cim/dwiki/?rss2).
+
+See _dwiki/view-rss2.tmpl_ and _syndication/rss2entry.tmpl_ for what
+RSS 2.0 elements are used and how.
+
+There is no RSS 2.0 feed for page comments.
+
+(Because this is a hack, asking for the RSS 2.0 feed of VirtualDirs
+that are restricted such that they get redirections to the base
+directory, per AtomFeedsAndVirtualDirs, will get you a redirection
+to the *Atom* feed for that base directory. This is considered
+acceptable since people aren't supposed to be using those feeds
+anyways.)
