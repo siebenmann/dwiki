@@ -566,7 +566,7 @@ def is_cacheable_request(cfg, reqdata, environ):
 	# We cannot serve Atom requests out of a cache at all if
 	# this request would hit the feed-max-size-ips feature.
 	if 'feed-max-size-ips' in cfg and \
-	   reqdata['view'] in ('atom', 'atomcomments') and \
+	   reqdata['view'] in ('atom', 'atomcomments', 'rss2') and \
 	   httputil.matchIP(reqdata['remote-ip'],
 			    cfg['feed-max-size-ips']):
 		return False
@@ -614,7 +614,7 @@ def BFCache(next, logger, reqdata, environ):
 	# time most consistently requested pages, Atom syndication
 	# feeds can have an optional (much) larger TTL.
 	TTL = cfg['bfc-cache-ttl']
-	if reqdata['view'] in ('atom', 'atomcomments'):
+	if reqdata['view'] in ('atom', 'atomcomments', 'rss2'):
 		# We cannot serve Atom requests out of the BFC at all
 		# if this request would hit the feed-max-size-ips
 		# feature; we can neither use the cached BFC results
@@ -788,7 +788,7 @@ def SlowReq(next, logger, reqdata, environ):
 # include. Note that 'normal' is not safe to include, because it is the
 # default view that is set by now.
 bad_robot_views = ('atom', 'atomcomments', 'writecomment', 'source',
-		   'blogdir', 'blog', )
+		   'blogdir', 'blog', 'rss2', )
 def RobotKiller(next, logger, reqdata, environ):
 	if environ['REQUEST_METHOD'] != 'GET' or \
 	   reqdata['view'] not in bad_robot_views:
@@ -991,7 +991,7 @@ def DumpAtom(next, logger, reqdata, environ):
 	# feeds that have a User-Agent header. Do we have one?
 	qs = environ.get('QUERY_STRING', '')
 	ua = environ.get('HTTP_USER_AGENT', '')
-	if qs not in ('atom', 'atomcomments') or \
+	if qs not in ('atom', 'atomcomments', 'rss2') or \
 	   environ['REQUEST_METHOD'] != 'GET' or \
 	   not ua or resp.code != 200:
 		return resp
