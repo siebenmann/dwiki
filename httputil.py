@@ -222,3 +222,10 @@ def quotehtml(hstr):
 	for qe, qs in quoteEntities:
 		hstr = hstr.replace(qe, qs)
 	return hstr
+
+# This is not quite equal to what wikirend does. Different contexts.
+uquoteEntities = (('"', '%22'), (' ', '%20'), ('>', '%3E'))
+def quoteurl(ustr):
+	for qe, qs in uquoteEntities:
+		ustr = ustr.replace(qe, qs)
+	return ustr

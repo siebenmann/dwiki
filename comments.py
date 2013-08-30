@@ -290,12 +290,19 @@ htmlrends.register("comment::pre", commentpre)
 # text (one line per iteration).  If this is desired, we ought to do
 # it explicitly, not implicitly.
 post_bit = """<input type=submit name=post value="Post Comment">"""
-fpreview_bit="""<input type=submit name=dopref value="Visionner votre commentaire">"""
 comment_form = """<form method=post action="%s">
 <textarea rows='15' cols='75' name='comment'>
 %s</textarea> <br>
 <span style="display: none;">Please do not enter anything here:
 <input name=name size=30> </span>
+<table>
+<tr> <td style="padding-right: 10px"> 
+	<label for="whois">Who are you?</label> </td>
+	<td> <input name=whois size=40 type="text" value="%s"> </td> </tr>
+<tr> <td style="padding-right: 10px">
+	<label for="whourl">(optional URL)</label> </td>
+	<td> <input name=whourl size=40 type="text" value="%s"> </td> </tr>
+</table>
 <input type=hidden name=previp value="%s">
 <input type=submit value="Preview Comment">
 %s
@@ -323,7 +330,6 @@ def commentform(context):
 			post = ''
 	else:
 		comdata = ''
-		#post = fpreview_bit
 		post = ''
 	curl = context.url(context.page, "writecomment")
 	#previp = remote_ip_prefix(context)
@@ -333,7 +339,12 @@ def commentform(context):
 		previp = gen_ip_prefix(context)
 	else:
 		previp = 'omitted'
-	data = comment_form % (curl, comdata, previp, post)
+	# TODO: is quotehtml() the right quoting to apply for value="..."
+	# bits? It's not clear to me. I need to read more specifications.
+	data = comment_form % (curl, comdata,
+			       httputil.quotehtml(context.getviewvar("whois")),
+			       httputil.quotehtml(context.getviewvar("whourl")),
+			       previp, post)
 	context.unrel_time()
 	return data
 htmlrends.register("comment::form", commentform)
@@ -348,6 +359,8 @@ def post(context, resp):
 	comdata = context.getviewvar("comment")
 	if comdata is None:
 		return False
+	whois = context.getviewvar("whois")
+	whourl = context.getviewvar("whourl")
 
 	# We immediately disallow empty comments.
 	#comdata = comtrim(comdata)
@@ -372,7 +385,8 @@ def post(context, resp):
 		# post_comment() does permissions checking itself,
 		# and the caller has already done it too, so we don't
 		# do it a *third* time; we just go straight.
-		res = context.model.post_comment(comdata, context)
+		res = context.model.post_comment(comdata, context,
+						 whois, whourl)
 		if res:
 			context.setvar(":comment:post", "good")
 		else:
@@ -430,6 +444,15 @@ def atomcountlink(context):
 	return httputil.quotehtml(_gencountlink(context, True))
 htmlrends.register("comment::atomlink", atomcountlink)
 
+def set_com_vars(context, c):
+	context.setvar(com_stash_var, c)
+	context.setvar("comment-ip", c.ip)
+	context.setvar("comment-name", c.username)
+	context.setvar("comment-url", c.userurl)
+	# comment-login exists only if it is not the guest user.
+	if not c.is_anon(context):
+		context.setvar("comment-login", c.user)
+	
 # Display comments in a blogdir style thing.
 # Unlike blogdir, comments go in oldest-to-newest order.
 com_stash_var = ":comment:comment"
@@ -461,9 +484,8 @@ def showcomments(context):
 	for c in coms:
 		nc = context.clone()
 		context.newtime(c.time)
-		nc.setvar(com_stash_var, c)
-		nc.setvar("comment-ip", c.ip)
-		nc.setvar("comment-user", c.user)
+		set_com_vars(nc, c)
+
 		res.append(template.Template(to).render(nc))
 		context.newtime(nc.modtime)
 	return ''.join(res)
@@ -489,6 +511,7 @@ def comdate(context):
 	return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(c.time))
 htmlrends.register("comment::date", comdate)
 
+# TODO: remove this soon. It's now transition support only.
 # We don't show the user if it's the guest user.
 # This is a design decision on my part.
 def comuser(context):
@@ -502,6 +525,37 @@ def comuser(context):
 	else:
 		return c.user
 htmlrends.register("comment::user", comuser)
+
+# Display the authorship information of a comment.
+# Bugs: this is too complicated. But doing it by templates is
+# frankly insane; there would be too many of them. I may change
+# my mind later.
+def com_optlink(txt, c):
+	if not c.userurl:
+		return httputil.quotehtml(txt)
+	return htmlrends.makelink(txt, httputil.quoteurl(c.userurl))
+def comauthor(context):
+	"""Display the author information for a comment, drawing on
+	the given name, website URL, DWiki login, and comment IP address
+	as necessary and available. Only works inside comment::showall.
+	This potentially generates HTML, not just plain text."""
+	if com_stash_var not in context:
+		return ''
+	c = context[com_stash_var]
+	ares = []
+	if c.username:
+		ares.append("By")
+		ares.append(com_optlink(c.username, c))
+		if not c.is_anon(context):
+			ares.append("(%s)" % c.user)
+	elif not c.is_anon(context):
+		ares.append("By")
+		ares.append(com_optlink(c.user, c))
+	else:
+		ares.append("From")
+		ares.append(com_optlink(c.ip, c))
+	return ' '.join(ares)
+htmlrends.register("comment::author", comauthor)
 
 # In the name of short anchor names, we hope that user + timestamp never
 # collides. Using the hash name is ... the ugly.
@@ -536,6 +590,32 @@ def comtrim(comdata):
 		return comdata
 	else:
 		return comdata + "\n"
+
+# Sanitize the name fields (whois and whourl).
+# These cannot include embedded newlines. If they do, the field is
+# nulled out.
+def name_sanitize(context, vvar):
+	fld = context.getviewvar(vvar)
+	if not fld:
+		fld = ''
+	fld = fld.strip()
+	if '\r' in fld or '\n' in fld:
+		fld = ''
+	context.setviewvar(vvar, fld)
+# url_sanitize requires the URL to start with http:// or https://.
+# It may insist on more sanitization later.
+safeurl_re = re.compile("^[a-z0-9._-]+(/[-a-z0-9._/]+)?$")
+def url_sanitize(context, vvar):
+	name_sanitize(context, vvar)
+	lfd = context.getviewvar(vvar).lower()
+	if lfd.startswith("http://") or lfd.startswith("https://"):
+		pass
+	elif safeurl_re.match(lfd):
+		# TODO: this is dangerous, even though we are conservative
+		# in schema-less URLs that we will accept.
+		context.setviewvar(vvar, "http://" + context.getviewvar(vvar))
+	else:
+		context.setviewvar(vvar, '')
 
 #
 # We want people who write comments to be able to immediately see their
@@ -585,6 +665,8 @@ class WriteCommentView(views.TemplateView):
 		# code smell.)
 		comdata = comtrim(self.context.getviewvar("comment"))
 		self.context.setviewvar("comment", comdata)
+		name_sanitize(self.context, "whois")
+		url_sanitize(self.context, "whourl")
 
 		# 'post' is the name of the 'Post Comment' button,
 		# which is set when we are posting (but not when
@@ -615,4 +697,5 @@ class WriteCommentView(views.TemplateView):
 
 views.register('showcomments', views.TemplateView)
 views.register('writecomment', WriteCommentView, canPOST = True,
-	       postParams = ('comment', 'previp', 'post', 'dopref', 'name'))
+	       postParams = ('comment', 'previp', 'post', 'dopref', 'name',
+			     'whois', 'whourl', ))

@@ -52,7 +52,6 @@
 @1117230477 test/comments/Tests/CommentPage/01620dd5ff121fe241853281d28bed2fbe458e18
 @1117234568 test/comments/Tests/CommentPage/d7ec1f3af93cff819a320d30c1ef57d4b67d4580
 @1117234738 test/pages/Tests/CommentPage
-@1117234884 test/templates/comment/user
 @1117234888 test/templates/comment/ip
 @1117236070 test/pages/dwiki/WhyNotWebEditing
 @1117237135 test/pages/dwiki/NewFeatures/Comments
@@ -102,7 +101,6 @@
 @1117739186 test/pages/dwiki/NewFeatures/SpaceLinkSeps
 @1117739568 test/pages/dwiki/NewFeatures/ImprovedLinkAbbrevs
 @1117838236 test/pages/dwiki/NewFeatures/NestedListsWithIndent
-@1117940219 test/templates/comment/header.tmpl
 @1117940229 test/templates/comment/comment.tmpl
 @1117943328 test/templates/syndication/feeds.tmpl
 @1117947495 test/pages/dwiki/NewFeatures/AtomFeeds
@@ -198,7 +196,6 @@
 @1141530205 test/templates/dwiki/view-atom.tmpl
 @1141530211 test/templates/dwiki/view-atomcomments.tmpl
 @1141540244 test/templates/syndication/category
-@1141542964 test/templates/syndication/atomcomment.tmpl
 @1143013960 test/pages/dwiki/NewFeatures/Caching
 @1143084648 test/pages/Tests/SlimTableTest
 @1143325875 test/templates/struct/readme-blog.tmpl
@@ -229,7 +226,6 @@
 @1187294113 test/templates/dwiki/view-sitemap.tmpl
 @1197566359 test/pages/Tests/CommentPageII
 @1197566376 test/templates/comment/writebody.tmpl
-@1197566572 test/templates/comment/writebody-anon.tmpl
 @1197584790 test/pages/drafts/FoobarTest
 @1237418066 test/pages/Tests/LiteralTest
 @1306936630 test/pages/help/DWikiText
@@ -255,7 +251,6 @@
 @1366649809 test/templates/struct/prev-full.tmpl
 @1366649817 test/templates/struct/next-full.tmpl
 @1375484574 test/templates/struct/datecrumbs-full.tmpl
-@1375995049 test/pages/dwiki/GlobalVariables
 @1376004071 test/templates/comment/needauth.tmpl
 @1376004212 test/templates/needauth.tmpl
 @1376004245 test/templates/errors/badaccess.tmpl
@@ -270,3 +265,11 @@
 @1377545233 test/templates/syndication/rss2entry.tmpl
 @1377613022 test/pages/dwiki/TemplatesUsed
 @1377613973 test/pages/dwiki/NewFeatures/RSS2Feeds
+@1377804684 test/templates/comment/user
+@1377804779 test/templates/comment/author
+@1377805124 test/templates/comment/authorship
+@1377805156 test/templates/comment/header.tmpl
+@1377809260 test/pages/dwiki/GlobalVariables
+@1377809842 test/templates/syndication/atomcomment-url
+@1377863849 test/templates/syndication/atomcomment.tmpl
+@1377872682 test/templates/comment/writebody-anon.tmpl

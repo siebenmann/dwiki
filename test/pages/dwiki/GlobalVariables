@@ -38,7 +38,12 @@ additional global variables:
 			  _:wikitext:title:nohtml_ template renderer.
 | _login_		| The currently authenticated user.
 | _comment-ip_		| IP address that posted the current comment.
-| _comment-user_	| User that posted the current comment.
+| _comment-login_	| Login of the user that posted the current
+			  comment, if it is not the anonymous user.
+| _comment-name_	| The supplied name of the user that posted the
+			  current comment, if any.
+| _comment-url_		| The user's supplied website URL (if any) for
+			  the current comment.
 | _:comment:post_	| The result of an attempt to post a comment.
 			  One of 'good', 'bad', 'badchar', or 'nocomment'
 			  (the latter if it was an attempt to post an

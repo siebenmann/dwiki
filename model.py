@@ -1,12 +1,12 @@
 #
 # The model component of our pseudo-MVC application.
 #
-import re
-
 import utils
 import pages
 
 import derrors, storage
+
+import model_comment
 
 class NoPage:
 	type = "bad"
@@ -28,44 +28,6 @@ class User:
 		self.user = user
 		self.pwhash = pwhash
 		self.groups = groups
-
-
-# Comments are stored in a packed form.
-# (I am almost tempted to pickle them, but I would rather have things
-#  be readable in raw text.)
-commentbody_re = re.compile("USER ([^\n]+)\nIP ([^\n]+)\n(.*)$",
-			    re.DOTALL)
-class Comment:
-	def __init__(self, context = None, data = None):
-		if context:
-			self.user = context.login
-			self.ip = context["remote-ip"]
-		else:
-			self.user = None
-			self.ip = None
-		if not data:
-			self.data = ''
-		else:
-			self.data = data
-		self.time = None
-		self.name = None
-	def __str__(self):
-		if not self.data:
-			return ''
-		return 'USER %s\nIP %s\n%s' % (self.user, self.ip, self.data)
-	def fromstore(self, fileobj, name):
-		blob = fileobj.contents()
-		if not blob:
-			return False
-		mo = commentbody_re.match(blob)
-		if not mo:
-			return False
-		self.user = mo.group(1)
-		self.ip = mo.group(2)
-		self.data = mo.group(3)
-		self.time = fileobj.timestamp()
-		self.name = name
-		return True
 
 # Return a dict of User objects read from the password file.
 def load_pwfile(cfg):
@@ -291,11 +253,12 @@ class Model:
 
 	# Return True or False depending on whether the comment posted
 	# or not.
-	def post_comment(self, comdata, context):
+	def post_comment(self, comdata, context, username, userurl):
 		if not self.cstore or \
 		   not context.page.comment_ok(context):
 			return False
-		nc = Comment(context, comdata)
+		nc = model_comment.CommentV1()
+		nc.fromform(context, comdata, username, userurl)
 		# FIXME: trap errors somehow. For now commentstore
 		# failures are truly fatal. (The complication is
 		# logging them somehow.)
@@ -332,9 +295,9 @@ class Model:
 		po = self._commentpage(compath)
 		if not po or po.type != "file" or not po.displayable():
 			raise derrors.IntErr, "missing or undisplayable comment '%s' on page '%s'" % (comment, page)
-		c = Comment()
-		if not c.fromstore(po, comment):
-			raise derrors.IntErr, "misformatted comment '%s' on '%s'" % (comment, page)
+		c = model_comment.loadcomment(po, comment)
+		if c is None:
+			raise derrors.IntErr, "misformatted comment '%s' on '%s'" % (comment, page.path)
 		return c
 
 	# For complicated reasons there is no real point in virtualizing

@@ -393,10 +393,8 @@ def atomcomments(context):
 	for ts, path, cname, c in _fillcomments(context):
 		np = context.model.get_page(path)
 		nc = context.clone_to_page(np)
-		nc.setvar(comments.com_stash_var, c)
+		comments.set_com_vars(nc, c)
 		nc.setvar(":comment:name", cname)
-		nc.setvar("comment-ip", c.ip)
-		nc.setvar("comment-user", c.user)
 		t = template.Template(to).render(nc)
 		sz += len(t)
 		res.append(t)

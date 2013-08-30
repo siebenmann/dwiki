@@ -612,8 +612,12 @@ def recentcomments(rend, args):
 		if not c:
 			return
 		rend.addPiece('<a href="%s">' % url)
-		if c.user != rend.ctx.default_user():
+		if c.username and not c.is_anon(rend.ctx):
+			rend.text("%s (%s)" % (c.username, c.user), "none")
+		elif not c.is_anon(rend.ctx):
 			rend.text(c.user, "none")
+		elif c.username:
+			rend.text(c.username, "none")
 		else:
 			rend.text(c.ip, "none")
 	
