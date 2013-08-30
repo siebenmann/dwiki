@@ -69,13 +69,13 @@ class Template:
 			if not ovars:
 				raise derrors.RendErr, "invalid key '%s'" % mo.group(1)
 			for ov in ovars:
-				if ov in self.context:
+				if ov in self.context and self.context[ov]:
 					vv = self.context[ov]
 					return httputil.quotehtml(vv)
 		elif not key:
 			raise derrors.RendErr, "invalid key '%s'" % mo.group(1)
 		else:
-			if key in self.context:
+			if key in self.context and self.context[key]:
 				return httputil.quotehtml(self.context[key])
 		# Error if we have to have a value (normal case).
 		if canmiss:
