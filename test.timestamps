@@ -157,7 +157,6 @@
 @1118694029 test/templates/struct/readme-dir.tmpl
 @1118701052 test/pages/dwiki/ToDo
 @1118781076 test/pages/dwiki/NewFeatures/PageTitles
-@1119156357 test/pages/dwiki/Authentication
 @1119301293 test/templates/comment/page.tmpl
 @1120890194 test/templates/comment/tools.tmpl
 @1125722454 test/pages/dwiki/NewFeatures/BetterLastModHandling
@@ -234,7 +233,6 @@
 @1323382253 test/pages/Tests/.flag.noview:blogdir
 @1323456218 test/pages/dwiki/NewFeatures/DisallowDirViews
 @1339683377 test/pages/Tests/PreWrapTest
-@1359671470 test/passwd
 @1359758779 test/pages/dwiki/NewFeatures/AtomFeedsAndVirtualDirs
 @1360254659 test/templates/html/css
 @1361596235 test/statics/dwiki.css
@@ -273,3 +271,5 @@
 @1377809842 test/templates/syndication/atomcomment-url
 @1377863849 test/templates/syndication/atomcomment.tmpl
 @1377872682 test/templates/comment/writebody-anon.tmpl
+@1377876538 test/passwd
+@1377877161 test/pages/dwiki/Authentication

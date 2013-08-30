@@ -28,8 +28,25 @@ class User:
 		self.user = user
 		self.pwhash = pwhash
 		self.groups = groups
+		self.username = None
+		self.userurl = None
 
 # Return a dict of User objects read from the password file.
+# HACK ALERT: password file can include additional information about a
+# user, which is written as:
+#	.also <user> <user's name> | <user's URL>
+def parse_also(line, u):
+	s = line.split(None, 2)
+	if len(s) != 3:
+		raise derrors.AuthErr(".also line has no additional information: "+line)
+	s1 = [x.strip() for x in s[2].split("|")]
+	if len(s1) != 2:
+		raise derrors.AuthErr("bad .also line: "+line)
+	if s1[0]:
+		u.username = s1[0]
+	if s1[1]:
+		u.userurl = s1[1]
+	
 def load_pwfile(cfg):
 	if "authfile" not in cfg:
 		return {}
@@ -45,10 +62,15 @@ def load_pwfile(cfg):
 			nl = line.split(None)
 			if len(nl) < 2:
 				raise derrors.AuthErr, "bad password file line: "+line
-			u = User(nl[0], nl[1], nl[2:])
-			if u.user in d:
-				raise derrors.AuthErr, "duplicate password file entry for "+u.user
-			d[u.user] = u
+			if nl[0] == '.also':
+				if nl[1] not in d:
+					raise derrors.AuthErr("user not already known in .also line: "+line)
+				parse_also(line, d[nl[1]])
+			else:
+				u = User(nl[0], nl[1], nl[2:])
+				if u.user in d:
+					raise derrors.AuthErr, "duplicate password file entry for "+u.user
+				d[u.user] = u
 		fp.close()
 		return d
 	except EnvironmentError, e:

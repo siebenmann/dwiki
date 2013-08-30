@@ -315,7 +315,17 @@ def commentform(context):
 		return ''
 
 	comdata = context.getviewvar("comment")
-	#comdata = comtrim(comdata)
+	whois = context.getviewvar("whois")
+	whourl = context.getviewvar("whourl")
+	u = context.current_user()
+	# Take initial/default full name and URL from the user information
+	# if it is available. We know context.login exists because this is
+	# a basic requirement for commenting at all.
+	if not whois and u.username:
+		whois = u.username
+	if not whourl and u.userurl:
+		whourl = u.userurl
+
 	if comdata:
 		# We have to do the usual quoting of HTML entities.
 		# The browser stitches up the result and dequotes
@@ -342,8 +352,8 @@ def commentform(context):
 	# TODO: is quotehtml() the right quoting to apply for value="..."
 	# bits? It's not clear to me. I need to read more specifications.
 	data = comment_form % (curl, comdata,
-			       httputil.quotehtml(context.getviewvar("whois")),
-			       httputil.quotehtml(context.getviewvar("whourl")),
+			       httputil.quotehtml(whois),
+			       httputil.quotehtml(whourl),
 			       previp, post)
 	context.unrel_time()
 	return data
