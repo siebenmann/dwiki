@@ -269,7 +269,9 @@
 @1377805156 test/templates/comment/header.tmpl
 @1377809260 test/pages/dwiki/GlobalVariables
 @1377809842 test/templates/syndication/atomcomment-url
-@1377863849 test/templates/syndication/atomcomment.tmpl
 @1377872682 test/templates/comment/writebody-anon.tmpl
 @1377876538 test/passwd
 @1377877161 test/pages/dwiki/Authentication
+@1378222893 test/templates/comment/author-n
+@1378222896 test/templates/comment/user-n
+@1378222931 test/templates/syndication/atomcomment.tmpl

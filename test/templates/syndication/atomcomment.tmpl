@@ -2,7 +2,7 @@
 <title type="html">#{|comment/author|comment/user|comment/ip} on /${page}</title>
 <id>tag:${wikiname}:${page}:${:comment:name}</id>
 <link rel="alternate" type="text/html" href="@{atom::commenturl}" />
-<author><name>#{|comment/author|comment/user|comment/ip}</name>#{syndication/atomcomment-url}</author>
+<author><name>#{|comment/author-n|comment/user-n|comment/ip}</name>#{syndication/atomcomment-url}</author>
 <content type="html">%{atom::comment}</content>
 <updated>@{atom::commentstamp}</updated>
 </entry>
