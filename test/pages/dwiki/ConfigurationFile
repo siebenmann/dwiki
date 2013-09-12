@@ -3,10 +3,10 @@
 DWiki's configuration file has a simple format. Blank lines and
 comments (any line that has a '_#_' as the first non-whitespace
 character) are just skipped, and everything else is interpreted as a
-configuration directive to set. Lines can be continued to additional
-lines by starting the continued lines with whitespace (as in email
-headers). The continuation whitespace will be turned into a single
-space in the final, un-continued version of the line.
+configuration directive to set. Directives can be continued with
+additional lines by starting the continued lines with whitespace
+(as in email headers). The continuation whitespace will be turned
+into a single space in the final, un-continued version of the line.
 
 Configuration directives have optional values, which are separated
 from the configuration item by whitespace. (Whitespace within the
