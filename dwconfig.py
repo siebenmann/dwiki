@@ -28,7 +28,7 @@ class SimpleDWConf(config.Configuration):
 	list_items = ('atomfeed-virt-only-in', 'atomfeed-virt-only-adv',
 		      'canon-hosts', )
 	ip_ranges = ('banned-ips', 'banned-comment-ips',
-		     'feed-max-size-ips', )
+		     'feed-max-size-ips', 'bad-robot-ips', )
 	
 	def __init__(self):
 		super(SimpleDWConf, self).__init__()

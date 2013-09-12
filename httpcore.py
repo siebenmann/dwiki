@@ -789,9 +789,15 @@ def SlowReq(next, logger, reqdata, environ):
 # default view that is set by now.
 bad_robot_views = ('atom', 'atomcomments', 'writecomment', 'source',
 		   'blogdir', 'blog', 'rss2', )
+def is_bad_robot_request(environ, reqdata):
+	# TODO: it is questionable that this doesn't apply to POST
+	# requests. On the other hand, in practice I'm going to ban
+	# outright any robot that appears to make POST requests.
+	return environ['REQUEST_METHOD'] in ('GET', 'HEAD') and \
+	       reqdata['view'] in bad_robot_views
+
 def RobotKiller(next, logger, reqdata, environ):
-	if environ['REQUEST_METHOD'] != 'GET' or \
-	   reqdata['view'] not in bad_robot_views:
+	if not is_bad_robot_request(environ, reqdata):
 		return next(logger, reqdata, environ)
 
 	cfg = get_cfg(environ)
@@ -828,6 +834,21 @@ def RobotKiller2(next, logger, reqdata, environ):
 		if rua in ua:
 			return httputil.genError("web-robot", 403)
 	return next(logger, reqdata, environ)
+
+# Kill requests for banned robot views from specific IP addresses.
+def IpBadKiller(next, logger, reqdata, environ):
+	if not is_bad_robot_request(environ, reqdata):
+		return next(logger, reqdata, environ)
+
+	cfg = get_cfg(environ)
+	ipl = cfg['bad-robot-ips']
+	sip = environ.get('REMOTE_ADDR', '')
+	# no remote IP means immediate kill
+	if not sip or httputil.matchIP(sip, ipl):
+		logger.warn("banned robot IP denied access")
+		return httputil.genError("disallowed", 403)
+	else:
+		return next(logger, reqdata, environ)
 
 # Kill bad sources outright, in cases where we cannot use Apache
 # access controls or whatever.
@@ -1085,6 +1106,7 @@ dwikiStack = (
 	(CanonRedir, 'canon-hosts'),
 	(UtmRedirecter, ''),
 	(CacheCleaner, 'cachedir'),
+	(IpBadKiller, 'bad-robot-ips'),
 	(RobotKiller, 'bad-robots'),
 	(RobotKiller2, 'banned-robots'),
 	(IpCommentKiller, 'banned-comment-ips'),

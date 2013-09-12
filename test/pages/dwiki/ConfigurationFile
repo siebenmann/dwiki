@@ -375,6 +375,9 @@ server (such as uWSGI, Apache's ``mod_wsgi'', or gUnicorn).
   specified multiple times.
 - _banned-comment-ips_: If set, this is like _banned-ips_ but only applies
   to attempts to write comments.
+- _bad-robot-ips_: If set, this is like _banned-ips_ but only applies to
+  requests that try to fetch pages in various views that no robot should
+  be fetching (as in _bad-robots_).
 
 Under normal circumstances it's more efficient to use your web server's
 access controls to totally ban IP addresses and bad user-agents; your

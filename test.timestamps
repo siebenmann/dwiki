@@ -256,7 +256,6 @@
 @1376004272 test/templates/errors/badpage.tmpl
 @1376004285 test/templates/errors/inconsistpage.tmpl
 @1376004292 test/templates/errors/nopage.tmpl
-@1377098834 test/pages/dwiki/ConfigurationFile
 @1377108977 test/templates/struct/breadcrumbs
 @1377286548 test/templates/syndication/category-rss2
 @1377545080 test/templates/dwiki/view-rss2.tmpl
@@ -275,3 +274,4 @@
 @1378222893 test/templates/comment/author-n
 @1378222896 test/templates/comment/user-n
 @1378222931 test/templates/syndication/atomcomment.tmpl
+@1378752017 test/pages/dwiki/ConfigurationFile
