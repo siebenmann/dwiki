@@ -9,6 +9,7 @@
 import os.path
 import netblock
 import derrors
+import contread
 
 class Configuration(object):
 	# This is a list so that it can be extended by subclasses.
@@ -162,14 +163,15 @@ class Configuration(object):
 			
 		# If we've gotten here, we're good.		
 
-def loadfile(fp, cfg = None):
+# 'fp' is expected to be a contread.RFC822File() object because we don't
+# trim blank lines and comment lines as we read from it.
+def _loadfile(fp, cfg = None):
 	if cfg is None:
 		cfg = Configuration()
 
 	for line in fp:
+		# (this removes any trailing newline)
 		line = line.strip()
-		if not line or line[0] == '#':
-			continue
 		tl = line.split(None, 1)
 		if len(tl) == 1:
 			tl.append(True)
@@ -191,11 +193,13 @@ def loadfile(fp, cfg = None):
 
 def load(fname, cfg = None):
 	try:
-		fp = open(fname, "r")
-		res = loadfile(fp, cfg)
+		fp = contread.openfile(fname)
+		res = _loadfile(fp, cfg)
 		fp.close()
 		return res
 	except EnvironmentError, e:
-		raise derrors.IOErr, "could not read config file %s: %s" % (fname, str(e))
+		raise derrors.IOErr("could not read config file %s: %s" % (fname, str(e)))
+	except contread.StartingContinuedLine, e:
+		raise derrors.CfgErr("configuration file %s: %s" % (fname, str(e)))
 	except derrors.CfgErr, e:
-		raise derrors.CfgErr, "configuration file %s: %s" % (fname, str(e))
+		raise derrors.CfgErr("configuration file %s: %s" % (fname, str(e)))
