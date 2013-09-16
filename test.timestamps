@@ -101,7 +101,6 @@
 @1117739186 test/pages/dwiki/NewFeatures/SpaceLinkSeps
 @1117739568 test/pages/dwiki/NewFeatures/ImprovedLinkAbbrevs
 @1117838236 test/pages/dwiki/NewFeatures/NestedListsWithIndent
-@1117940229 test/templates/comment/comment.tmpl
 @1117943328 test/templates/syndication/feeds.tmpl
 @1117947495 test/pages/dwiki/NewFeatures/AtomFeeds
 @1118077336 test/templates/struct/header.tmpl
@@ -265,7 +264,6 @@
 @1377804684 test/templates/comment/user
 @1377804779 test/templates/comment/author
 @1377805124 test/templates/comment/authorship
-@1377805156 test/templates/comment/header.tmpl
 @1377809260 test/pages/dwiki/GlobalVariables
 @1377809842 test/templates/syndication/atomcomment-url
 @1377872682 test/templates/comment/writebody-anon.tmpl
@@ -275,3 +273,5 @@
 @1378222896 test/templates/comment/user-n
 @1378222931 test/templates/syndication/atomcomment.tmpl
 @1379016474 test/pages/dwiki/ConfigurationFile
+@1379350966 test/templates/comment/header.tmpl
+@1379362191 test/templates/comment/comment.tmpl
