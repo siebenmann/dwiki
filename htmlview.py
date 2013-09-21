@@ -97,6 +97,9 @@ class WebServices:
 		return viewFactory(context)
 
 	# -------
+	# Does a view exist at all?
+	def view_exists(self, view):
+		return views.has_view(view)
 	# Given a view / method combination, is it legal?
 	def view_cmd_allowed(self, view, command):
 		if not views.has_view(view):

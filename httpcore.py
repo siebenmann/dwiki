@@ -196,6 +196,11 @@ def doPOSTMangling(reqdata, qdict, webserv):
 	if 'query' not in reqdata:
 		return httputil.genError("out-of-zone")
 
+	# We do this for clarity (right now), since we currently
+	# have no way of logging messages here. FIXME: fix this.
+	if not webserv.view_exists(reqdata['view']):
+		return httputil.genError("sec-error", 403)
+
 	# Only a few views support POST. Reject invalid views
 	# immediately.
 	if not webserv.view_cmd_allowed(reqdata['view'], "POST"):
@@ -303,6 +308,13 @@ def doDwikiRequest(logger, reqdata, environ):
 	# line, and it is not rooted under our root URL, it dies
 	# right now.
 	if 'query' not in reqdata:
+		return httputil.genError("out-of-zone")
+
+	# If the view doesn't exist at all, fail now with a 404.
+	# Logging this is somewhat questionable.
+	if not webserv.view_exists(reqdata['view']):
+		logger.warn("nonexistent view '%s' in HTTP command '%s'" % \
+			    (reqdata['view'], reqdata['http-command']))
 		return httputil.genError("out-of-zone")
 
 	# Enforce only-accessible-by-POST views. Since we never
