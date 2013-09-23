@@ -126,8 +126,8 @@ about a DWiki login in the format:
 
 This line must come after the main line for a given login but it
 doesn't have to be immediately afterwards. If present the real name and
-URL are used as the default values for these when that user is writing
-comments. Either or both may be blank (although if both are blank,
+URL are used as the default values for these in user comments.
+Either or both may be blank (although if both are blank,
 there's no point to the entire .also entry).
 Giving the default login a name (such as 'Anonymous') means that
 anonymous comments will not normally have their submission IP address

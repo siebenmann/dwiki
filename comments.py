@@ -317,14 +317,6 @@ def commentform(context):
 	comdata = context.getviewvar("comment")
 	whois = context.getviewvar("whois")
 	whourl = context.getviewvar("whourl")
-	u = context.current_user()
-	# Take initial/default full name and URL from the user information
-	# if it is available. We know context.login exists because this is
-	# a basic requirement for commenting at all.
-	if not whois and u.username:
-		whois = u.username
-	if not whourl and u.userurl:
-		whourl = u.userurl
 
 	if comdata:
 		# We have to do the usual quoting of HTML entities.
@@ -457,8 +449,11 @@ htmlrends.register("comment::atomlink", atomcountlink)
 def set_com_vars(context, c):
 	context.setvar(com_stash_var, c)
 	context.setvar("comment-ip", c.ip)
-	context.setvar("comment-name", c.username)
-	context.setvar("comment-url", c.userurl)
+	udata = context.model.get_user(c.user)
+	uname = c.username if c.username else udata.username if udata else None
+	uurl = c.userurl if c.userurl else udata.userurl if udata else None
+	context.setvar("comment-name", uname)
+	context.setvar("comment-url", uurl)
 	# comment-login exists only if it is not the guest user.
 	if not c.is_anon(context):
 		context.setvar("comment-login", c.user)
@@ -540,10 +535,10 @@ htmlrends.register("comment::user", comuser)
 # Bugs: this is too complicated. But doing it by templates is
 # frankly insane; there would be too many of them. I may change
 # my mind later.
-def com_optlink(txt, c):
-	if not c.userurl:
+def com_optlink(txt, url):
+	if not url:
 		return httputil.quotehtml(txt)
-	return htmlrends.makelink(txt, httputil.quoteurl(c.userurl))
+	return htmlrends.makelink(txt, httputil.quoteurl(url))
 def comauthor(context):
 	"""Display the author information for a comment, drawing on
 	the given name, website URL, DWiki login, and comment IP address
@@ -553,17 +548,26 @@ def comauthor(context):
 		return ''
 	c = context[com_stash_var]
 	ares = []
-	if c.username:
+	udata = context.model.get_user(c.user)
+	#uname = c.username if c.username else udata.username if udata else None
+	uname = c.username
+	uurl = c.userurl if c.userurl else udata.userurl if udata else None
+	if uname:
 		ares.append("By")
-		ares.append(com_optlink(c.username, c))
+		ares.append(com_optlink(uname, uurl))
 		if not c.is_anon(context):
 			ares.append("(%s)" % c.user)
 	elif not c.is_anon(context):
 		ares.append("By")
-		ares.append(com_optlink(c.user, c))
+		if udata and udata.username and not uurl:
+			ares.append('<abbr title="%s">%s</abbr>' % \
+				    (httputil.quotehtml(udata.username),
+				     httputil.quotehtml(c.user)))
+		else:
+			ares.append(com_optlink(c.user, uurl))
 	else:
 		ares.append("From")
-		ares.append(com_optlink(c.ip, c))
+		ares.append(com_optlink(c.ip, uurl))
 	return ' '.join(ares)
 htmlrends.register("comment::author", comauthor)
 
