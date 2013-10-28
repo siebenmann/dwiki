@@ -396,7 +396,7 @@ def inline_wikiword(rend, link):
 			if cp and cp.exists():
 				break
 		if cp:
-			url = rend.page_url(cp)
+			url = page_url(rend.ctx, cp)
 		rend.wikiwordCache[linkc] = url
 
 	if url:
@@ -672,8 +672,51 @@ class RendResults(object):
 			print "==", btype, "=="
 			print ''.join(data)
 
+# ----
+# Resolving destinations to URLs
+
 # used inside makelinkstart to detect urls that need absolutin'
 absurlre = re.compile('[a-zA-Z0-9]+:')
+def is_absurl(url):
+	return bool(absurlre.match(url)) and \
+	       not url.lower().startswith("javascript:")
+
+def page_url(context, page):
+	url = context.nurl(page)
+	# Is the target a redirection, and if so does the
+	# target of the redirection exist?
+	res = page.redirect_target()
+	if res:
+		if res[0] != 'page':
+			url = res[1]
+		elif res[1] and res[1].exists():
+			url = context.nurl(res[1])
+	# We decline to walk multiple steps of redirections,
+	# because then we'd have to figure out if we were
+	# looping.
+	return url
+
+def wikilink_to_url(context, link, searchPath):
+	if is_absurl(link):
+		url = link
+		deflname = link
+	elif link[0] == '<' and link[-1] == '>' and link[1] == '/':
+		url = link[1:-1]
+		deflname = url
+	else:
+		npage = context.model.get_page_relname(context.page, link)
+		if searchPath and \
+		   (not npage or not npage.exists()):
+			np = context.model.get_page_paths(searchPath, link)
+			if np:
+				npage = np
+		if npage:
+			url = page_url(context, npage)
+			deflname = npage.name
+		else:
+			deflname = link
+			url = link
+	return (url, deflname)
 
 # Quote the link URL properly.
 def quote_link_url(tgt):
@@ -1522,18 +1565,21 @@ class WikiRend:
 			del self.sw_cache[sw.o]
 
 	# ---
-	# We now rely on each thing making links to close them
-	def is_absurl(self, url):
-		return bool(absurlre.match(url)) and \
-		       not url.lower().startswith("javascript:")
 	# Macros don't have access to flags like ABSLINKS; besides, we
 	# might as well put this in one place.
 	def canon_url(self, url):
 		if self.options & ABSLINKS and \
-		   not self.is_absurl(url):
+		   not is_absurl(url):
 			return self.ctx.web.uri_from_url(url, self.ctx)
 		else:
 			return url
+	# macros don't have access to module-level functions without
+	# a proxy on the rendering context, because they can't import
+	# wikirend without causing a circular dependency. TODO: fix
+	# this somehow.
+	def is_absurl(self, url):
+		return is_absurl(url)
+	# We now rely on each thing making links to close them
 	def makelinkstart(self, dest):
 		if self.options & NOLINKS:
 			return False
@@ -1632,7 +1678,7 @@ class WikiRend:
 		# We decline to walk multiple steps of redirections,
 		# because then we'd have to figure out if we were
 		# looping.
-		return url		
+		return url
 
 	# [[...]] format links open the question of unterminated links.
 	# wikirend forces them to be on the same line, and if they are
@@ -1664,7 +1710,7 @@ class WikiRend:
 			if not lp:
 				return False
 			lname, link = lp
-		elif not self.is_absurl(link) and \
+		elif not is_absurl(link) and \
 		     not (link and link[0] == '<' and link[-1] == '>'):
 			# Try to find it as a previously memoized thing,
 			# *provided* that it doesn't exist.
@@ -1676,26 +1722,7 @@ class WikiRend:
 				link = self.linkUrls[lname]
 
 		# Process ever onwards.
-		if self.is_absurl(link):
-			url = link
-			deflname = link
-		elif link[0] == '<' and link[-1] == '>':
-			url = link[1:-1]
-			deflname = url
-		else:
-			npage = self.mod.get_page_relname(self.ctx.page, link)
-			if self.searchPath and \
-			   (not npage or not npage.exists()):
-				np = self.mod.get_page_paths(self.searchPath,
-							     link)
-				if np:
-					npage = np
-			if npage:
-				url = self.page_url(npage)
-				deflname = npage.name
-			else:
-				deflname = link
-				url = link
+		url, deflname = wikilink_to_url(self.ctx, link, self.searchPath)
 		if not lname:
 			lname = deflname
 		linkend = self.makelinkstart(url)
@@ -2307,3 +2334,15 @@ def htmltitlerend(ctx):
 	return gen_title(ctx, "html")
 htmlrends.register("wikitext:title:html", htmltitlerend)
 # ---
+
+# ---
+# Return the target of a link. This is almost wikilink_to_url but it
+# handles dest being null and will absoluteize links for you.
+def gen_wikilink_url(context, dest, do_abslink = False):
+	if not dest:
+		return None
+
+	url, _ = wikilink_to_url(context, dest, None)
+	if not is_absurl(url) and do_abslink:
+		url = context.web.uri_from_url(url, context)
+	return url

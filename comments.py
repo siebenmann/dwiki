@@ -451,7 +451,8 @@ def set_com_vars(context, c):
 	context.setvar("comment-ip", c.ip)
 	udata = context.model.get_user(c.user)
 	uname = c.username if c.username else udata.username if udata else None
-	uurl = c.userurl if c.userurl else udata.userurl if udata else None
+	uurl = c.userurl if c.userurl else \
+	       wikirend.gen_wikilink_url(context, udata.userurl) if udata else None
 	context.setvar("comment-name", uname)
 	context.setvar("comment-url", uurl)
 	# comment-login exists only if it is not the guest user.
@@ -551,7 +552,8 @@ def comauthor(context):
 	udata = context.model.get_user(c.user)
 	#uname = c.username if c.username else udata.username if udata else None
 	uname = c.username
-	uurl = c.userurl if c.userurl else udata.userurl if udata else None
+	uurl = c.userurl if c.userurl else \
+	       wikirend.gen_wikilink_url(context, udata.userurl) if udata else None
 	if uname:
 		ares.append("By")
 		ares.append(com_optlink(uname, uurl))
@@ -559,10 +561,15 @@ def comauthor(context):
 			ares.append("(%s)" % c.user)
 	elif not c.is_anon(context):
 		ares.append("By")
-		if udata and udata.username and not uurl:
-			ares.append('<abbr title="%s">%s</abbr>' % \
-				    (httputil.quotehtml(udata.username),
-				     httputil.quotehtml(c.user)))
+		if udata and udata.username:
+			uname = '<abbr title="%s">%s</abbr>' % \
+				(httputil.quotehtml(udata.username),
+				 httputil.quotehtml(c.user))
+			if uurl:
+				ares.append('<a href="%s">%s</a>' % \
+					    (httputil.quoteurl(uurl), uname))
+			else:
+				ares.append(uname)
 		else:
 			ares.append(com_optlink(c.user, uurl))
 	else:

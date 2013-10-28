@@ -122,11 +122,13 @@ owned by an appropriate (Unix) group.
 As a hack, the password file can also contain supplemental information
 about a DWiki login in the format:
 
->  .also <login>	<'real' name> | <url>
+>  .also <login>	<'real' name> | <page-or-url>
 
 This line must come after the main line for a given login but it
 doesn't have to be immediately afterwards. If present the real name and
-URL are used as the default values for these in user comments.
+URL are used as the default values for these in user comments (the 'URL'
+here may be anything that would be accepted as a DWikiText link in a
+![[...]]).
 Either or both may be blank (although if both are blank,
 there's no point to the entire .also entry).
 Giving the default login a name (such as 'Anonymous') means that
