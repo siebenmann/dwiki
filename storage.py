@@ -9,6 +9,7 @@
 # Storage pools return None on get()s if something bad is going on.
 # Otherwise they return objects, even for things that don't exist.
 # Storage retrieval is case-sensitive.
+from __future__ import with_statement
 
 import rcsfile
 import os, os.path, pwd, stat
@@ -53,7 +54,8 @@ class FileObj(object):
 		if not self.real or self._state != None:
 			return
 		try:
-			self.fstore = open(self.name, "r").read()
+			with open(self.name, "r") as fp:
+				self.fstore = fp.read()
 			self._state = sGood
 		except EnvironmentError:
 			self._state = sBad
@@ -155,7 +157,8 @@ class RCSFileObj(FileObj):
 		# empty.
 		self.rfo = rcsfile.rcsfile(self.rname)
 		try:
-			self.fstore = open(self.name, "r").read()
+			with open(self.name, "r") as fp:
+				self.fstore = fp.read()
 		except EnvironmentError:
 			pass
 
