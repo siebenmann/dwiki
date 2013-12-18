@@ -70,7 +70,7 @@ def cached_comments_children(context, spage):
 		return r
 	# We avoid a proliferation of small cache entries by skipping
 	# the disk cache entirely for single-entry/page requests.
-	if not rendcache.cache_on(context.cfg) or spage.type == "file":
+	if not rendcache.gen_cache_on(context.cfg) or spage.type == "file":
 		r = list(context.model.comments_children(spage))
 		context.setcache(_ck(), r)
 		return r
@@ -91,7 +91,7 @@ def cached_comments_children(context, spage):
 # Invalidation operation; called from comment posting (whether or not
 # the comment store succeeded).
 def comment_posted(context):
-	if rendcache.cache_on(context.cfg):
+	if rendcache.gen_cache_on(context.cfg):
 		rendcache.invalidate_flagged(context, "comments-updated")
 # ----
 

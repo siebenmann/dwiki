@@ -632,7 +632,7 @@ def gen_pnp_direct(context, vdir):
 
 def gen_pnpages(context, vdir):
 	# Disabled? Skip entirely.
-	if not rendcache.cache_on(context.cfg):
+	if not rendcache.gen_cache_on(context.cfg):
 		return gen_pnp_direct(context, vdir)
 
 	# Even if we get a cache hit, we must super-validate it. We do so

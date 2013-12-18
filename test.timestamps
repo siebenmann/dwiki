@@ -270,8 +270,8 @@
 @1378222893 test/templates/comment/author-n
 @1378222896 test/templates/comment/user-n
 @1378222931 test/templates/syndication/atomcomment.tmpl
-@1379016474 test/pages/dwiki/ConfigurationFile
 @1379350966 test/templates/comment/header.tmpl
 @1379362191 test/templates/comment/comment.tmpl
 @1380301651 test/passwd
 @1382990113 test/pages/dwiki/Authentication
+@1387386059 test/pages/dwiki/ConfigurationFile

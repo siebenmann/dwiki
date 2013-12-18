@@ -206,6 +206,9 @@ up response time. See [[Caching]] for a longer discussion.
   races between renderer cache invalidation and renderer cache regeneration, 
   flagged cache entries must be at least this many seconds more recent
   than the invalidation marker (if it exists). Defaults to 30 seconds.
+- _generator-cache_: Enable caching the results of some expensive renderer
+  components without enabling full renderer caching. This is a subset of
+  _render-cache_ and similarly requires _cachedir_ to be set.
 - _bfc-cache-ttl_: Enable a brute force page cache of complete pages
   with a TTL of this many seconds. (Requires _cachedir_ to be set.)
 - _bfc-time-min_: A complete page will be cached if it took at least

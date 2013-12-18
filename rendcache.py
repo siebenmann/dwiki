@@ -40,6 +40,8 @@ def get_cstore(ctx):
 
 def cache_on(cfg):
 	return 'render-cache' in cfg
+def gen_cache_on(cfg):
+	return cache_on(cfg) or 'generator-cache' in cfg
 
 CACHENAME = 'renderers'
 
