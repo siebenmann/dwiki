@@ -111,13 +111,17 @@ def setup_options():
 	parser.add_option('-6', '--ipv6-origin', dest="ip6origin",
 			  action="store_true",
 			  help="make requests appear to come from the IPv6 localhost address instead of the IPv4 one")
+	parser.add_option('-W', '--warmup-count', dest="prerun",
+			  action="store", type="int",
+			  help="make this many requests as an untimed warmup")
 	parser.add_option('-P', '--profile', dest='operation',
 			  action="store_const", const=doProfile,
 			  help="profile, using the Python profiler")
 	parser.add_option('-S', '--statprof', dest="operation",
 			  action="store_const", const=doStatProf,
 			  help="profile, using the statistical profiler")
-	parser.set_defaults(operation = doTime, ip6origin = False)
+	parser.set_defaults(operation = doTime, ip6origin = False,
+			    prerun = 0)
 	return parser
 
 def main(args):
@@ -162,8 +166,12 @@ def main(args):
 		ctx = context.HTMLContext(cfg, ms, webserv, rdata)
 		if cachestore:
 			ctx.setvar(':_cachestore', cachestore)
+		if options.prerun:
+			runLimited(*(options.prerun, runrend, rend, ctx))
 		op(cnt, runrend, rend, ctx)
 	else:
+		if options.prerun:
+			runLimited(*(options.prerun, runwsgi, env, app))
 		op(cnt, runwsgi, env, app)
 
 if __name__ == "__main__":
