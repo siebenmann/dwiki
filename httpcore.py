@@ -682,6 +682,11 @@ def BFCache(next, logger, reqdata, environ):
 	#		if rua in ua:
 	#			return res
 
+	# This magic key forces something into the BFC regardless of
+	# other considerations if it's cacheable at all.
+	if 'internal_bfc-force-caching' in cfg:
+		doCache = True
+
 	td = time.time() - t0
 	# It is worth micro-optimizing this, since get_load is not
 	# necessarily a blazingly fast operation. If the time is

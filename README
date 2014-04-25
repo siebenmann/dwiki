@@ -32,6 +32,10 @@ Bits:
 - testbench.py: a timing and profiling test harness. Using statprof
   requires some external assistance beyond the scope of this README.
 
+- dwiki-cache.py: force things into the brute-force cache. Note that
+  you need to set the correct server hostname and possibly the schema
+  (http vs https) and port or your BFC-forcing will be ineffective.
+
 All four DWiki frontends take a common core of options (in addition
 to some options specific to each frontend) and expect to be given
 a configuration file as their main argument. See the output of
