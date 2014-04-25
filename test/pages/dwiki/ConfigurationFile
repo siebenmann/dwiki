@@ -221,9 +221,14 @@ up response time. See [[Caching]] for a longer discussion.
   long to generate. Defaults to 0.09 of a second.
 - _bfc-atom-ttl_: Use this TTL for Atom syndication requests, instead
   of the normal one.
+- _bfc-atom-always-cache_: Always force the results of Atom syndication
+  requests to be added to the BFC regardless of load.
 - _bfc-atom-nocond-ttl_: Use this TTL for Atom syndication requests
-  that are not using conditional GET, and also force the caching
-  of the results of these requests regardless of the load.
+  that are not using conditional GET.
+- _bfc-atom-nocond-always-cache_: If _bfc-atom-nocond-ttl_ is set,
+  always force the results of Atom syndication requests that are not using
+  conditional GETs to be added to the BFC regardless of the load. This
+  used to be the default if _bfc-atom-nocond-ttl_ was set.
 - _bfc-skip-robots_: If set, this is a list of User-Agent substrings
   (formatted as for _bad-robots_, see later) for robots that should
   not cause entries to be put into the BFC.

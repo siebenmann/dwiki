@@ -652,11 +652,14 @@ def BFCache(next, logger, reqdata, environ):
 		if 'bfc-atom-nocond-ttl' in cfg and \
 		   httputil.ifModSince not in environ and \
 		   httputil.ifNoneMatch not in environ:
-			doCache = True
+			if 'bfc-atom-nocond-always-cache' in cfg:
+				doCache = True
 			TTL = cfg['bfc-atom-nocond-ttl']
 		elif 'bfc-atom-ttl' in cfg:
 			TTL = cfg['bfc-atom-ttl']
 		# otherwise the TTL will be left as bfc-cache-ttl.
+		if 'bfc-atom-always-cache' in cfg:
+			doCache = True
 
 	# Because we are handling outside paths, they can contain bad
 	# crap that will be rejected by the storage layer, so we have
