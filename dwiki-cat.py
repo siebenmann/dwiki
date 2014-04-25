@@ -34,7 +34,7 @@ def setup_env(url):
 		'SERVER_PROTOCOL': 'HTTP/1.0',
 		'SERVER_NAME': 'localhost',
 		'SERVER_PORT': '80',
-		'REMOTE_ADDR': 'localhost',
+		'REMOTE_ADDR': '127.0.0.1',
 		'REMOTE_PORT': '9999',
 		'REQUEST_METHOD': 'GET',
 		'REQUEST_URI': url,
