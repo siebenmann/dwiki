@@ -108,6 +108,9 @@ def setup_options():
 	parser.add_option('-B', '--no-bfc', dest="rmconfig",
 			  action="append_const", const="bfc-cache-ttl",
 			  help="disable the Brute Force Cache")
+	parser.add_option('-I', '--no-imc', dest='rmconfig',
+			  action="append_const", const="imc-cache-entries",
+			  help="disable the In Memory Cache")
 	parser.add_option('-6', '--ipv6-origin', dest="ip6origin",
 			  action="store_true",
 			  help="make requests appear to come from the IPv6 localhost address instead of the IPv4 one")
