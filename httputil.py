@@ -6,6 +6,7 @@
 #
 
 import urllib, urlparse
+import time
 
 import htmlresp
 
@@ -108,6 +109,20 @@ def ifNotModified(environ, resp):
 	rET = environ.get(ifNoneMatch, None)
 	aLM = resp.headers.get('Last-Modified', None)
 	aET = resp.headers.get('ETag', None)
+
+	# Very special hack. Tiny Tiny RSS is extremely popular and sends
+	# a 'If-Modified-Since' of *when it last fetched the feed*, not the
+	# feed timestamp itself. And no ETag (not that that would help).
+	# I hate it but I hate the bandwidth waste etc even more.
+	if resp.time_reliable and rLM and not rET and \
+	   environ.get("HTTP_USER_AGENT").startswith("Tiny Tiny RSS/"):
+		try:
+			rts = time.strptime(rLM, '%a, %d %b %Y %H:%M:%S %Z')
+		except ValueError, e:
+			return False
+		rtime = time.mktime(rts)
+		if rtime > resp.lastmodified:
+			return True
 
 	# Anything present must match; otherwise, reject.
 	if (rLM and rLM != aLM) or (rET and rET != aET):

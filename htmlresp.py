@@ -84,6 +84,7 @@ class Response:
 		ts = time.gmtime(timestamp)
 		asct = time.strftime("%a, %d %b %Y %H:%M:%S GMT", ts)
 		self.headers['Last-Modified'] = asct
+		self.lastmodified = timestamp
 	def setTimeReliable(self):
 		self.time_reliable = True
 	def setContentLength(self):
