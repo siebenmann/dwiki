@@ -105,6 +105,9 @@ def setupCookie(context, resp, user, secret):
 	# the modern one. We set both to be thorough.
 	resp.cookie[lcn]['expires'] = secondsYear
 	resp.cookie[lcn]['max-age'] = secondsYear
+	resp.cookie[lcn]['httponly'] = True
+	if context['server-url'].startswith("https:"):
+		resp.cookie[lcn]['secure'] = True
 	
 # Destroy the user's login cookie by replacing it with an invalid one.
 # Because of how we format the password file we are assured that a

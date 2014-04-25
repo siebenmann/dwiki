@@ -418,6 +418,13 @@ def cook_resp(resp):
 	if 'Content-Length' not in resp.headers:
 		resp.setContentLength()
 
+	# Security headers:
+	# http://blog.veracode.com/2014/03/guidelines-for-setting-security-headers/
+	# Not sure if these are a good idea, but...
+	resp.headers['X-XSS-Protection'] = "1"
+	resp.headers['X-Content-Type-Options'] = "nosniff"
+	resp.headers['X-Frame-Options'] = "DENY"
+
 def sendHeaders(code, headers, resp, start_response):
 	hdrs = list(headers.items()) + genCookies(resp)
 	if code in responseMap:
