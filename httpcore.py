@@ -610,9 +610,6 @@ def is_cacheable_resp(resp, cfg, environ):
 
 BFCNAME = "bfc"
 def BFCache(next, logger, reqdata, environ):
-	#if environ['REQUEST_METHOD'] not in ('GET', 'HEAD') or \
-	#   environ.get('HTTP_COOKIE', '') or \
-	#   'view-dict' in reqdata or 'query' not in reqdata:
 	cfg = get_cfg(environ)
 	if not is_cacheable_request(cfg, reqdata, environ):
 		return next(logger, reqdata, environ)
@@ -626,7 +623,6 @@ def BFCache(next, logger, reqdata, environ):
 	pth = reqdata['query'].rstrip('/')
 	hst = reqdata['server-schemaname']
 	cache = environ['dwiki.cache']
-	#cfg = get_cfg(environ)
 	doCache = False
 
 	# Because they are some of our most expensive and at the same
@@ -634,16 +630,6 @@ def BFCache(next, logger, reqdata, environ):
 	# feeds can have an optional (much) larger TTL.
 	TTL = cfg['bfc-cache-ttl']
 	if reqdata['view'] in ('atom', 'atomcomments', 'rss2'):
-		# We cannot serve Atom requests out of the BFC at all
-		# if this request would hit the feed-max-size-ips
-		# feature; we can neither use the cached BFC results
-		# nor cache the results of this query. So get outta
-		# here if that's the case.
-		#if 'feed-max-size-ips' in cfg and \
-		#   httputil.matchIP(reqdata['remote-ip'],
-		#		    cfg['feed-max-size-ips']):
-		#	return next(logger, reqdata, environ)
-
 		# If you cannot be bothered to do conditional GET, I
 		# can't be bothered to serve you fresh content. We
 		# force caching and set a likely very large TTL.
@@ -681,16 +667,8 @@ def BFCache(next, logger, reqdata, environ):
 
 	# We only fill if the request is one that we both can cache
 	# and want to cache.
-	#if res.code != 200:
 	if not is_cacheable_resp(res, cfg, environ):
 		return res
-
-	# Do not bother doing BFC caching for robots in bfc-skip-robots
-	#ua = environ.get('HTTP_USER_AGENT', '')
-	#if ua and 'bfc-skip-robots' in cfg:
-	#	for rua in cfg['bfc-skip-robots']:
-	#		if rua in ua:
-	#			return res
 
 	# This magic key forces something into the BFC regardless of
 	# other considerations if it's cacheable at all.
