@@ -32,7 +32,7 @@ def ns_read_size(sock):
 		if c == ':':
 			break
 		elif not c:
-			raise NSError, 'short netstring read on length'
+			raise NSError('short netstring read on length')
 		size += c
 	return long(size)
 
@@ -43,11 +43,11 @@ def ns_reads(sock):
 	while size:
 		s = sock.read(size)
 		if not s:
-			raise NSError, 'short netstring read, not enough data'
+			raise NSError('short netstring read, not enough data')
 		data += s
 		size -= len(s)
 	if sock.read(1) != ',':
-		raise NSError, 'missing netstring terminator'
+		raise NSError('missing netstring terminator')
 	return data
 
 #
@@ -58,13 +58,13 @@ class SCGIProtoErr(Exception):
 def _read_env(sock):
 	hdrs = ns_reads(sock)
 	if not hdrs:
-		raise SCGIProtoErr, "header netstring empty"
+		raise SCGIProtoErr("header netstring empty")
 	elif hdrs[-1] != '\0':
-		raise SCGIProtoErr, "headers not terminated with a null byte"
+		raise SCGIProtoErr("headers not terminated with a null byte")
 	items = hdrs.split("\0")
 	del items[-1]
 	if (len(items) % 2) != 0:
-		raise SCGIProtoErr, "uneven number of header items: "+repr(items)
+		raise SCGIProtoErr("uneven number of header items: "+repr(items))
 
 	# There *has* to be a better idiom for this than this.
 	d = {}

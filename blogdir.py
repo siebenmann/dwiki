@@ -95,7 +95,7 @@ def blogdir(context):
 	if context.page.type != "dir":
 		return ''
 	if not context.page.displayable():
-		raise derrors.IntErr, "undisplayable directory page"
+		raise derrors.IntErr("undisplayable directory page")
 	dl = context.page.children("file")
 	if not dl:
 		return ''
@@ -216,7 +216,7 @@ def blogview(context):
 	if context.page.type != "dir":
 		return ''
 	if not context.page.displayable():
-		raise derrors.IntErr, "undisplayable directory page"
+		raise derrors.IntErr("undisplayable directory page")
 
 	# This automatically applies restrictions.
 	dl = context.cache_page_children(context.page)
@@ -337,7 +337,7 @@ def titleindex(context):
 	if context.page.type != "dir":
 		return ''
 	if not context.page.displayable():
-		raise derrors.IntErr, "undisplayable directory page"
+		raise derrors.IntErr("undisplayable directory page")
 
 	# This automatically applies restrictions.
 	dl = context.cache_page_children(context.page)

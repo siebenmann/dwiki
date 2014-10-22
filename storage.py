@@ -437,13 +437,13 @@ class CommentStoragePool(StoragePool):
 	# FIXME: come up with some better way of returning errors.
 	def newblob(self, where, blobstr):
 		if not self.validname(where):
-			raise derrors.IntErr, "bad commentstore name: '%s'" % where
+			raise derrors.IntErr("bad commentstore name: '%s'" % where)
 		loc = join2(self.root, where)
 		try:
 			if not os.path.isdir(loc):
 				makedirs(loc)
 		except EnvironmentError, e:
-			raise derrors.IOErr, "could not make directory '%s': %s" % (loc, str(e))
+			raise derrors.IOErr("could not make directory '%s': %s" % (loc, str(e)))
 		objname = self.blobname(blobstr)
 		pname = join2(loc, objname)
 		phase = "create"
@@ -457,7 +457,7 @@ class CommentStoragePool(StoragePool):
 			# It exists already, so we 'succeeded' as it were.
 			if phase == "create" and os.path.exists(pname):
 				return True 
-			raise derrors.IOErr, "could not %s file '%s': %s" % (phase, pname, str(e))
+			raise derrors.IOErr("could not %s file '%s': %s" % (phase, pname, str(e)))
 		return True
 
 
@@ -481,11 +481,11 @@ class CacheStoragePool(StoragePool):
 		   not utils.good_path_elem(host) or \
 		   not utils.good_path_elem(zone) or \
 		   not utils.good_path_elem(key):
-			raise derrors.CacheKeyErr, "bad zone / host / path / key in cachestore: '%s' '%s' '%s' '%s'" % (zone, host, path, key)
+			raise derrors.CacheKeyErr("bad zone / host / path / key in cachestore: '%s' '%s' '%s' '%s'" % (zone, host, path, key))
 
 	def get(self, relname, missIsNone = False):
 		__pychecker__ = "no-argsused"
-		raise derrors.IntErr, "using get on a cachestore"
+		raise derrors.IntErr("using get on a cachestore")
 
 	def fetch(self, zone, host, path, key = "default", TTL = None):
 		self.validate_quad(zone, host, path, key)
@@ -496,7 +496,7 @@ class CacheStoragePool(StoragePool):
 		if not st:
 			return None
 		elif not stat.S_ISREG(st.st_mode):
-			raise derrors.IntErr, "not a regular file in cachestore: '%s' '%s' '%s' '%s'" % (zone, host, path, key)
+			raise derrors.IntErr("not a regular file in cachestore: '%s' '%s' '%s' '%s'" % (zone, host, path, key))
 		elif TTL and (st.st_mtime + TTL) < now:
 			return None
 
@@ -583,6 +583,6 @@ class CacheStoragePool(StoragePool):
 		if not st:
 			return None
 		elif not stat.S_ISREG(st.st_mode):
-			raise derrors.IntErr, "not a regular file in cachestore: '%s' '%s' '%s' '%s'" % (zone, host, path, key)
+			raise derrors.IntErr("not a regular file in cachestore: '%s' '%s' '%s' '%s'" % (zone, host, path, key))
 		else:
 			return st.st_mtime

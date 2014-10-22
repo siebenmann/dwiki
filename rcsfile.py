@@ -24,7 +24,7 @@ class TokenStream:
 	def refill(self, errEof = True):
 		self.buf = self.fp.read(CHUNK_SIZE)
 		if not self.buf and errEof:
-			raise RCSParseErr, "unexpected EOF"
+			raise RCSParseErr("unexpected EOF")
 
 	def get(self, strallowed = True):
 		if self.pushback:
@@ -64,7 +64,7 @@ class TokenStream:
 		# Now we have an RCS string.
 		# This may not be allowed; error if so.
 		if not strallowed:
-			raise RCSParseErr, "token is a string when no string is allowed"
+			raise RCSParseErr("token is a string when no string is allowed")
 		
 		# Time to do the string dequote dance.
 		chunks = []
@@ -111,19 +111,19 @@ class RCSParser:
 	def gettok(self):
 		tok = self.ts.get()
 		if tok == None:
-			raise RCSParseErr, "unexpected EOF"
+			raise RCSParseErr("unexpected EOF")
 		return tok
 	def unget(self, tok):
 		self.ts.unget(tok)
 	def getstart(self):
 		tok = self.ts.get(False)
 		if tok == ';':
-			raise RCSParseErr, "emtpy line"
+			raise RCSParseErr("empty line")
 		return tok
 	def match(self, what):
 		tok = self.getstart()
 		if tok != what:
-			raise RCSParseErr, "error parsing RCS file: expected token %s but saw '%s'" % (what, tok)
+			raise RCSParseErr("error parsing RCS file: expected token %s but saw '%s'" % (what, tok))
 		return tok
 
 	def setadmin(self, name, val):
@@ -244,13 +244,13 @@ def parsedeltatexts(rfo):
 			if tok == "text":
 				break
 			if tok == None:
-				raise RCSParseErr, "unexpected EOF"
+				raise RCSParseErr("unexpected EOF")
 			restline(rfo)
 		# Now we get the actual text, which is the next token.
 		# Period.
 		text = rfo.get()
 		if not text or not log:
-			raise RCSParseErr, "unexpected EOF"
+			raise RCSParseErr("unexpected EOF")
 		rfo.addtext(rev, log, text)
 		# and repeat until EOF.
 	# never reached.

@@ -44,7 +44,7 @@ class RFC822File(object):
 				self._accum = self._accum.rstrip() + \
 					      ' ' + l.lstrip()
 			elif l[0] in ' \t':
-				raise StartingContinuedLine, "The first real line, at line number %d, is a continuation." % (self._curln,)
+				raise StartingContinuedLine("The first real line, at line number %d, is a continuation." % (self._curln,))
 			else:
 				res = None
 				# If accum is non-null, we have just finished

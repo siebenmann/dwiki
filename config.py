@@ -63,45 +63,45 @@ class Configuration(object):
 	# Verification functions.
 	def hasvalue(self, what):
 		if what not in self:
-			raise derrors.CfgErr, "setting %s is not specified" % what
+			raise derrors.CfgErr("setting %s is not specified" % what)
 		if self[what] is True:
-			raise derrors.CfgErr, "for setting %s: no value specified" % what
+			raise derrors.CfgErr("for setting %s: no value specified" % what)
 	def isabspath(self, what):
 		self.hasvalue(what)
 		if self[what][0] != '/':
-			raise derrors.CfgErr, "for setting %s: path '%s' is not an absolute path" % (what, self[what])
+			raise derrors.CfgErr("for setting %s: path '%s' is not an absolute path" % (what, self[what]))
 
 	def isabsdir(self, what):
 		self.isabspath(what)
 		if not os.path.isdir(self[what]):
-			raise derrors.CfgErr, "for setting %s: no directory '%s'" % (what, self[what])
+			raise derrors.CfgErr("for setting %s: no directory '%s'" % (what, self[what]))
 	def isabsfile(self, what):
 		self.isabspath(what)
 		if not os.path.isfile(self[what]):
-			raise derrors.CfgErr, "for setting %s: no file '%s'" % (what, self[what])
+			raise derrors.CfgErr("for setting %s: no file '%s'" % (what, self[what]))
 
 	def isposint(self, what):
 		self.hasvalue(what)
 		try:
 			res = int(self[what])
 			if res <= 0:
-				raise derrors.CfgErr, "for setting %s: value is zero or negative: %d" % (what, res)
+				raise derrors.CfgErr("for setting %s: value is zero or negative: %d" % (what, res))
 			self[what] = res
 		except ValueError:
-			raise derrors.CfgErr, "for setting %s: value is not an integer: '%s'" % (what, self[what])
+			raise derrors.CfgErr("for setting %s: value is not an integer: '%s'" % (what, self[what]))
 	def isposfloat(self, what):
 		self.hasvalue(what)
 		try:
 			res = float(self[what])
 			if res <= 0:
-				raise derrors.CfgErr, "for setting %s: value is zero or negative: %f" % (what, res)
+				raise derrors.CfgErr("for setting %s: value is zero or negative: %f" % (what, res))
 			self[what] = res
 		except ValueError:
-			raise derrors.CfgErr, "for setting %s: value is not a float: '%s'" % (what, self[what])
+			raise derrors.CfgErr("for setting %s: value is not a float: '%s'" % (what, self[what]))
 
 	def mustDiffer(self, one, two):
 		if self[one] == self[two]:
-			raise derrors.CfgErr, "for setting %s and %s: same value '%s'" % (one, two, self[one])
+			raise derrors.CfgErr("for setting %s and %s: same value '%s'" % (one, two, self[one]))
 
 	# -- try to canonically create certain entries if they exist.
 	def inventNormals(self):
@@ -184,7 +184,7 @@ def _loadfile(fp, cfg = None):
 		elif tl[0] in cfg.ip_ranges:
 			cfg.addIpRanges(tl[0], tl[1])
 		elif tl[0] in cfg:
-			raise derrors.CfgErr, "setting %s supplied more than once" % tl[0]
+			raise derrors.CfgErr("setting %s supplied more than once" % tl[0])
 		else:
 			cfg[tl[0]] = tl[1]
 

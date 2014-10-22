@@ -72,7 +72,7 @@ class WSGIRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def wsgi_write(self, data):
 		if not self.wsgi_headers:
-			raise AssertionError, "write() before start_response()"
+			raise AssertionError("write() before start_response()")
 		elif not self.wsgi_headers_sent:
 			status, response_headers = self.wsgi_headers
 			self.wsgi_headers_sent = True
@@ -93,7 +93,7 @@ class WSGIRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			finally:
 				exc_info = None
 		elif self.wsgi_headers:
-			raise AssertionError, "Headers already set!"
+			raise AssertionError("Headers already set!")
 		self.wsgi_headers = [status, response_headers]
 		return self.wsgi_write
 		

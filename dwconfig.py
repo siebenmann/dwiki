@@ -45,7 +45,7 @@ class SimpleDWConf(config.Configuration):
 		try:
 			res = int(self[what])
 			if res < 0:
-				raise derrors.CfgErr, "for setting %s: value is negative: %d" % (what, res)
+				raise derrors.CfgErr("for setting %s: value is negative: %d" % (what, res))
 			self[what] = res
 			return
 		except ValueError:
@@ -57,7 +57,7 @@ class SimpleDWConf(config.Configuration):
 				return
 			except ValueError:
 				pass
-		raise derrors.CfgErr, "for setting %s: value is neither an integer not a recognizable timestamp: '%s'" % (what, self[what])
+		raise derrors.CfgErr("for setting %s: value is neither an integer not a recognizable timestamp: '%s'" % (what, self[what]))
 
 	def checkGoodConfig(self):
 		super(SimpleDWConf, self).checkGoodConfig()
@@ -139,7 +139,7 @@ class SimpleDWConf(config.Configuration):
 			self['global-authseed'] = fp.read()
 			fp.close()
 		except EnvironmentError, e:
-			raise derrors.CfgErr, "cannot read global-authseed-file '%s': %s" % (fname, str(e))
+			raise derrors.CfgErr("cannot read global-authseed-file '%s': %s" % (fname, str(e)))
 
 def setup_options(usage, version):
 	parser = OptionParser(usage=usage, version=version)

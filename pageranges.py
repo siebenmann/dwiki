@@ -81,7 +81,7 @@ def restrict(context, suffix):
 			two += 1
 		context.setvar(rest_val, (one, two))
 	else:
-		raise derrors.IntErr, "unhandled restriction match: "+k
+		raise derrors.IntErr("unhandled restriction match: "+k)
 	return True
 
 # Attempt to virtualize the current page. If the page is virtualizable,
@@ -391,7 +391,7 @@ def genScopeRange(ctuple):
 		return [(months[x][:3], (ctuple[0], x+1, None)) for x in
 			range(0, 12)]
 	else:
-		raise derrors.IntErr, "genScopeRange doesn't do years"
+		raise derrors.IntErr("genScopeRange doesn't do years")
 
 # Generate a bar of links to things that actually have entries in
 # them.

@@ -250,38 +250,34 @@ def getPostBody(environ):
 	# type we expect.
 	ctype = environ.get("CONTENT_TYPE", None)
 	if not ctype:
-		raise derrors.ReqErr, "missing content-type on POST"
+		raise derrors.ReqErr("missing content-type on POST")
 	elif ctype not in ("application/x-www-form-urlencoded",
 			   "application/x-www-form-urlencoded; charset=UTF-8"):
-		raise derrors.ReqErr, "bad content-type on POST: '%s'" % ctype
+		raise derrors.ReqErr("bad content-type on POST: '%s'" % ctype)
 
 	clength = environ.get("CONTENT_LENGTH", None)
 	if clength:
 		try:
 			cl = int(clength)
 		except ValueError:
-			raise derrors.ReqErr, "bad value for POST content-length header: '%s'" % clength
+			raise derrors.ReqErr("bad value for POST content-length header: '%s'" % clength)
 		# Reject absurd values. I think >64K counts as absurd,
 		# although I may change my mind. Also, 0 or less is bad.
 		if cl > 64*1024 or cl <= 0:
-			raise derrors.ReqErr, \
-			      "Bad content-length in POST: '%s' " % clength
+			raise derrors.ReqErr("Bad content-length in POST: '%s' " % clength)
 		# TODO: set a time limit on how long we will sit around
 		# trying to read this. For now, punt to outside tools for
 		# this.
 		try:
 			postin = readUpTo(environ['wsgi.input'], cl)
 			if len(postin) != cl:
-				raise derrors.ReqErr, \
-				      "error reading POST body: got %d bytes, wanted %d" % (len(postin), cl)
+				raise derrors.ReqErr("error reading POST body: got %d bytes, wanted %d" % (len(postin), cl))
 		except EnvironmentError, e:
-			raise derrors.ReqErr, \
-			      "error reading POST body: "+str(e)
+			raise derrors.ReqErr("error reading POST body: "+str(e))
 
 		qdict = httputil.parseQueryString(postin)
 	else:
-		raise derrors.ReqErr, \
-		      "no value for content-length header in POST"
+		raise derrors.ReqErr("no value for content-length header in POST")
 	return qdict
 
 # Set up the environ from stuff.

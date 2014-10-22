@@ -21,7 +21,7 @@ def get_renderer(name):
 	if name in reg_renderers:
 		return reg_renderers[name]
 	else:
-		raise derrors.RendErr, "renderer '%s' not available" % name
+		raise derrors.RendErr("renderer '%s' not available" % name)
 def all_renderers():
 	return reg_renderers.keys()
 

@@ -48,8 +48,7 @@ class Template:
 		elif what == '#':
 			return self.include(mo)
 		else:
-			raise derrors.IntErr, \
-			      "unknown template operation: "+mo.group(1)
+			raise derrors.IntErr("unknown template operation: "+mo.group(1))
 
 	def variable(self, mo):
 		canmiss = False
@@ -67,13 +66,13 @@ class Template:
 			key = key[1:]
 			ovars = key.split('|')
 			if not ovars:
-				raise derrors.RendErr, "invalid key '%s'" % mo.group(1)
+				raise derrors.RendErr("invalid key '%s'" % mo.group(1))
 			for ov in ovars:
 				if ov in self.context and self.context[ov]:
 					vv = self.context[ov]
 					return httputil.quotehtml(vv)
 		elif not key:
-			raise derrors.RendErr, "invalid key '%s'" % mo.group(1)
+			raise derrors.RendErr("invalid key '%s'" % mo.group(1))
 		else:
 			if key in self.context and self.context[key]:
 				return httputil.quotehtml(self.context[key])
@@ -81,8 +80,8 @@ class Template:
 		if canmiss:
 			return ''
 		elif missabort:
-			raise ReturnNothing, "variable expansion empty"
-		raise derrors.RendErr, "key with no value: '%s'" % mo.group(1)
+			raise ReturnNothing("variable expansion empty")
+		raise derrors.RendErr("key with no value: '%s'" % mo.group(1))
 
 	# The context's get_render function handles all error checking
 	# and explosions.
@@ -91,7 +90,7 @@ class Template:
 	def renderer(self, mo):
 		actor = mo.group(2)
 		if not actor.strip():
-			raise derrors.RendErr, "badly formed renderer macro: "+mo.group(1)
+			raise derrors.RendErr("badly formed renderer macro: "+mo.group(1))
 		rfunc = htmlrends.get_renderer(actor)
 		return rfunc(self.context)
 
@@ -100,15 +99,14 @@ class Template:
 	def cond_renderer(self, mo):
 		res = self.renderer(mo)
 		if not res:
-			raise ReturnNothing, "template generates nothing"
+			raise ReturnNothing("template generates nothing")
 		return res
 
 	# (Attempt to) process a single template.
 	def template(self, template):
 		to = self.context.model.get_template(template)
 		if not to:
-			raise derrors.RendErr, \
-			      "unknown template '%s'" % template
+			raise derrors.RendErr("unknown template '%s'" % template)
 		res = Template(to).render(self.context)
 		# The timestamps of templates are only considered
 		# relevant if they expand to something. This is iffy,
@@ -132,8 +130,7 @@ class Template:
 		def _tsplit(t):
 			tpl = t.split('|')
 			if not tpl:
-				raise derrors.RendErr, \
-				      "badly formed template '%s'" % mo.group(1)
+				raise derrors.RendErr("badly formed template '%s'" % mo.group(1))
 			return tpl
 		template = mo.group(2)
 		if template[0] == '|':
@@ -164,7 +161,7 @@ class Template:
 			if r:
 				return self.template(r[0])
 			if template[0] == '!':
-				raise derrors.RendErr, "Unfound template in: "+mo.group(0)
+				raise derrors.RendErr("Unfound template in: "+mo.group(0))
 			else:
 				return ''
 		else:
@@ -179,7 +176,7 @@ class Template:
 	def _exp_var(self, mo):
 		varname = mo.group(1)
 		if varname not in self.context:
-			raise derrors.RendErr, "Bad variable name in template name: '%s'" % varname
+			raise derrors.RendErr("Bad variable name in template name: '%s'" % varname)
 		return self.context[varname]
 
 	# The whole purpose of this complex routine is to expand '...'
@@ -245,7 +242,7 @@ class Template:
 		# We cannot use utils.goodpath() because '...' is not a good
 		# path.
 		if not namestr or '' in ns:
-			raise derrors.RendErr, "badly formed template name '%s'" % namestr
+			raise derrors.RendErr("badly formed template name '%s'" % namestr)
 
 		# If there is no '...' operator, all we have to do is expand
 		# variables (once; there is no nested variable expansion).

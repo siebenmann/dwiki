@@ -61,7 +61,7 @@ def load_pwfile(cfg):
 				continue
 			nl = line.split(None)
 			if len(nl) < 2:
-				raise derrors.AuthErr, "bad password file line: "+line
+				raise derrors.AuthErr("bad password file line: "+line)
 			if nl[0] == '.also':
 				if nl[1] not in d:
 					raise derrors.AuthErr("user not already known in .also line: "+line)
@@ -69,12 +69,12 @@ def load_pwfile(cfg):
 			else:
 				u = User(nl[0], nl[1], nl[2:])
 				if u.user in d:
-					raise derrors.AuthErr, "duplicate password file entry for "+u.user
+					raise derrors.AuthErr("duplicate password file entry for "+u.user)
 				d[u.user] = u
 		fp.close()
 		return d
 	except EnvironmentError, e:
-		raise derrors.AuthErr, "could not read password file %s: %s" % (authfile, str(e))
+		raise derrors.AuthErr("could not read password file %s: %s" % (authfile, str(e)))
 
 # Check that a template is relatively lively.
 def validate_template(to, fail_on_error, tname):
@@ -85,9 +85,9 @@ def validate_template(to, fail_on_error, tname):
 			return to
 	# Errors:
 	if not to.exists():
-		raise derrors.IOErr, "template '%s' does not exist" % tname
+		raise derrors.IOErr("template '%s' does not exist" % tname)
 	if not to.displayable():
-		raise derrors.RendErr, "template %s is not displayable" % tname
+		raise derrors.RendErr("template %s is not displayable" % tname)
 	# all okay, go go go.
 	return to
 
@@ -140,7 +140,7 @@ class Model:
 	def get_template(self, tname, fail_on_error = True):
 		to = self.tstore.get(tname)
 		if not to and fail_on_error:
-			raise derrors.IntErr, "request for fully bogus template: "+tname
+			raise derrors.IntErr("request for fully bogus template: "+tname)
 		elif not to:
 			return None
 		return validate_template(to, fail_on_error, tname)
@@ -301,7 +301,7 @@ class Model:
 			return []
 		# Safety check:
 		if po.type != "dir":
-			raise derrors.IntErr, "comment fileobj for '%s' not a directory" % page
+			raise derrors.IntErr("comment fileobj for '%s' not a directory" % page)
 		# This is safe by our axioms; we know that this must be
 		# only have files, so we will get a list of comments that
 		# the page has.
@@ -316,10 +316,10 @@ class Model:
 		compath = utils.pjoin(page.path, comment)
 		po = self._commentpage(compath)
 		if not po or po.type != "file" or not po.displayable():
-			raise derrors.IntErr, "missing or undisplayable comment '%s' on page '%s'" % (comment, page)
+			raise derrors.IntErr("missing or undisplayable comment '%s' on page '%s'" % (comment, page))
 		c = model_comment.loadcomment(po, comment)
 		if c is None:
-			raise derrors.IntErr, "misformatted comment '%s' on '%s'" % (comment, page.path)
+			raise derrors.IntErr("misformatted comment '%s' on '%s'" % (comment, page.path))
 		return c
 
 	# For complicated reasons there is no real point in virtualizing

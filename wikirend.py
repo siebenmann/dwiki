@@ -1346,7 +1346,7 @@ class WikiRend:
 			self.inlineEndStack = []
 		sofftag = self.blockEndStack.pop(0)
 		if sofftag != end_entity[btype]:
-			raise derrors.IntErr, "Programming error; expected %s got %s" % (sofftag, end_entity[btype])
+			raise derrors.IntErr("Programming error; expected %s got %s" % (sofftag, end_entity[btype]))
 
 		r = None
 		# Optimization hack: remove certain empty elements.
@@ -1437,7 +1437,7 @@ class WikiRend:
 			else:
 				mo = _plainre.match(text)
 				if not mo:
-					raise derrors.IntErr, "Programming error; nothing matched '%s' in '%s'" % (_plainre.pattern, text)
+					raise derrors.IntErr("Programming error; nothing matched '%s' in '%s'" % (_plainre.pattern, text))
 				text = text[mo.end(0):]
 				self.result.append(mo.group(1))
 
@@ -1655,7 +1655,7 @@ class WikiRend:
 		#  unlikely to have any spaces in it.)
 		mo = lastspace_re.match(link)
 		if not mo:
-			raise derrors.IntErr, "Chris screwed up splitbrspace's regexp: |%s|" % link
+			raise derrors.IntErr("Chris screwed up splitbrspace's regexp: |%s|" % link)
 		ltext, link = mo.group(1), mo.group(2)
 		l2 = canon_ltext(ltext)
 		self.linkNames[link] = ltext
@@ -2109,9 +2109,9 @@ def _wikirend(data, ctx, options = None):
 # _render_html(). This should really be called _render_uncached().
 def _render(ctx, options):
 	if ctx.page.type != "file":
-		raise derrors.RendErr, "wikitext asked to render non-file."
+		raise derrors.RendErr("wikitext asked to render non-file.")
 	if not ctx.page.displayable():
-		raise derrors.RendErr, "wikitext asked to render undisplayable page"
+		raise derrors.RendErr("wikitext asked to render undisplayable page")
 
 	ctx.newtime(ctx.page.modstamp)
 	# A page with no access restrictions of its own might be under

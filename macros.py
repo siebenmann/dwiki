@@ -464,12 +464,12 @@ def restricted(rend, args):
 	# If we are not authenticated, we fail automatically.
 	uent = rend.ctx.current_user()
 	if not uent:
-		raise ReturnNothing, "no user"
+		raise ReturnNothing("no user")
 	# See if we pass the arguments.
 	if scanauthargs(args, uent):
 		return True
 	# Otherwise we have failed authentication.
-	raise ReturnNothing, "failed to authenticate"
+	raise ReturnNothing("failed to authenticate")
 register("Restricted", restricted)
 
 # Enable comments on this wikitext by setting the 'comments'
