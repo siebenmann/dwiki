@@ -105,7 +105,7 @@ def setup_options():
 			  help="Use FILE as the stop file (no default). The server will exit after the next request if FILE exists and has a modification time that is after it started.")
 	group0.add_option('', '--idle-timeout', dest="idletimeout",
 			  type="float", metavar="MIN",
-			  help="Server exits after MIN minutes (may be fractional) if there has been no activity. This may preempt --min-idle.")
+			  help="Server exits after MIN minutes (may be fractional) if there has been no activity. This may preempt --min-lifetime.")
 	group0.add_option('-l', '--low-loadavg', dest="minloadavg",
 			  type="float", metavar="LAVG",
 			  help="Server dies if all three load average numbers are under LAVG.")
