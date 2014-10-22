@@ -140,7 +140,7 @@ def main(args):
 	if len(args) == 4:
 		try:
 			rend = htmlrends.get_renderer(args[3])
-		except derrors.RendErr, e:
+		except derrors.RendErr as e:
 			die(str(e))
 
 	try:
@@ -148,7 +148,7 @@ def main(args):
 		# We're one of the people who actually needs this.
 		cfg, ms, webserv, staticstore, cachestore = r
 
-	except derrors.WikiErr, e:
+	except derrors.WikiErr as e:
 		die("dwiki error: "+str(e))
 
 	env = setup_env(url)

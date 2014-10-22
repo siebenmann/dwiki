@@ -80,7 +80,7 @@ def main(args):
 	options.extraconfig.append("internal_bfc-force-caching")
 	try:
 		app, r = dwconfig.materialize(args[0], options)
-	except derrors.WikiErr, e:
+	except derrors.WikiErr as e:
 		die("dwiki error: "+str(e))
 
 	for url in args[2:]:

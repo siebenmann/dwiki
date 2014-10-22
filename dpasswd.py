@@ -82,7 +82,7 @@ def main(args):
 		sys.exit(1)
 	try:
 		cfg = config.load(args[0], dwconfig.SimpleDWConf())
-	except derrors.WikiErr, e:
+	except derrors.WikiErr as e:
 		die("Error loading configuration: %s" % str(e))
 	if 'authfile' not in cfg:
 		die("Authentication is not configured for %s." % cfg['wikiname'])
@@ -91,7 +91,7 @@ def main(args):
 	pwh = htmlauth.encryptPassword(user, args[2])
 	try:
 		updatepw(cfg['authfile'], user, pwh)
-	except EnvironmentError, e:
+	except EnvironmentError as e:
 		die("Error during update: %s" % str(e))
 
 if __name__ == "__main__":

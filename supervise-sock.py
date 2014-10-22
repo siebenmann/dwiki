@@ -109,7 +109,7 @@ def start_server(s, args):
 	sockact.sd_set_listen_sockets([s])
 	try:
 		os.execvp(args[0], args)
-	except EnvironmentError, e:
+	except EnvironmentError:
 		os._exit(ERRSTATUS)
 
 def wait_str(res):

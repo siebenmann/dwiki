@@ -138,7 +138,7 @@ class SimpleDWConf(config.Configuration):
 			fp = open(fname, 'r')
 			self['global-authseed'] = fp.read()
 			fp.close()
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			raise derrors.CfgErr("cannot read global-authseed-file '%s': %s" % (fname, str(e)))
 
 def setup_options(usage, version):

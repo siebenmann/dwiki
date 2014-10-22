@@ -151,7 +151,7 @@ def gather_reqdata(environ):
 		try:
 			c.load(environ['HTTP_COOKIE'])
 			reqdata['cookie'] = c
-		except Cookie.CookieError, e:
+		except Cookie.CookieError as e:
 			logger.error("Invalid Cookie header: %s: %s" % (repr(environ['HTTP_COOKIE']), str(e)))
 	# HTTP command:
 	reqdata['http-command'] = environ['REQUEST_METHOD']
@@ -272,7 +272,7 @@ def getPostBody(environ):
 			postin = readUpTo(environ['wsgi.input'], cl)
 			if len(postin) != cl:
 				raise derrors.ReqErr("error reading POST body: got %d bytes, wanted %d" % (len(postin), cl))
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			raise derrors.ReqErr("error reading POST body: "+str(e))
 
 		qdict = httputil.parseQueryString(postin)
@@ -351,7 +351,7 @@ def doDwikiRequest(logger, reqdata, environ):
 		if ctx.errors:
 			for e in ctx.errors:
 				logger.warn(e)
-	except derrors.WikiErr, e:
+	except derrors.WikiErr as e:
 		logger.error(e)
 		resp = httputil.genError("internal-error", 500)
 	modelserv.finish()
@@ -363,7 +363,7 @@ def genPostReqdata(logger, environ):
 	# is broken in the POST.
 	try:
 		qdict = getPostBody(environ)
-	except derrors.ReqErr, e:
+	except derrors.ReqErr as e:
 		logger.warn("security: "+str(e))
 		return (None, httputil.genError('sec-error', 403))
 

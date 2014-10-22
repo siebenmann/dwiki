@@ -118,7 +118,7 @@ def ifNotModified(environ, resp):
 	   environ.get("HTTP_USER_AGENT").startswith("Tiny Tiny RSS/"):
 		try:
 			rts = time.strptime(rLM, '%a, %d %b %Y %H:%M:%S %Z')
-		except ValueError, e:
+		except ValueError:
 			return False
 		rtime = time.mktime(rts)
 		if rtime > resp.lastmodified:

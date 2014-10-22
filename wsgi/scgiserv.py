@@ -85,13 +85,13 @@ def do_scgi(sock, app):
 
 	try:
 		env = _read_env(infp)
-	except NSError, e:
+	except NSError as e:
 		repError("netstring error: %s" % str(e))
 		return
-	except SCGIProtoErr, e:
+	except SCGIProtoErr as e:
 		repError("SCGI protocol error: %s" % str(e))
 		return
-	except (EnvironmentError, socket.error), e:
+	except (EnvironmentError, socket.error) as e:
 		repError("cannot read environment: %s" % str(e))
 		return
 

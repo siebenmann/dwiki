@@ -184,7 +184,7 @@ def main(args):
 	if options.lockfile:
 		try:
 			fd = os.open(options.lockfile, os.O_RDONLY)
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			die("Could not open lockfile: "+str(e))
 		try:
 			fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)

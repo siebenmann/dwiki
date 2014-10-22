@@ -73,7 +73,7 @@ def load_pwfile(cfg):
 				d[u.user] = u
 		fp.close()
 		return d
-	except EnvironmentError, e:
+	except EnvironmentError as e:
 		raise derrors.AuthErr("could not read password file %s: %s" % (authfile, str(e)))
 
 # Check that a template is relatively lively.
@@ -286,7 +286,7 @@ class Model:
 		# logging them somehow.)
 		try:
 			return self.cstore.newblob(context.page.path, str(nc))
-		except derrors.WikiErr, e:
+		except derrors.WikiErr as e:
 			context.set_error("problem posting comment: "+str(e))
 			return False
 

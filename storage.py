@@ -442,7 +442,7 @@ class CommentStoragePool(StoragePool):
 		try:
 			if not os.path.isdir(loc):
 				makedirs(loc)
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			raise derrors.IOErr("could not make directory '%s': %s" % (loc, str(e)))
 		objname = self.blobname(blobstr)
 		pname = join2(loc, objname)
@@ -453,7 +453,7 @@ class CommentStoragePool(StoragePool):
 			phase = "write"
 			os.write(fd, blobstr)
 			os.close(fd)
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			# It exists already, so we 'succeeded' as it were.
 			if phase == "create" and os.path.exists(pname):
 				return True 
@@ -545,7 +545,7 @@ class CacheStoragePool(StoragePool):
 		try:
 			if not os.path.isdir(dname):
 				makedirs(dname)
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			return "could not make directory '%s': %s" % (dname, str(e))
 
 		# We write the data by a) making a tempfile,
@@ -566,7 +566,7 @@ class CacheStoragePool(StoragePool):
 			stage = "renaming to final name"
 			os.rename(tname, fname)
 			return None
-		except EnvironmentError, e:
+		except EnvironmentError as e:
 			return "error while %s for %s/%s/%s: %s" % (stage, zone, path, key, str(e))
 
 	# Return the timestamp of a cache entry or None if there is no such

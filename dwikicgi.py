@@ -61,5 +61,5 @@ def main(args):
 		if options.nullapp:
 			app = NullApp
 		wsgi.cgi.run_with_cgi(app)
-	except derrors.WikiErr, e:
+	except derrors.WikiErr as e:
 		die("dwiki error: "+str(e))

@@ -197,9 +197,9 @@ def load(fname, cfg = None):
 		res = _loadfile(fp, cfg)
 		fp.close()
 		return res
-	except EnvironmentError, e:
+	except EnvironmentError as e:
 		raise derrors.IOErr("could not read config file %s: %s" % (fname, str(e)))
-	except contread.StartingContinuedLine, e:
+	except contread.StartingContinuedLine as e:
 		raise derrors.CfgErr("configuration file %s: %s" % (fname, str(e)))
-	except derrors.CfgErr, e:
+	except derrors.CfgErr as e:
 		raise derrors.CfgErr("configuration file %s: %s" % (fname, str(e)))
