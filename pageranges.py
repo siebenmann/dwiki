@@ -59,6 +59,13 @@ def restrict(context, suffix):
 				cv.append(int(g))
 			else:
 				cv.append(None)
+		# reject bad month or days; the latter is approximate.
+		# if we don't do this we can run into exceptions in
+		# the calendar module later.
+		if (cv[1] is not None and (cv[1] == 0 or cv[1] > 12)) or \
+		   (cv[2] is not None and (cv[2] == 0 or cv[2] > 31)):
+			context.delvar(rest_type)
+			return False
 		context.setvar(rest_val, tuple(cv))
 	elif k == 'range':
 		# We're easy on this one; you can specify anything you
