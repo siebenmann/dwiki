@@ -116,7 +116,7 @@ def blogdir(context):
 			return ''
 		dl = [context.model.get_page(z[1]) for z in tl]
 	else:
-		dl.sort(lambda x,y: cmp(y.timestamp, x.timestamp))
+		dl.sort(key=lambda x: x.timestamp, reverse=True)
 
 	# For each file, clone the context, set the current page to
 	# it (!), and render it with the blogentry template.
@@ -160,7 +160,7 @@ def directory(ctx):
 			return ''
 		dl = [ctx.model.get_page(z[1]) for z in tl]
 		dl.extend(dirl)
-		dl.sort(lambda x,y: cmp(x.name, y.name))
+		dl.sort(key=lambda x: x.name)
 
 	res.append("<ul>")
 	for de in dl:

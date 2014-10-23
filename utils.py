@@ -146,6 +146,7 @@ def timelist_sorter(a, b):
 # and it certainly is faster, and identical timestamps are
 # unlikely anyways.
 def sort_timelist(lst):
-	lst.sort(); lst.reverse()
+	lst.sort(reverse=True)
+	#lst.sort(); lst.reverse()
 	# or:
 	#lst.sort(timelist_sorter)

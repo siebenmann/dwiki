@@ -481,7 +481,7 @@ def showcomments(context):
 	if not coms:
 		return ''
 	# Sort into time order.
-	coms.sort(lambda x,y: cmp(x.time, y.time))
+	coms.sort(key=lambda x: x.time)
 
 	# We display using a method similar to blogdir; clone context,
 	# set magic variable, render new template.

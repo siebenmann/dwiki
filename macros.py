@@ -767,7 +767,11 @@ def showcharents(rend, args):
 	if len(args) != 0:
 		return False
 	ents = list(known_ents)
-	ents.sort(ciCmp)
+	#ents.sort(ciCmp)
+	# We must sort twice to emulate ciCmp's behavior, since the second
+	# case-independent sort will be stable.
+	ents.sort()
+	ents.sort(key=lambda x: x.lower())
 	def _lif(e):
 		rend.addPiece("%s: &%s;" % (e, e))
 	def _bf(e):
