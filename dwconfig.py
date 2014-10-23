@@ -135,7 +135,7 @@ class SimpleDWConf(config.Configuration):
 	def loadAuthSeed(self):
 		fname = self['global-authseed-file']
 		try:
-			fp = open(fname, 'r')
+			fp = open(fname, 'rb')
 			self['global-authseed'] = fp.read()
 			fp.close()
 		except EnvironmentError as e:

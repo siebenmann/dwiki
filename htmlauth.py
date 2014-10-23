@@ -313,7 +313,7 @@ views.register('logout', LogoutView, canPOST = True, canGET = False,
 if __name__ == "__main__":
 	import sys
 	if len(sys.argv) < 2:
-		fp = open("/dev/urandom", "r")
+		fp = open("/dev/urandom", "rb")
 		buf = fp.read(20)
 		print buf.encode("base64")[:-1]
 	else:

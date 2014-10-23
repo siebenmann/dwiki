@@ -39,7 +39,7 @@ sBad, sInconsist, sGood, sLocked, sNoRCS = range(5)
 noStat = object()
 class FileObj(object):
 	type = "file"
-	def __init__(self, fname, st = noStat):
+	def __init__(self, fname, st = noStat, omode = "r"):
 		# fname is fully resolvable
 		if st is noStat:
 			st = fillStat(fname)
@@ -48,13 +48,14 @@ class FileObj(object):
 		self.fstore = None
 		self._state = None
 		self._st = st
+		self._omode = omode
 
 	# self._state insures we only try to fill once.
 	def fill(self):
 		if not self.real or self._state != None:
 			return
 		try:
-			with open(self.name, "r") as fp:
+			with open(self.name, self._omode) as fp:
 				self.fstore = fp.read()
 			self._state = sGood
 		except EnvironmentError:
@@ -509,7 +510,7 @@ class CacheStoragePool(StoragePool):
 		# be mutated by later people, we cache the file object
 		# data and depickle each time.
 		if fname not in self.cache:
-			fo = FileObj(fname, st)
+			fo = FileObj(fname, st, "rb")
 			data = fo.contents()
 		else:
 			data = self.cache[fname]
