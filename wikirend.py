@@ -1032,7 +1032,7 @@ class WikiRend:
 		rettoks = []
 		while (tok and tok[0] == 'quote'):
 			qstr = tok[3].group(1)
-			newqlevel = ( len(qstr) + 1 ) / 2
+			newqlevel = ( len(qstr) + 1 ) // 2
 			while (newqlevel > qlevel):
 				rettoks.append( ('begin', 'blockquote') )
 				qlevel += 1
