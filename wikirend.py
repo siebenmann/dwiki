@@ -1142,7 +1142,7 @@ class WikiRend:
 					# FIXME: code smell.
 					rettoks.append( ('iquote', subtok) )
 				elif subntype == 'ol' or subntype == 'ul' or \
-					 subntype == 'dl': # Change this to allow quotes in lists
+					 subntype == 'dl' or subntype == "quote": # Change this to allow quotes in lists
 					lowestsubindent = subindent
 					rettoks.append(subtok)
 				elif subindent > baseindent + 2:
