@@ -69,6 +69,7 @@ check_flags = (SOMEMACROS | ALLOW_RESTRICTED | ALLOW_CANCOMMENT |
 lineClassRegexps = (
 	# The following pattern must *not* include any character that starts
 	# another element.
+	# todo: change \d somehow to fix accidental numbered lists trap
 	(re.compile(r'([^\s=*>{|#\d+.-].*)'),'p'), # common case - other p's below
 	(re.compile(r'\s*$'),'blank'),
 	(re.compile(r'(\s(\s*))(\S.*)'),'indented'), # either pre or continuation
@@ -81,6 +82,7 @@ lineClassRegexps = (
 	# this should generate a different token, but implementation issues
 	# make it simpler to fix up in the general list handler.
 	(re.compile(r'(\+)(\s+)(.+)'),'ul'),
+	# todo: see above re \d.
 	(re.compile(r'([\d#])(\s+)(.+)'),'ol'),
 	# this blows up on '- [[abc http://somesite/]]: foobar ...', so
 	# we need the more complicated version.
