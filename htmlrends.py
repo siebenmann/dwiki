@@ -272,7 +272,7 @@ def lastmod(context):
 	if context.page.type == "dir" and context.view != "normal":
 		return ''
 	ts = context.page.timestamp
-	if ts > 0:
+	if ts is not None and ts > 0:
 		return time.asctime(time.localtime(ts))
 	else:
 		return ''
