@@ -79,7 +79,7 @@ def load_pwfile(cfg):
 # Check that a template is relatively lively.
 def validate_template(to, fail_on_error, tname):
 	if not fail_on_error:
-		if not to.displayable():
+		if not (to.displayable() and to.type == "file"):
 			return None
 		else:
 			return to
@@ -88,6 +88,8 @@ def validate_template(to, fail_on_error, tname):
 		raise derrors.IOErr("template '%s' does not exist" % tname)
 	if not to.displayable():
 		raise derrors.RendErr("template %s is not displayable" % tname)
+	if to.type != "file":
+		raise derrors.RendErr("template %s is not a file (is a %s)" % (tname, to.type))
 	# all okay, go go go.
 	return to
 
@@ -146,7 +148,10 @@ class Model:
 		return validate_template(to, fail_on_error, tname)
 
 	def template_exists(self, tname):
-		return self.tstore.exists(tname)
+		if not self.tstore.exists(tname):
+			return False
+		to = self.tstore.get(tname)
+		return to and to.type == "file"
 
 	# -------------- page fetching
 	# People should not get direct page files unless they know
