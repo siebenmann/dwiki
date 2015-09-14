@@ -290,6 +290,10 @@ htmlrends.register("comment::pre", commentpre)
 # newline), we will slowly eat away at blank lines at the start of the
 # text (one line per iteration).  If this is desired, we ought to do
 # it explicitly, not implicitly.
+#
+# 'type="url"' comes from a suggestion by Aristotle Pagaltzis;
+# see
+# https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type
 post_bit = """<input type=submit name=post value="Post Comment">"""
 comment_form = """<form method=post action="%s">
 <textarea rows='15' cols='75' name='comment'>
@@ -302,7 +306,7 @@ comment_form = """<form method=post action="%s">
 	<td> <input name=whois size=40 type="text" value="%s"> </td> </tr>
 <tr> <td style="padding-right: 10px">
 	<label for="whourl">(optional URL)</label> </td>
-	<td> <input name=whourl size=40 type="text" value="%s"> </td> </tr>
+	<td> <input name=whourl size=40 type="url" value="%s"> </td> </tr>
 </table>
 <input type=hidden name=previp value="%s">
 <input type=submit value="Preview Comment">
