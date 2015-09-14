@@ -1219,11 +1219,21 @@ class WikiRend:
 	def p_handler(self, tok):
 		ntxt = tok[3].group(1)
 		tok = self.pull()
-		if tok and tok[0] == 'p':
-			txt = [ntxt, tok[3].group(1)]
+		if tok and (tok[0] == 'p' or \
+			    (tok[0] == 'ol' and tok[1][0] != '#')):
+			if tok[0] == 'p':
+				txt = [ntxt, tok[3].group(1)]
+			else:
+				txt = [ntxt, tok[1]]
 			tok = self.pull()
-			while tok and tok[0] == 'p':
-				txt.append(tok[3].group(1))
+			#while tok and tok[0] == 'p':
+			while tok:
+				if tok[0] == 'p':
+					txt.append(tok[3].group(1))
+				elif tok[0] == 'ol' and tok[1][0] != '#':
+					txt.append(tok[1])
+				else:
+					break
 				tok = self.pull()
 			self.pushBack(tok)
 			ntxt = '\n'.join(txt)
