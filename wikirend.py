@@ -279,6 +279,44 @@ for i in ('*', '~~'):
 # for this, but I didn't so that's life and we cope.	- cks
 font_end_res['_'] = font_start_res['_'] = re.compile("(.*?)_")
 
+# Reverse inline font styles by reaching back into the rendered content
+# and converting the start tag to its original character. This is a
+# hack, but a convenient one that fixes various rendering issues for
+# stuff that people write.
+#
+# As a hack, it only works really when closing improperly nested font
+# styles, because in this case we can be fairly certain that we are
+# reaching back to fix the proper opening. It cannot be used to fix
+# up paragraphs without various sorts of malfunctions; for them, the
+# errant unclosed font style just runs to the end of the paragraph.
+#
+# This should not be necessary if we properly matched start and end
+# tags in general, but we only do purely textual forward lookup for
+# end tags and their positions and that can be fooled by tags inside
+# various nesting constructs (eg '((...))' and '[[..]]'). Really we
+# need an additional resolution pass over the raw tokenized text.
+#
+_lpairs = { "</em>": ["<em>", "*"], "</strong>": ["<strong>", "~~"],
+	    "</code>": ["<code>", "_"], }
+def unwind_inline(rend, offtag):
+	assert offtag in rend.inlineEndStack
+	while rend.inlineEndStack:
+		s = rend.inlineEndStack.pop(0)
+		if s == offtag:
+			break
+		if s not in _lpairs:
+			rend.result.append(s)
+			continue
+		src, rep = _lpairs[s]
+		for i in range(len(rend.result)-1, -1, -1):
+			if rend.result[i] == src:
+				rend.result[i] = rep
+				break
+		else:
+			# should never happen?!
+			rend.result.append(s)
+	rend.result.append(offtag)
+
 def inline_font(rend, style, text):
 	if style == '*':
 		hstyle = 'em'
@@ -308,11 +346,15 @@ def inline_font(rend, style, text):
 	# bail.
 	offtag = end_entity[hstyle]
 	if offtag in rend.inlineEndStack:
-		s = rend.inlineEndStack.pop(0)
-		while s != offtag:
-			rend.result.append(s)
-			s = rend.inlineEndStack.pop(0)
-		rend.result.append(s)
+		#s = rend.inlineEndStack.pop(0)
+		#while s != offtag:
+		#	rend.result.append(s)
+		#	s = rend.inlineEndStack.pop(0)
+		#rend.result.append(s)
+		# rather than closing off unterminated inline styles,
+		# we unwind them, turning the start tag into its original
+		# string. this is imperfect.
+		unwind_inline(rend, offtag)
 		return
 
 	# We insist that start tags be followed by non-whitespace.
