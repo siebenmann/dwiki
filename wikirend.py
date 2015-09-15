@@ -317,7 +317,12 @@ def unwind_inline(rend, offtag):
 			rend.result.append(s)
 	rend.result.append(offtag)
 
-def inline_font(rend, style, text):
+# we would like to use _spacepunc, but this is not viable in the face
+# of unicode. _letters is not really viable either, but it misfires
+# less often because we check for inclusion instead of exclusion.
+#_spacepunc = string.whitespace + string.punctuation + '\n'
+_letters = string.letters + string.digits
+def inline_font(rend, style, text, last):
 	if style == '*':
 		hstyle = 'em'
 	elif style == '~~':
@@ -360,6 +365,12 @@ def inline_font(rend, style, text):
 	# We insist that start tags be followed by non-whitespace.
 	# Otherwise, they're just themselves.
 	if not text or (style != '_' and text[0] in string.whitespace):
+		rend.result.append(style)
+	elif style == '_' and last and last[-1] in _letters:
+		# this must be specific to _ because embedded emphasis
+		# is perfectly okay; we just want to avoid 'a_name_here'
+		# turning into 'a((name))here'.
+		# TODO: check for text[0] in _letters as well?
 		rend.result.append(style)
 	else:
 		# The complicated case; basically, we insist on minimal
@@ -1468,6 +1479,7 @@ class WikiRend:
 				# replacement text. (re.escape doesn't
 				# do it, sigh.)
 				text = a[0].sub(a[1], text)
+		last = None
 		while text:
 			o = ord(text[0])
 			mo = None
@@ -1482,18 +1494,23 @@ class WikiRend:
 						text = text[len(sw.rest):]
 						inline_plaintext(self, sw.rest)
 						continue
+				nlast = text[:mo.end(0)]
 				text = text[mo.end(0):]
 				routine = textcodehash[o]
 				if routine == inline_font:
-					routine(self, mo.group(1), text)
+					routine(self, mo.group(1), text, last)
 				else:
 					routine(self, mo.group(1))
+				# this is sort of unclean, but the allowances
+				# here are what we can call highly unclear.
+				last = nlast
 			else:
 				mo = _plainre.match(text)
 				if not mo:
 					raise derrors.IntErr("Programming error; nothing matched '%s' in '%s'" % (_plainre.pattern, text))
 				text = text[mo.end(0):]
 				self.result.append(mo.group(1))
+				last = mo.group(1)
 
 	# Stop words
 	def add_stopword(self, word, permanent = False):
