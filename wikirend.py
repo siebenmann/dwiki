@@ -296,6 +296,10 @@ font_end_res['_'] = font_start_res['_'] = re.compile("(.*?)_")
 # various nesting constructs (eg '((...))' and '[[..]]'). Really we
 # need an additional resolution pass over the raw tokenized text.
 #
+# Tricky bit: this reversal can never misfire in the case of '(('
+# (ie, replacing what was a '((' in the original text with a '_')
+# because we only start a (( only if we see the ending )) and by
+# definition nothing inside the (( can escape the )).
 _lpairs = { "</em>": ["<em>", "*"], "</strong>": ["<strong>", "~~"],
 	    "</code>": ["<code>", "_"], }
 def unwind_inline(rend, offtag):
