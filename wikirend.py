@@ -1466,6 +1466,14 @@ class WikiRend:
 		return self.blockedStyles and \
 		       end_entity[style] in self.blockedStyles[-1]
 
+	# typ is 'text' for full rendering or 'ltext' for limited
+	# rendering, which mostly covers fonts. The dividing line
+	# is set in prelinetext by the '!' exclusions; everything
+	# from there downwards is not in ltext.
+	# TODO: need a version that allows macros, so that we can
+	# put images inside links. Actually this could be ltext; that
+	# usage is reasonably safe, as ltext is only used for [[ ... ]]
+	# link text and rendering ABBR text.
 	def handle_text(self, typ, text):
 		_textrehash = textrehash
 		_plainre = plainre
