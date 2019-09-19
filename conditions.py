@@ -37,3 +37,13 @@ def isanon(context):
 	else:
 		return ' '
 htmlrends.register("cond::anonymous", isanon)
+
+def isrealuser(context):
+	"""Suceeds (by generating a space) if this is a request made
+	by a logged-in real user. Fails otherwise. This is the opposite
+	of _cond::anonymous_."""
+	if context.current_user() and not context.is_login_default():
+		return ' '
+	else:
+		return ''
+htmlrends.register("cond::realuser", isrealuser)
