@@ -444,6 +444,9 @@ def post(context, resp):
 	elif whourl and not whois:
 		context.set_error("user url without user name in comment post: %s" % repr(whourl))
 		context.setvar(":comment:post", "bad")
+	elif whourl and bannedcontent(whourl):
+		context.set_error("banned content in url in comment post: %s" % repr(whourl))
+		context.setvar(":comment:post", "bad")
 	# disabled, misfired.
 	#elif check_dnsbl(context):
 	#	# this is also deliberately uninformative.
