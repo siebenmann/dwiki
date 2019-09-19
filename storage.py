@@ -453,11 +453,23 @@ class CommentStoragePool(StoragePool):
 				     0644)
 			phase = "write"
 			os.write(fd, blobstr)
+			os.fsync(fd)
+			# neurotic carefulness requires us to fsync the
+			# directory too.
+			try:
+				fd2 = os.open(loc, os.O_RDONLY)
+				os.fsync(fd2)
+				os.close(fd2)
+			except EnvironmentError:
+				pass
+			phase = "close"
 			os.close(fd)
 		except EnvironmentError as e:
 			# It exists already, so we 'succeeded' as it were.
 			if phase == "create" and os.path.exists(pname):
-				return True 
+				return True
+			if phase == "write":
+				os.close(fd)
 			raise derrors.IOErr("could not %s file '%s': %s" % (phase, pname, str(e)))
 		return True
 
