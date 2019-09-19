@@ -196,8 +196,13 @@ def match_ip_prefix(context):
 	return context['remote-ip'].startswith(previp)
 
 import socket
-zen_blockon = ('127.0.0.2', '127.0.0.4', '127.0.0.5', '127.0.0.6',
-	       '127.0.0.7', '127.0.0.8', )
+# Spamhaus result IPs:
+# 127.0.0.2 is SBL, 127.0.0.3 is SBL CSS, 127.0.0.[4-7] is XBL/CBL.
+# I used to include 127.0.0.8, which appears to have no meaning now.
+# 10-11 is the PBL, which I definitely don't want to block on.
+# For the CBL, the result is always 127.0.0.2.
+zen_blockon = ('127.0.0.2', '127.0.0.3',
+	       '127.0.0.4', '127.0.0.5', '127.0.0.6', '127.0.0.7', )
 def check_dnsbl(context):
 	n = context['remote-ip'].split('.')
 	n.reverse()
