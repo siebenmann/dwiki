@@ -1,0 +1,63 @@
+== Font starts inside things: what works and what doesn't.
+
+This should be code: '_ test _'.
+
+So should this: '_ \\ _'.
+
+This should not be italics: '* test *'.
+
+Will this be italics? This is*a test that is probably valid*. This *should
+be italics* even with things fixed, as should
+*this test*.
+
+Will the following be code? a_routine_name() should not be.
+However _this should still be_, as should _this_ test.
+_And this too_.
+
+Another test: AF_UNIX sockets to CLONE_NEWNET namespaces, however, AF_UNIX sockets in etc etc.
+
+Another test: note that the pattern _x{1}x*_ performs ... _xx*_ and so on.
+Also _x{1}x*frobnitz_ and _xx*_ and so on.
+
+Okay, so we need the renderer to look backwards to see if something
+is a font style.
+
+A third test: ((mt_rand))_()_ should be code.
+
+_This should be code_.
+
+Will this work? _mt_rand()_.
+
+Probably not. Also _some_extra_len()_.
+
+Here is a torture test of _bad failure_s that is going to die.
+
+How about how this *one work*s out*.
+
+This is actually correctly closed early and always will be because
+of our minimal spans rule. We have to allow early closure for
+in*ter*nal emphasis to work. Moral: font start rules are wacky
+and hard for even me to remember!
+
+----
+
+The following requires paragraph and so on ending to call ((unwind_inline)),
+which I have decided I am not entirely happy with right now. It's preserved
+for later testing:
+
+The following is a *torture test that is explicitly ((nasty* var)) and vicious.
+Passing requires that the paragraph closing stuff rewind to the <em> start
+and replace it with a literal ``*''.
+
+Variants: _going to ((nasty_ var)). And ~~emphasis going to ((emphasis~~ var)).
+One more *torture test {{ST:strike:and ending* here}}.
+
+This is not perfect, because _this should have {{ST:strike:some
+_interior code_ here}}, which are masked by the exterior underline
+that is then later cancelled. But doing better requires a massively
+different structure for parsing running text, where we have multi-pass
+text and stuff.
+
+(This bug does not exist for ``*'' because we explicitly check for no
+valid font starts before our matching end tag, and thus we find one in
+the !{{ST}} section.)
