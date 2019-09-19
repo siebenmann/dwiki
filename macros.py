@@ -870,8 +870,11 @@ def showimage(rend, args):
 			alt, title = res
 			suf = ' title="%s"' % title
 	# Render and dump.
-	txt = '<img src="%s" width="%s" height="%s" alt="%s"%s>' % \
-	      (rend.canon_url(loc), width, height, alt, suf)
+	style = ""
+	if height == "auto":
+		style = ' style="max-width: 100%"'
+	txt = '<img%s src="%s" width="%s" height="%s" alt="%s"%s>' % \
+	      (style, rend.canon_url(loc), width, height, alt, suf)
 	rend.addPiece(txt)
 	return True
 register_acount("IMG", showimage, 1)
