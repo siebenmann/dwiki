@@ -49,8 +49,48 @@ def bannedcontent(txt):
 	       "http://gmconference.ca/" in txt or \
 	       "http://www.talentclick.com/" in txt or \
 	       "http://www.webtecmart.com/" in txt or \
+	       "http://hyderabadsys.com/" in txt or \
+	       "http://smartmindonlinetraining.com/" in txt or \
+	       "http://acemaxscare.com/" in txt or \
+	       "http://buyessay.rocks/" in txt or \
+	       "https://browsersupportnumbers.com/" in txt or \
+	       "https://myassignmenthelp.com/" in txt or \
+	       "https://zipbooks.com" in txt or \
+	       "https://babasupport.org" in txt or \
+	       "http://something4u.xyz" in txt or \
+	       "https://carinsuranceadvice.co.uk" in txt or \
+	       "https://kbsu.ru" in txt or \
+	       "https://fanavaranehooshmand.loxblog.com" in txt or \
+	       "https://www.aycup.com.tr" in txt or \
+	       "https://kimyavebilim.com" in txt or \
+	       "http://www.ekonomizm.com" in txt or \
+	       "http://thelowercasew.com/" in txt or \
+	       "https://www.supplier-in-china.com/" in txt or \
+	       "https://uaewebsitedevelopment.com" in txt or \
+	       "https://www.routersupports.co" in txt or \
+	       "http://www.kitapbasimfiyatlari.com" in txt or \
+	       "https://www.setacelik.com/" in txt or \
+	       "https://www.emailhelpdesk.us/" in txt or \
+	       "https://hizmetleri.net" in txt or \
+	       "https://aykawebtasarim.com" in txt or \
+	       "https://www.kiralikbahissistemi.com" in txt or \
+	       "https://www.filmizle.us" in txt or \
+	       "http://www.e-paykasa.com" in txt or \
+	       "https://robotercih.com" in txt or \
+	       "http://enrah.ir/" in txt or \
+	       "https://www.astropay.cards" in txt or \
+	       "https://errorcode0x.com/" in txt or \
+	       "http://www.crayoninfotech.com/" in txt or \
+	       "https://www.sigmahris.com/" in txt or \
+	       "http:/www.madengida.com" in txt or \
+	       "http://www.lcntercume.com/" in txt or \
+	       "http://www.mehmeteminsoylu.com" in txt or \
+	       "https://hassaskoltukyikama.com" in txt or \
+	       "https://onlinecasinosinindia.in" in txt or \
 	       '<a href="http://' in txt or \
+	       '<a href="https://' in txt or \
 	       '<a href=http://' in txt or \
+	       '<a href=https://' in txt or \
 	       '[url]http://' in txt or \
 	       '[url=http://' in txt or \
 	       '[url="http://' in txt or \
