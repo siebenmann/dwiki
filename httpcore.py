@@ -258,7 +258,8 @@ def getPostBody(environ):
 	# type we expect.
 	ctype = environ.get("CONTENT_TYPE", None)
 	if not ctype:
-		raise derrors.ReqErr("missing content-type on POST")
+		clength = environ.get("CONTENT_LENGTH", "")
+		raise derrors.ReqErr("missing content-type on POST, with c-l '%s'" % clength)
 	elif ctype not in ("application/x-www-form-urlencoded",
 			   "application/x-www-form-urlencoded; charset=UTF-8"):
 		raise derrors.ReqErr("bad content-type on POST: '%s'" % ctype)
