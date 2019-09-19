@@ -51,6 +51,9 @@ def getHostSchemaKey(environ):
 
 # Clean utm_* query parameters from a query dictionary. Returns
 # True if there were any.
+# Also deals with the new _utm_* query parameters. THANKS GOOGLE.
+# Sadly there are a steadily growing number of these that I have seen
+# and I'm ignoring for pragmatic reasons.
 def clean_utm(qdict):
 	utm_seen = False
 	ks = qdict.keys()
@@ -60,7 +63,12 @@ def clean_utm(qdict):
 		# NewsBlur uses a query parameter of '_=<NNNN>' (a random
 		# number) as a (HTTP) cache buster; apparently this makes
 		# it work better. So we reluctantly accept it too.
-		if k.startswith("utm_") or k == "buffer_share" or k == "_":
+		# 2018-05-25: some 'from=timeline' and
+		# 'from=timeline&isappinstalled=0' stuff, probably from some
+		# Twitter client or site.
+		# 'fbclid' is from Facebook, of course. Sigh.
+		if k.startswith("utm_") or k.startswith("_utm_") or \
+		   k in ("buffer_share", "_", "platform", "ref", "source", "from", "isappinstalled", "fbclid", "hmsr", "mkt_tok"):
 			del qdict[k]
 			utm_seen = True
 	return utm_seen
