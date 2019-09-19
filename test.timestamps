@@ -166,7 +166,6 @@
 @1126726349 test/templates/comment/posted-good.tmpl
 @1126726777 test/pages/dwiki/NewFeatures/LinkToComments
 @1126759581 test/templates/syndication/discovery.tmpl
-@1126759597 test/templates/struct/head.tmpl
 @1126761101 test/pages/dwiki/NewFeatures/SyndicationDiscovery
 @1127246416 test/pages/Tests/IndentListNest-02
 @1127534443 test/pages/dwiki/NewFeatures/HttpsUrls
@@ -279,3 +278,4 @@
 @1441400127 test/pages/Tests/ParaNumberedLists
 @1442169426 test/pages/Tests/LongCodeQuote
 @1442275540 test/pages/Tests/FontInsideTest
+@1568914100 test/templates/struct/head.tmpl
