@@ -49,7 +49,7 @@ def redirect_target(page):
 
 	# This is either a http:// link, an absolute local link, or
 	# a relative link. Return appropriate information.
-	if redir.startswith("http://"):
+	if redir.startswith("http://") or redir.startswith("https://"):
 		return ('url', redir)
 	elif len(redir) > 2 and redir[0] == '<' and redir[1] == '>':
 		return ('url', redir[1:-1])
