@@ -275,4 +275,7 @@
 @1380301651 test/passwd
 @1382990113 test/pages/dwiki/Authentication
 @1398447334 test/pages/dwiki/ConfigurationFile
+@1441225731 test/pages/Tests/IndentListNest-03
+@1441400127 test/pages/Tests/ParaNumberedLists
+@1442169426 test/pages/Tests/LongCodeQuote
 @1442275540 test/pages/Tests/FontInsideTest

@@ -1,0 +1,11 @@
+== Quoted things in list test
+
+* This is a list
+  > With a quote.
+  > In a single paragraph.
+  And out.
+
+* This is a list:
+  >  with quoted code.
+  >  on multiple lines, yes.
+  And out.

@@ -1,0 +1,19 @@
+== Paragraphs with what would normally be numbered lists
+
+This is a paragraph. And it will wrap to
+1 paragraph test, really: 
+some number of lines that we'll mumble about, because
+2 lines that would normally start a OL, except that even on line
+3 it won't.
+Really, it won't.
+
+On the other hand, this should work:
+# a numbered list.
+  and a line that continues:
+  1 but this probably should still work?
+1 and another one.
+
+And this should work:
+
+0 A numbered list.
+1 A numbered list.
