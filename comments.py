@@ -256,6 +256,19 @@ def commentpreview(context):
 			context.set_error("banned content in comment preview: " + repr(comdata))
 		set_comment_bad(context)
 		return bad_char_msg
+
+	whois = context.getviewvar("whois")
+	whourl = context.getviewvar("whourl")
+	if whourl and not whois:
+		context.set_error("comment preview has user url without user name: %s comment: %s" % (repr(whourl), repr(comdata)))
+		return bad_char_msg
+
+	# Block bad URLs in people's URL links, crudely
+	if whourl and bannedcontent(whourl):
+		context.set_error("banned content in comment url: "+repr(whourl))
+		set_comment_bad(context)
+		return bad_char_msg
+
 	# This only triggers if we have comment data to start with, so it
 	# will never go off for people just starting to write comments.
 	if not verify_ip_prefix(context):
@@ -382,6 +395,9 @@ def post(context, resp):
 	elif bannedcontent(comdata):
 		# this is currently deliberately uninformative.
 		context.set_error("banned content in comment post: %s" % repr(comdata))
+		context.setvar(":comment:post", "bad")
+	elif whourl and not whois:
+		context.set_error("user url without user name in comment post: %s" % repr(whourl))
 		context.setvar(":comment:post", "bad")
 	# disabled, misfired.
 	#elif check_dnsbl(context):
