@@ -1,9 +1,9 @@
 #
 # Wikitext macros.
 
-import time
+import time, re
 
-import utils, search
+import utils, search, httputil
 import htmlrends, comments
 
 # This exception is raised to signal that we want the rendering to
@@ -337,6 +337,215 @@ def allpagesunder(rend, args):
 		pagelist_paths_rel(rend, rp, dp.path)
 	return True
 register("AllPagesUnder", allpagesunder)
+
+# Like link_to_tm, but for a directory page instead of the current page.
+# This is required for table_page_titles because the page we are
+# rendering is not a directory.
+def link_to_tm_root(context, dp, tm, plain = None):
+	suf = "%d/%02d/%02d" % (tm.tm_year, tm.tm_mon, tm.tm_mday)
+	if not plain:
+		plain = suf
+	page = context.model.get_virtual_page(dp, suf)
+	return htmlrends.makelink(plain, context.url(page))
+
+# Render a list of pages with their titles, as with blog::titles.
+# The page list is in the desired order already. We may or may not
+# include dates.
+# TODO: this duplication is code smell.
+def table_page_titles(rend, dp, plist, dodates):
+	# Building a table is unfortunately much more complicated
+	# than a <dl> would be, because we have to use <br> to separate
+	# multiple entries for the same day instead of <td>, which means
+	# that we have to keep track of when we need to generate one and
+	# so on.
+	rl = ['<table class="blogtitles">\n',]
+	lday = None
+	rootpath = dp.path
+	# Rather than directly use a wikirend routine by importing
+	# it, we indirect through the renderer registration. Since
+	# either way we know a wikirend name, I figure this is no
+	# worse.
+	rfunc = htmlrends.get_renderer("wikitext:title:nolinks")
+	for path in plist:
+		# FIXME: this duplication is code smell.
+		np = rend.mod.get_page(path)
+		ts = np.timestamp
+
+		# Do we need to generate a new row for a new day?
+		# Our basic running state is that we are always in
+		# a <td> for page links (except right at the start),
+		# so we must close it off et cetera and then reopen
+		# it.
+		# This only applies if we are doing dates.
+		t = time.localtime(ts)
+		plain = "%d-%02d-%02d" % (t.tm_year, t.tm_mon, t.tm_mday)
+		if dodates and plain != lday:
+			if lday:
+				# Not first entry ever, so close off
+				# the last day table row.
+				rl.append("\n</td> </tr>\n")
+			rl.append("<tr> <td> %s: </td> <td>\n" % \
+				  link_to_tm_root(rend.ctx, dp, t, plain))
+			lday = plain
+		elif not dodates:
+			# lday being non-None is our signal that we aren't
+			# on the first row.
+			if lday:
+				rl.append(" </td> </tr>\n")
+			rl.append("<tr> <td> ")
+			lday = "yes"
+		else:
+			# If we are the second or later entry for a
+			# given day, we must put a <br> between ourselves
+			# and the previous entry.
+			rl.append("<br>\n")
+
+		# As usual, we must work in a new context.
+		nc = rend.ctx.clone_to_page(np)
+		ltitle = rfunc(nc)
+		if not ltitle:
+			ltitle = httputil.quotehtml(path[len(rootpath)+1:])
+		# We can't use htmlrends.makelink() because that would
+		# quote the live HTML in real titles.
+		rl.append('    <a href="%s">%s</a>' % \
+			  (rend.ctx.nurl(np), ltitle))
+	# Done all; close off the <table>
+	rl.append('\n</td></tr></table>\n')
+	return ''.join(rl)
+
+def gen_slug_re(wlist):
+	# DWiki supports names like, well, 'DWiki', and in this case we
+	# want to match if we're given 'Wiki'. Partly this is from Chris's
+	# common usage, where leading caps have become common in titles.
+	# We match all words using brute force, ie '|'.
+	try:
+		return re.compile(r"(?:\b|[-a-z0-9A-Z])(%s)(?:\b|[-A-Z])" % "|".join(wlist))
+	except re.error:
+		# There's not much we can do here except punt.
+		return None
+
+# TODO: Should we use re.escape() on the words? Not doing so allows
+# for certain sorts of useful tricks, like 'match at end of page
+# name', but perhaps that is too tricky, and we implicitly escape
+# other searching (it's done in search.py). Using re.escape would
+# also avoid running into exceptions during re building.
+def matchingpagesunder(rend, args):
+	"""List all pages under a particular directory if their page
+	name contains a word in the provided word list. Usage is
+	_!{{MatchingPagesUnder:directory:match ....:option ...:exclude ...}}_;
+	the third and fourth arguments are optional and may be blank or
+	omitted.
+	Page names are shown relative to the directory (eg 'fred'
+	instead of 'blog/fred' if blog is the directory). By default,
+	pages are shown in reverse chronological order. The optional
+	third argument sets various options, and may include '_c[hron]_'
+	for the default reverse chronological order, '_+c[hron]_' for
+	forward chronological order, '_a[lpha]_' for alpbahetical order
+	based on the page name, '_t[able]_' for a table display similar
+	to what _TitleIndex_ shows, and '_u[tilstoo]_' to include utility
+	pages in the results.  Without the '_t_' option, this may be
+	used with _PTitles_ or _Striped_, although use with _PTitles_
+	doesn't change the alphabetical sort to use the titles; it is
+	still based on page names.
+	"""
+	if len(args) < 2 or len(args) > 4:
+		return False
+
+	dp = page_from_arg(rend, args[0])
+	if dp.type != "dir":
+		return False
+
+	# We might wind up with only whitespace in a perverse situation.
+	# If so, reject things now.
+	alist = args[1].split()
+	if not alist:
+		return False
+	rexp = gen_slug_re(alist)
+	if rexp is None:
+		return False
+
+	# Scan options, if any.
+	# TODO: this is kind of messy.
+	chronol = True
+	rever = False
+	dotbl = False
+	inclutil = False
+	if len(args) >= 3:
+		olist = args[2].split()
+		for i in olist:
+			if i == 'c' or i == 'chron':
+				chronol = True
+				rever = False
+			elif i == '+c' or i == '+chron':
+				chronol = True
+				rever = True
+			elif i == 'a' or i == 'alpha':
+				chronol = False
+				rever = False
+			elif i == 't' or i == 'table':
+				dotbl = True
+			elif i == 'u' or i == 'utilstoo':
+				inclutil = True
+			else:
+				return False
+
+	# Generate the exclusion list, if one is supplied.
+	excl = None
+	if len(args) >= 4:
+		elist = args[3].split()
+		if elist:
+			excl = gen_slug_re(elist)
+			if excl is None:
+				return False
+
+	rend.markComplex()
+	# We don't try to set a timestamp, because there are too many
+	# variables about what's included here.
+	rend.ctx.unrel_time()
+
+	# This always returns a list.
+	rl = rend.ctx.cache_page_children(dp)
+	# Winnow down the list to things that match, then sort the
+	# result if called for.
+	rp = [z for z in rl if rexp.search(z[1])]
+	if excl is not None:
+		rp = [z for z in rp if not excl.search(z[1])]
+	if chronol:
+		utils.sort_timelist(rp)
+		r2 = [z[1] for z in rp]
+		if rever:
+			r2.reverse()
+	else:
+		# Alphabetical sorting cannot be reversed.
+		r2 = [z[1] for z in rp]
+		r2.sort()
+
+	# Exclude alias and redirect pages, for fuzzy reasons, as
+	# well as utility pages and pages that we can't access.
+	# This is definitely tuned to the intended uses of this macro.
+	# These checks should be okay because we assume that our page
+	# list is generally small.
+	# TODO: Should we exclude ourself?
+	def _shouldshow(path):
+		np = rend.mod.get_page(path)
+		return np.realpage() and \
+			(inclutil or not np.is_util()) and \
+			np.access_ok(rend.ctx)
+	r2 = [z for z in r2 if _shouldshow(z)]
+	if r2:
+		if dotbl:
+			res = table_page_titles(rend, dp, r2, chronol)
+			if not res:
+				return False
+			rend.addPiece(res)
+		elif rend.useLists and dp.path:
+			pagelist_paths_rel(rend, r2, dp.path)
+		elif rend.useLists:
+			pagelist_paths(rend, r2)
+		else:
+			pagelist_names(rend, r2)
+	return True
+register("MatchingPagesUnder", matchingpagesunder)
 
 # Search for references to thing(s)
 def listrefs(rend, args):

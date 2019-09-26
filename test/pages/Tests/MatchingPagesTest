@@ -1,0 +1,50 @@
+= Match pages with titles.
+
+This should match /Tests/Restricted* and only show accessible pages
+in reverse chronological order.
+
+{{PTitles:MatchingPagesUnder:/Tests:Restricted}}
+
+Forward chronological:
+{{PTitles:MatchingPagesUnder:/Tests:Restricted:+c}}
+
+Also: {{MatchingPagesUnder:/Tests:Restricted}}
+
+Also: {{Striped:MatchingPagesUnder:/Tests:Restricted:a}}, which should be
+alphabetically ordered.
+
+Now for multiple match options:
+{{MatchingPagesUnder:/Tests:Link Image Para:a}}
+
+------
+How about lists? Matching /Tests with List in the title.
+
+{{PTitles:MatchingPagesUnder:/Tests:List}}
+
+This should not include ParaNumberedLists, which only matches 'Lists'.
+
+-------
+Here's a bigger test, matching 'Wiki' across all of the pages.
+
+{{PTitles:MatchingPagesUnder:/:Wiki}}
+
+Also: {{MatchingPagesUnder:/:Wiki:a}}
+
+Also: {{Striped:MatchingPagesUnder:/:Wiki:a}}
+
+Excluding DWikiText (in theory):
+{{Striped:MatchingPagesUnder:/:Wiki:a:DWikiText}}
+
+--------
+Does a bad regexp fail? {{MatchingPagesUnder:/:AB[de-}}
+
+--------
+Rendering results as tables.
+
+{{MatchingPagesUnder:/:Wiki:t}}
+
+Also:
+{{MatchingPagesUnder:/Tests:Link Image Para:t}}
+
+Now alpha:
+{{MatchingPagesUnder:/:Wiki:a t}}
