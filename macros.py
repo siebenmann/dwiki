@@ -813,14 +813,18 @@ register_text("AB", showabbr, 2)
 # Images. This is vaguely evil.
 def showimage(rend, args):
 	"""Generate an inline image. Usage is
-	_!{{IMG:<loc> width height alt text ...}}_. If the location is not
-	absolute (http:, https:, or starts with a /) it is taken as a
-	location relative to the DWiki _staticurl_ directory. The location
-	cannot include spaces; % encode them if necessary. After the first
-	time you use an image, specifying the width, height, and alt text
-	is optional; if not specified, they default to the last values.
-	If the alt text contains '_ ||| _', it is split there to be alt
-	text (before) and title text (afterwards)."""
+	_!{{IMG:<loc> width height alt text ...}}_, where the height
+	should normally be '_auto_', which set the image so that it will
+	automatically scale down for the browser width in modern CSS
+	environments. If the location is not absolute (http:, https:,
+	or starts with a /) it is taken as a location relative to the
+	DWiki _staticurl_ directory. The location cannot include spaces; %
+	encode them if necessary. After the first time you use an image,
+	specifying the width, height, and alt text is optional; if not
+	specified, they default to the last values.  If the alt text
+	contains '_ ||| _', it is split there to be alt text (before)
+	and title text (afterwards). The title text is what browsers
+	show when you hover over the image."""
 	if len(args) != 1:
 		return False
 	sr = args[0].split(None, 3)
