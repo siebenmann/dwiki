@@ -67,8 +67,10 @@ def clean_utm(qdict):
 		# 'from=timeline&isappinstalled=0' stuff, probably from some
 		# Twitter client or site.
 		# 'fbclid' is from Facebook, of course. Sigh.
+		# 2021-02-15: hss_channel=tw-<number> is from somewhere.
 		if k.startswith("utm_") or k.startswith("_utm_") or \
-		   k in ("buffer_share", "_", "platform", "ref", "source", "from", "isappinstalled", "fbclid", "hmsr", "mkt_tok"):
+		   k.startswith("hss_") or \
+		   k in ("buffer_share", "_", "platform", "ref", "source", "from", "isappinstalled", "fbclid", "hmsr", "mkt_tok", "_lrsc", "s"):
 			del qdict[k]
 			utm_seen = True
 	return utm_seen
