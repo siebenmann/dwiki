@@ -752,7 +752,9 @@ def prevnexttitle(context, idx):
 	title = wikirend.nolinkstitlerend(nc)
 	if not title:
 		title = pg.path[len(rpath)+1:]
-	return '<a href="%s">%s</a>' % (context.nurl(pg), title)
+	direction = {0: "prev", 1: "next"}[idx]
+	return '<a rel="%s" href="%s">%s</a>' % (direction,
+						 context.nurl(pg), title)
 def prevtitle(context):
 	"""Create a link to the previous page (if one exists) for the
 	current page if the current page is in a blog directory but is
